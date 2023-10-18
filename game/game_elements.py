@@ -60,4 +60,5 @@ class Action(GameElement, ABC):
         pass
 
     def show_result(self):
-        print(self.result)
+        if self.result:
+            print(self.result)

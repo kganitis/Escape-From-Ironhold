@@ -1,6 +1,5 @@
 # actions.py module
-from game.game_elements import get_game_element
-from game_elements import Action
+from game.game_elements import get_game_element, Action
 
 
 class Use(Action):
@@ -8,8 +7,9 @@ class Use(Action):
         name = "use"
         description = "Use an item"
         super().__init__(name, description)
-        if isinstance(items, list):
-            pass  # combine items instead
+        if isinstance(items, list):  # if two or more items, execute combine instead
+            action = Combine(items)
+            action.execute()
         else:
             self.item = items  # the item to be used
 
@@ -27,8 +27,10 @@ class Combine(Action):
             raise ValueError("Items must be provided as a list.")
         self.items = items  # the items to be combined
 
+        # convert item name strings to item instances found in game elements repository
+        self.items = [get_game_element(item) for item in items]
+
         # TODO check if items list contains valid game items
-        items = [get_game_element(item) for item in items]
 
     def attempt(self):
         self.result = self.items[0].combine(self.items[1])

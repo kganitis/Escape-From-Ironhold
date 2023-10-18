@@ -1,6 +1,6 @@
 # locations.py module
 from game.items import Lock
-from game_elements import Location
+from game.game_elements import Location
 
 
 class Cell(Location):

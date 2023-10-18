@@ -1,4 +1,6 @@
 # command.py module
+from game.actions import Use, Combine
+
 
 # Quantifier functions
 # Check if an arguments list contains certain element count
@@ -52,6 +54,9 @@ class Command:
             args = []
         self.args = args
 
+    def __str__(self):
+        return f"{self.verb} {' '.join(self.args)}"
+
     def __is_valid_verb(self):
         valid_verbs = get_available_command_verbs()
         is_valid_verb = self.verb in valid_verbs
@@ -74,6 +79,6 @@ class Command:
                 action = action_class(self.args)
                 action.execute()
             else:
-                print(f"Action not found: {self.verb} {' '.join(self.args)}")
+                print(f"Action not found: {self}")
         else:
-            print(f"Invalid command: {self.verb} {' '.join(self.args)}")
+            print(f"Invalid command: {self}")

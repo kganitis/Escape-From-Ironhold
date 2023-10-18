@@ -4,7 +4,7 @@ from game.game_elements import Item
 
 class LockPick(Item):
     def __init__(self):
-        name = "lock pick"
+        name = "lockpick"
         description = "A simple lock pick that could be useful for picking locks."
         super().__init__(name, description)
         self.chance_to_break = 0.2
