@@ -1,7 +1,5 @@
 # game_elements.py module
-from abc import ABC, abstractmethod
-
-from game.result import Result
+from abc import ABC
 
 # A repository to hold every game element created
 # Using the element's name, we'll be able to retrieve the instance of the game element
@@ -49,12 +47,3 @@ class Location(GameElement, ABC):
         if items is None:
             items = []
         self.items = items  # All the items that can be found in this location
-
-
-class Action(GameElement, ABC):
-    def __init__(self, name, description):
-        super().__init__(name, description)
-
-    @abstractmethod
-    def execute(self):
-        pass

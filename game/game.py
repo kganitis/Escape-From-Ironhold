@@ -15,19 +15,24 @@ class Game:
         print("Escape From Ironhold: Prison Cell")
         self.current_location.describe()
         while True:
-            input_command = input("What do you want to do? (type 'help' for commands): ").lower()
+            print("\nWhat do you want to do? (type 'help' for commands)")
+            input_command = input("> ").lower()
 
-            # TODO command input string is sent to nlp package for parsing, for now we do it here
+            # TODO send command input string to nlp package for parsing
+
+            # further parse the command to translate it into an in game action
             if input_command == "help":
                 show_available_commands()
+                continue
             elif input_command == "exit":
                 print("Goodbye!")
                 break
             else:
                 result = parse_command(input_command)
 
-                # TODO result is sent to chatbot for processing, for now we print the outcome here
-                print(result.outcome)
+            # TODO send result to chatbot for processing, for now we print the outcome here
+            print()
+            print(result.outcome)
 
 
 def show_available_commands():
