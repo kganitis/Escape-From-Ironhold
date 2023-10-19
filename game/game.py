@@ -1,7 +1,11 @@
 # game.py module
+import csv
+import json
+
 from game.command import get_available_command_verbs, Command
 from game.locations import Cell
 from game.player import Hero
+from tests.generate_command_tree import generate_possible_commands
 
 
 class Game:
@@ -33,6 +37,26 @@ class Game:
             # TODO send result to chatbot for processing, for now we print the outcome here
             print()
             print(result.outcome)
+
+    @staticmethod
+    def test_run():
+        # Collect the results from all possible commands
+        results = [parse_command(command) for command in generate_possible_commands()]
+
+        # Save results to JSON file
+        with open('results.json', 'w') as json_file:
+            json.dump([result.__dict__ for result in results], json_file, indent=4)
+            print("Successfully created results.json in the tests package")
+            json_file.close()
+
+        # Save results to CSV file
+        with open('results.csv', 'w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=results[0].__dict__.keys())
+            writer.writeheader()
+            for result in results:
+                writer.writerow(result.__dict__)
+            print("Successfully created results.csv in the tests package")
+            csv_file.close()
 
 
 def show_available_commands():

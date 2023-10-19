@@ -39,7 +39,7 @@ class Action:
         items = self.elements  # the items to be combined
 
         # check if items list contains invalid game items
-        invalid_items = [item for item in items if not isinstance(item, Item)]
+        invalid_items = [item.__str__() for item in items if not isinstance(item, Item)]
         if invalid_items:
             return f"Invalid item(s): {', '.join(invalid_items)}"
 
