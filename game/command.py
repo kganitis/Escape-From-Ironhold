@@ -1,5 +1,6 @@
 # command.py module
-from game.actions import Use, Combine
+from game.actions import *
+from game.result import Result
 
 
 # Quantifier functions
@@ -53,6 +54,7 @@ class Command:
         if args is None:
             args = []
         self.args = args
+        self.result = Result(command=f"{self}")
 
     def __str__(self):
         return f"{self.verb} {' '.join(self.args)}"
@@ -77,8 +79,10 @@ class Command:
             action_class = globals().get(self.verb.capitalize())
             if action_class:
                 action = action_class(self.args)
-                action.execute()
+                outcome = action.execute()
             else:
-                print(f"Action not found: {self}")
+                outcome = f"Action not found: {self}"
         else:
-            print(f"Invalid command: {self}")
+            outcome = f"Invalid command: {self}"
+        self.result.outcome = outcome
+        return self.result

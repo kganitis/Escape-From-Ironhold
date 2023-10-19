@@ -1,6 +1,5 @@
 # game.py module
 from game.command import get_available_command_verbs, Command
-from game.items import LockPick
 from game.locations import Cell
 from game.player import Hero
 
@@ -11,8 +10,6 @@ class Game:
         self.hero = Hero()
         self.starting_location = Cell()
         self.current_location = self.starting_location
-
-        self.hero.add_item_to_inventory(LockPick())
 
     def run(self):
         print("Escape From Ironhold: Prison Cell")
@@ -27,7 +24,10 @@ class Game:
                 print("Goodbye!")
                 break
             else:
-                parse_command(input_command)
+                result = parse_command(input_command)
+
+                # TODO result is sent to chatbot for processing, for now we print the outcome here
+                print(result.outcome)
 
 
 def show_available_commands():
@@ -44,7 +44,7 @@ def parse_command(input_command):
         return None  # No input provided
 
     verb = words[0]  # The first word is the verb
-    args = words[1:]  # The rest of the words are arguments
+    args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
 
     command = Command(verb, args)
-    command.execute()
+    return command.execute()

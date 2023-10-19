@@ -7,14 +7,14 @@ class Use(Action):
         name = "use"
         description = "Use an item"
         super().__init__(name, description)
-        if isinstance(items, list):  # if two or more items, execute combine instead
-            action = Combine(items)
-            action.execute()
-        else:
-            self.item = items  # the item to be used
+        self.item = items  # the item to be used
 
-    def attempt(self):
-        pass
+    def execute(self):
+        if isinstance(self.item, list):  # if two or more items, execute combine instead
+            action = Combine(self.item)
+            return action.execute()
+        else:
+            pass
 
 
 class Combine(Action):
@@ -32,10 +32,11 @@ class Combine(Action):
 
         # TODO check if items list contains valid game items
 
-    def attempt(self):
-        self.result = self.items[0].combine(self.items[1])
-        if not self.result:
-            self.result = f"can't combine {self.items[0]} and {self.items[1]}"
+    def execute(self):
+        outcome = self.items[0].combine(self.items[1])
+        if not outcome:
+            outcome = f"can't combine {self.items[0]} and {self.items[1]}"
+        return outcome
 
 
 class Go(Action):
@@ -45,5 +46,5 @@ class Go(Action):
         super().__init__(name, description)
         self.new_location = another_location
 
-    def attempt(self):
+    def execute(self):
         pass

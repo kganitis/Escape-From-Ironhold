@@ -1,6 +1,11 @@
 # game_elements.py module
 from abc import ABC, abstractmethod
 
+from game.result import Result
+
+# A repository to hold every game element created
+# Using the element's name, we'll be able to retrieve the instance of the game element
+# Useful for matching command arguments to actual instances of game elements
 game_elements_repository = {}
 
 
@@ -17,7 +22,7 @@ class GameElement(ABC):
     def __init__(self, name, description):
         self.name = name
         self.description = description
-        update_game_elements_repository(self)
+        update_game_elements_repository(self)  # add every game element created in the repository
 
     def __str__(self):
         return self.name
@@ -49,16 +54,7 @@ class Location(GameElement, ABC):
 class Action(GameElement, ABC):
     def __init__(self, name, description):
         super().__init__(name, description)
-        self.result = None
-
-    def execute(self):
-        self.attempt()
-        self.show_result()
 
     @abstractmethod
-    def attempt(self):
+    def execute(self):
         pass
-
-    def show_result(self):
-        if self.result:
-            print(self.result)

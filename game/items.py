@@ -11,12 +11,14 @@ class LockPick(Item):
 
     def combine(self, item):
         if isinstance(item, Lock):
-            # TODO chance to fail depending on lock difficulty
-            result = item.toggle_locked()
-            # TODO chance for lock pick to break
+            if item.locked:
+                item.locked = False
+                outcome = "lock unlocked with lockpick"
+            else:
+                outcome = "lock already unlocked"
         else:
-            result = False
-        return result
+            outcome = False
+        return outcome
 
 
 class Lock(Item):
@@ -26,9 +28,3 @@ class Lock(Item):
         super().__init__(name, description)
         self.locked = locked
         self.difficulty = 0.1
-
-    def toggle_locked(self):
-        self.locked = not self.locked
-        state = "locked" if self.locked else "unlocked"
-        result = f"lock {state}"
-        return result
