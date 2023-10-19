@@ -1,0 +1,51 @@
+{
+    "hypernyms": {
+        "look": [],
+        "examine": [],
+        "go": [],
+        "take": [],
+        "use": [],
+        "combine": []
+    },
+    "hyponyms": {
+
+        "look": [
+            "look_around.v.01",
+            "take_a_look.v.01"
+        ],
+        "examine": [
+            "check.v.01",
+            "investigate.v.01"
+        ],
+        "go": [
+            "advance.v.01",
+            "proceed.v.02",
+            "step.v.01",
+            "travel.v.04",
+            "walk.v.01",
+            "head.v.01",
+            "wander.v.03",
+            "march.v.01",
+            "step.v.07",
+            "move.v.01"
+        ],
+        "take": [
+            "collect.v.02",
+            "pocket.v.01",
+            "take_away.v.04",
+            "get.v.04",
+            "grab.v.01"
+        ],
+        "use": [
+            "put.v.04"
+        ]
+    },
+    "word_senses": {
+        "examine": "analyze.v.01",
+        "go": "travel.v.01",
+        "look": "look.v.01",
+        "take": "take.v.08",
+        "use": "use.v.01",
+        "combine": "combine"
+    }
+}
