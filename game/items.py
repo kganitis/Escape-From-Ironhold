@@ -9,7 +9,8 @@ class LockPick(Item):
         super().__init__(name, description)
         self.chance_to_break = 0.2
 
-    def combine(self, item):
+    @classmethod
+    def combine(cls, item):
         if isinstance(item, Lock):
             if item.locked:
                 item.locked = False
