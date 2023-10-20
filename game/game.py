@@ -1,26 +1,47 @@
 # game.py module
-import csv
-import json
-
-from game.command import get_available_command_verbs, Command
+from game.command import get_available_command_verbs
 from game.locations import Cell
 from game.player import Hero
 from tests.generate_command_tree import generate_possible_commands
 
 
 class Game:
-    def __init__(self):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Game, cls).__new__(cls)
+            cls._instance.initialize()
+        return cls._instance
+
+    # noinspection PyAttributeOutsideInit
+    def initialize(self):
+        # A repository to hold every game element created
+        # Using the element's name, we'll be able to retrieve the instance of the game element
+        # Useful for matching command arguments to actual instances of game elements
+        self.game_elements_repository = {}
+
         # Initialize game elements here
         self.hero = Hero()
         self.starting_location = Cell()
         self.current_location = self.starting_location
+
+    def reset(self):
+        # Reset the game state to initial values
+        self.initialize()
+
+    def update_game_elements_repository(self, game_element):
+        self.game_elements_repository[game_element.name] = game_element
+
+    def get_game_element(self, game_element_name):
+        return self.game_elements_repository.get(game_element_name, game_element_name)
 
     def run(self):
         print("Escape From Ironhold: Prison Cell")
         self.current_location.describe()
         while True:
             print("\nWhat do you want to do? (type 'help' for commands)")
-            input_command = input("> ").lower()
+            input_command = input("> ").strip().lower()
 
             # TODO send command input string to nlp package for parsing
 
@@ -31,32 +52,22 @@ class Game:
             elif input_command == "exit":
                 print("Goodbye!")
                 break
+            elif input_command == '':
+                print("Empty input!")
+                continue
             else:
                 result = parse_command(input_command)
 
             # TODO send result to chatbot for processing, for now we print the outcome here
-            print()
-            print(result.outcome)
+            print("\n" + result.outcome)
 
-    @staticmethod
-    def test_run():
-        # Collect the results from all possible commands
-        results = [parse_command(command) for command in generate_possible_commands()]
-
-        # Save results to JSON file
-        with open('results.json', 'w') as json_file:
-            json.dump([result.__dict__ for result in results], json_file, indent=4)
-            print("Successfully created results.json in the tests package")
-            json_file.close()
-
-        # Save results to CSV file
-        with open('results.csv', 'w', newline='') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=results[0].__dict__.keys())
-            writer.writeheader()
-            for result in results:
-                writer.writerow(result.__dict__)
-            print("Successfully created results.csv in the tests package")
-            csv_file.close()
+    # Collect the results from all possible commands
+    def generate_possible_results(self):
+        results = []
+        for command in generate_possible_commands():
+            results.append(parse_command(command))
+            self.reset()
+        return results
 
 
 def show_available_commands():
@@ -65,15 +76,14 @@ def show_available_commands():
 
 
 def parse_command(input_command):
-    # convert input_command to a command instance
-
     # Split the command into words
-    words = input_command.lower().split()
+    words = input_command.split()
     if not words:
-        return None  # No input provided
+        return None
 
     verb = words[0]  # The first word is the verb
     args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
 
+    from game.command import Command
     command = Command(verb, args)
     return command.execute()

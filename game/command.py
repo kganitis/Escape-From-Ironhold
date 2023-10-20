@@ -1,10 +1,9 @@
 # command.py module
-from game.actions import *
 from game.result import Result
 
 
 # Quantifier functions
-# Check if an arguments list contains certain element count
+# Check if an arguments list contains certain arguments count
 # Used to ensure that a command is followed by a valid count of arguments
 def __args_count_is_at_most(args, quantity):  # useful to represent the '?' quantifier, meaning 0 or 1
     return len(args) <= quantity
@@ -63,6 +62,11 @@ _available_commands = {
         "description": "Wait for some hours.",
         "syntax": "wait"
     },
+    "inventory": {
+        "rule": (__args_count_is_exactly, 0),
+        "description": "Show player's inventory of items.",
+        "syntax": "inventory"
+    },
     "help": {
         "rule": (__args_count_is_exactly, 0),
         "description": "Get assistance or see available commands.",
@@ -120,6 +124,7 @@ class Command:
 
     def execute(self):
         if self.__is_valid():
+            from game.actions import Action
             outcome = Action(self).execute()
         else:
             outcome = f"Invalid command: {self}"

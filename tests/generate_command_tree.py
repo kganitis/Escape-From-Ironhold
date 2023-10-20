@@ -1,7 +1,6 @@
 from itertools import product
 
 from game.command import get_available_command_verbs
-from game.game_elements import game_elements_repository
 
 
 def generate_possible_commands():
@@ -9,7 +8,8 @@ def generate_possible_commands():
     available_commands = get_available_command_verbs()
 
     # Get game element names from the game elements repository
-    game_element_names = list(game_elements_repository.keys())
+    from game.game import Game
+    game_element_names = list(Game().game_elements_repository.keys())
 
     # Initialize a list to store all possible commands
     possible_commands = []
