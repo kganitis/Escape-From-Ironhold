@@ -22,7 +22,7 @@ words_in_quote = lexicon_instance.tokenize(worf_quote)
 print(words_in_quote)
 
 # Access the 'stops' dictionary from the Lexicon instance
-stop_words = lexicon_instance.vocab["stop"]
+stop_words = lexicon_instance.vocab["stops"]
 
 filtered_list = []
 
