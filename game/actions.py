@@ -32,6 +32,9 @@ class Action:
         outcome = False
         if isinstance(object_to_use, Usable):
             outcome = object_to_use.use()
+        # if not usable, try to combine it
+        elif isinstance(object_to_use, Combinable):
+            outcome = object_to_use.combine()
         if not outcome:
             outcome = f"Can't use {object_to_use}"
         return outcome
@@ -39,7 +42,7 @@ class Action:
     def combine(self):
         items_to_combine = self.game_elements
         item1 = items_to_combine[0]
-        item2 = items_to_combine[1]
+        item2 = items_to_combine[1] if len(items_to_combine) > 1 else None
 
         invalid_items = [f"{item}" for item in items_to_combine if not isinstance(item, Item)]
         if invalid_items:

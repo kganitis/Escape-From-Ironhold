@@ -9,12 +9,14 @@ class LockPick(Item, Combinable):
         description = "A simple lock pick that could be useful for picking locks."
         super().__init__(name, description)
 
-    def combine(self, item):
+    def combine(self, item=None):
+        if not item:
+            return self.none_item_error
         if isinstance(item, Lock):
             lock = item
             if lock.locked:
                 lock.locked = False
-                outcome = "lock unlocked with lockpick"
+                outcome = ("lock unlocked with lockpick", "yes")
             else:
                 outcome = "lock already unlocked"
         else:
@@ -22,9 +24,22 @@ class LockPick(Item, Combinable):
         return outcome
 
 
-class Lock(Item):
+class Lock(Item, Combinable):
     def __init__(self, locked):
         name = "lock"
         description = "A simple lock that can could be unlocked with a lock pick, if I had one..."
         super().__init__(name, description)
         self.locked = locked
+
+    def combine(self, item=None):
+        if not item:
+            return self.none_item_error
+        if isinstance(item, LockPick):
+            if self.locked:
+                self.locked = False
+                outcome = ("lock unlocked with lockpick", "yes")
+            else:
+                outcome = "lock already unlocked"
+        else:
+            outcome = False
+        return outcome

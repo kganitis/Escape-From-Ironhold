@@ -16,7 +16,7 @@ class GameElement(ABC):
         return self.name
 
     def describe(self):
-        print(self.description)
+        pass
 
 
 # All game elements are further represented by abstract classes
@@ -28,6 +28,7 @@ class Player(GameElement, ABC):
 class Item(GameElement, ABC):
     def __init__(self, name, description):
         super().__init__(name, description)
+        self.none_item_error = "Must be combined with something else"
 
 
 class Location(GameElement, Accessible, ABC):
@@ -59,7 +60,7 @@ class Location(GameElement, Accessible, ABC):
                 outcome = blocked
             else:
                 Game().current_location = self
-                outcome = f"Accessed the {self}"
+                outcome = (f"Accessed the {self}", "yes")
         return outcome
 
 
@@ -67,7 +68,7 @@ class LocationConnection(GameElement, ABC):
     def __init__(self, name, description):
         super().__init__(name, description)
         self.connected_locations = []
-        self.items = []  # Items found to this location connection
+        self.items = []  # Items found in this location connection
 
     def is_blocked(self):
         outcome = f"{self} is blocked"

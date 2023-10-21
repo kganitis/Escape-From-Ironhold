@@ -65,11 +65,26 @@ class Game:
             print("\n" + result.outcome)
 
     # Collect the results from all possible commands
-    def generate_possible_results(self):
-        results = []
-        for command in generate_possible_commands():
-            results.append(parse_command(command))
+    def generate_all_possible_results(self, max_depth, current_depth=1, results=None):
+        if results is None:
+            results = []
+
+        if current_depth > max_depth:
+            return results
+
+        possible_commands = generate_possible_commands()
+
+        for command in possible_commands:
+            result = parse_command(command)
             self.reset()
+
+            if result.advance == "yes":
+                results.append({"command": command, "result": result})
+
+                # Recursively explore deeper levels
+                deeper_results = self.generate_all_possible_results(max_depth, current_depth + 1, results)
+                results.extend(deeper_results)
+
         return results
 
 

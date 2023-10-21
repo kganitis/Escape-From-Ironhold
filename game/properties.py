@@ -10,7 +10,7 @@ class Usable(ABC):
 
 class Combinable(ABC):
     @abstractmethod
-    def combine(self, item):
+    def combine(self, item=None):
         pass
 
 

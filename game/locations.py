@@ -6,7 +6,7 @@ from game.location_connections import Door
 class Cell(Location):
     def __init__(self):
         name = "cell"
-        description = "A prison cell."
+        description = "A dimly lit prison cell."
         super().__init__(name, description)
         cell_door = Door(name="door", description="A heavy wooden cell door.")
         dungeon = Dungeon()

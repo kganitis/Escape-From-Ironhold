@@ -41,9 +41,10 @@ _available_commands = {
         "syntax": "use {item}+|{location_connection}+"
     },
     "combine": {
-        "rule": (__args_count_is_at_least, 2),
+        # it's allowed to follow combine with only one item, but will always lead to an error message from the narrator
+        "rule": (__args_count_is_at_least, 1),
         "description": "Combine two or more items.",
-        "syntax": "combine {item} {item}+"
+        "syntax": "combine {item}+"
     },
     "talk": {
         "rule": (__args_count_is_exactly, 1),
@@ -127,5 +128,9 @@ class Command:
             outcome = Action(self).execute()
         else:
             outcome = f"Invalid command: {self}"
-        self.result.outcome = outcome
+        if isinstance(outcome, tuple):
+            self.result.outcome = outcome[0]
+            self.result.advance = outcome[1]
+        else:
+            self.result.outcome = outcome
         return self.result

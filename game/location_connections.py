@@ -24,7 +24,7 @@ class Door(LocationConnection, Usable):
             return self.is_blocked()
         self.open = not self.open
         if self.open:
-            outcome = f"You opened the {self}"
+            outcome = (f"You opened the {self}", "yes")
         else:
-            outcome = f"You closed the {self}"
+            outcome = (f"You closed the {self}", "yes")
         return outcome
