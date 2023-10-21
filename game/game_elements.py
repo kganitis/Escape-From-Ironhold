@@ -1,15 +1,7 @@
 # game_elements.py module
-from abc import ABC, abstractmethod
+from abc import ABC
 
-game_elements_repository = {}
-
-
-def update_game_elements_repository(game_element):
-    game_elements_repository[game_element.name] = game_element
-
-
-def get_game_element(name):
-    return game_elements_repository[name]
+from game.properties import Accessible
 
 
 # Define a common parent class for all game elements (locations, items, actions etc.)
@@ -17,48 +9,67 @@ class GameElement(ABC):
     def __init__(self, name, description):
         self.name = name
         self.description = description
-        update_game_elements_repository(self)
+        from game.game import Game
+        Game().update_game_elements_repository(self)  # add every game element created in the repository
 
     def __str__(self):
         return self.name
 
     def describe(self):
-        print(self.description)
+        pass
 
 
 # All game elements are further represented by abstract classes
 class Player(GameElement, ABC):
     def __init__(self, name, description):
         super().__init__(name, description)
-        self.inventory = []  # Initialize an empty inventory for the player
 
 
 class Item(GameElement, ABC):
     def __init__(self, name, description):
         super().__init__(name, description)
+        self.none_item_error = "Must be combined with something else"
 
 
-class Location(GameElement, ABC):
-    def __init__(self, name, description, items=None):
-        super().__init__(name, description)
-        if items is None:
-            items = []
-        self.items = items  # All the items that can be found in this location
-
-
-class Action(GameElement, ABC):
+class Location(GameElement, Accessible, ABC):
     def __init__(self, name, description):
         super().__init__(name, description)
-        self.result = None
+        self.items = []  # All the items that can be found in this location
+        self.location_connections = []  # All the location connections for this location
 
-    def execute(self):
-        self.attempt()
-        self.show_result()
+    def connected_locations(self):
+        return [location for connection in self.location_connections for location in connection if location != self]
 
-    @abstractmethod
-    def attempt(self):
-        pass
+    def get_connection_to(self, location):
+        connection = None
+        for location_connection in self.location_connections:
+            for connected_location in location_connection.connected_locations:
+                if connected_location == location:
+                    connection = location_connection
+        return connection
 
-    def show_result(self):
-        if self.result:
-            print(self.result)
+    def go(self):
+        from game.game import Game
+        current_location = Game().current_location
+        connection_to_current_location = self.get_connection_to(current_location)
+        if not connection_to_current_location:
+            outcome = f"Can't access {self} from {current_location}"
+        else:
+            blocked = connection_to_current_location.is_blocked()
+            if blocked:
+                outcome = blocked
+            else:
+                Game().current_location = self
+                outcome = (f"Accessed the {self}", "yes")
+        return outcome
+
+
+class LocationConnection(GameElement, ABC):
+    def __init__(self, name, description):
+        super().__init__(name, description)
+        self.connected_locations = []
+        self.items = []  # Items found in this location connection
+
+    def is_blocked(self):
+        outcome = f"{self} is blocked"
+        return outcome

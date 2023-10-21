@@ -1,49 +1,70 @@
 # actions.py module
-from game.game_elements import get_game_element, Action
+from game.game_elements import Item, Location, LocationConnection
+from game.properties import *
 
 
-class Use(Action):
-    def __init__(self, items):
-        name = "use"
-        description = "Use an item"
-        super().__init__(name, description)
-        if isinstance(items, list):  # if two or more items, execute combine instead
-            action = Combine(items)
-            action.execute()
+class Action:
+    def __init__(self, command):
+        from game.game import Game
+        self.command = command
+        # Convert argument stings to actual instances of game elements, retrieved from game elements repository
+        self.game_elements = [Game().get_game_element(arg) for arg in command.args]
+
+    def execute(self):
+        # Dynamically get the action method corresponding to the command verb string
+        verb = self.command.verb.lower()
+        action = getattr(self, verb, None)
+        if action and callable(action):
+            outcome = action()
+            return outcome
         else:
-            self.item = items  # the item to be used
+            raise ValueError(f"Action not found for verb: {verb}")
 
-    def attempt(self):
-        pass
+    def use(self):
+        two_or_more_elements = len(self.game_elements) >= 2
+        if two_or_more_elements:
+            return self.combine()
 
+        object_to_use = self.game_elements[0]
+        if not (isinstance(object_to_use, Item) or isinstance(object_to_use, LocationConnection)):
+            return f"Invalid object: {object_to_use}"
 
-class Combine(Action):
-    def __init__(self, items):
-        name = "combine"
-        description = "Combine multiple items"
-        super().__init__(name, description)
+        outcome = False
+        if isinstance(object_to_use, Usable):
+            outcome = object_to_use.use()
+        # if not usable, try to combine it
+        elif isinstance(object_to_use, Combinable):
+            outcome = object_to_use.combine()
+        if not outcome:
+            outcome = f"Can't use {object_to_use}"
+        return outcome
 
-        if not isinstance(items, list):
-            raise ValueError("Items must be provided as a list.")
-        self.items = items  # the items to be combined
+    def combine(self):
+        items_to_combine = self.game_elements
+        item1 = items_to_combine[0]
+        item2 = items_to_combine[1] if len(items_to_combine) > 1 else None
 
-        # convert item name strings to item instances found in game elements repository
-        self.items = [get_game_element(item) for item in items]
+        invalid_items = [f"{item}" for item in items_to_combine if not isinstance(item, Item)]
+        if invalid_items:
+            return f"Invalid item(s): {', '.join(invalid_items)}"
 
-        # TODO check if items list contains valid game items
+        outcome = False
+        if isinstance(item1, Combinable):
+            outcome = item1.combine(item2)
+        elif isinstance(item2, Combinable):
+            outcome = item2.combine(item1)
+        if not outcome:
+            outcome = f"Can't combine {item1} and {item2}"
+        return outcome
 
-    def attempt(self):
-        self.result = self.items[0].combine(self.items[1])
-        if not self.result:
-            self.result = f"can't combine {self.items[0]} and {self.items[1]}"
+    def go(self):
+        location_to_go = self.game_elements[0]
+        if not isinstance(location_to_go, Location):
+            return f"Invalid location: {location_to_go}"
 
-
-class Go(Action):
-    def __init__(self, another_location=None):
-        name = "go"
-        description = "Go to another location"
-        super().__init__(name, description)
-        self.new_location = another_location
-
-    def attempt(self):
-        pass
+        outcome = False
+        if isinstance(location_to_go, Accessible):
+            outcome = location_to_go.go()
+        if not outcome:
+            outcome = f"Can't go to {location_to_go}"
+        return outcome

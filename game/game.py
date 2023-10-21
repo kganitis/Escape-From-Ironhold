@@ -1,33 +1,91 @@
 # game.py module
-from game.command import get_available_command_verbs, Command
-from game.items import LockPick
+from game.command import get_available_command_verbs
 from game.locations import Cell
 from game.player import Hero
+from tests.generate_command_tree import generate_possible_commands
 
 
 class Game:
-    def __init__(self):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Game, cls).__new__(cls)
+            cls._instance.initialize()
+        return cls._instance
+
+    # noinspection PyAttributeOutsideInit
+    def initialize(self):
+        # A repository to hold every game element created
+        # Using the element's name, we'll be able to retrieve the instance of the game element
+        # Useful for matching command arguments to actual instances of game elements
+        self.__game_elements_repository = {}
+
         # Initialize game elements here
         self.hero = Hero()
         self.starting_location = Cell()
         self.current_location = self.starting_location
 
-        self.hero.add_item_to_inventory(LockPick())
+    def reset(self):
+        # Reset the game state to initial values
+        self.initialize()
+
+    def update_game_elements_repository(self, game_element):
+        self.__game_elements_repository[game_element.name] = game_element
+
+    def get_game_element(self, game_element_name):
+        return self.__game_elements_repository.get(game_element_name, game_element_name)
+
+    def get_all_game_elements(self):
+        return self.__game_elements_repository.keys()
 
     def run(self):
         print("Escape From Ironhold: Prison Cell")
         self.current_location.describe()
         while True:
-            input_command = input("What do you want to do? (type 'help' for commands): ").lower()
+            print("\nWhat do you want to do? (type 'help' for commands)")
+            input_command = input("> ").strip().lower()
 
-            # TODO command input string is sent to nlp package for parsing, for now we do it here
+            # TODO send command input string to nlp package for parsing
+
+            # further parse the command to translate it into an in game action
             if input_command == "help":
                 show_available_commands()
+                continue
             elif input_command == "exit":
                 print("Goodbye!")
                 break
+            elif input_command == '':
+                print("Empty input!")
+                continue
             else:
-                parse_command(input_command)
+                result = parse_command(input_command)
+
+            # TODO send result to chatbot for processing, for now we print the outcome here
+            print("\n" + result.outcome)
+
+    # Collect the results from all possible commands
+    def generate_all_possible_results(self, max_depth, current_depth=1, results=None):
+        if results is None:
+            results = []
+
+        if current_depth > max_depth:
+            return results
+
+        possible_commands = generate_possible_commands()
+
+        for command in possible_commands:
+            result = parse_command(command)
+            self.reset()
+
+            if result.advance == "yes":
+                results.append({"command": command, "result": result})
+
+                # Recursively explore deeper levels
+                deeper_results = self.generate_all_possible_results(max_depth, current_depth + 1, results)
+                results.extend(deeper_results)
+
+        return results
 
 
 def show_available_commands():
@@ -36,15 +94,14 @@ def show_available_commands():
 
 
 def parse_command(input_command):
-    # convert input_command to a command instance
-
     # Split the command into words
-    words = input_command.lower().split()
+    words = input_command.split()
     if not words:
-        return None  # No input provided
+        return None
 
     verb = words[0]  # The first word is the verb
-    args = words[1:]  # The rest of the words are arguments
+    args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
 
+    from game.command import Command
     command = Command(verb, args)
-    command.execute()
+    return command.execute()

@@ -1,34 +1,45 @@
 # items.py module
 from game.game_elements import Item
+from game.properties import Combinable
 
 
-class LockPick(Item):
+class LockPick(Item, Combinable):
     def __init__(self):
         name = "lockpick"
         description = "A simple lock pick that could be useful for picking locks."
         super().__init__(name, description)
-        self.chance_to_break = 0.2
 
-    def combine(self, item):
+    def combine(self, item=None):
+        if not item:
+            return self.none_item_error
         if isinstance(item, Lock):
-            # TODO chance to fail depending on lock difficulty
-            result = item.toggle_locked()
-            # TODO chance for lock pick to break
+            lock = item
+            if lock.locked:
+                lock.locked = False
+                outcome = ("lock unlocked with lockpick", "yes")
+            else:
+                outcome = "lock already unlocked"
         else:
-            result = False
-        return result
+            outcome = False
+        return outcome
 
 
-class Lock(Item):
+class Lock(Item, Combinable):
     def __init__(self, locked):
         name = "lock"
         description = "A simple lock that can could be unlocked with a lock pick, if I had one..."
         super().__init__(name, description)
         self.locked = locked
-        self.difficulty = 0.1
 
-    def toggle_locked(self):
-        self.locked = not self.locked
-        state = "locked" if self.locked else "unlocked"
-        result = f"lock {state}"
-        return result
+    def combine(self, item=None):
+        if not item:
+            return self.none_item_error
+        if isinstance(item, LockPick):
+            if self.locked:
+                self.locked = False
+                outcome = ("lock unlocked with lockpick", "yes")
+            else:
+                outcome = "lock already unlocked"
+        else:
+            outcome = False
+        return outcome
