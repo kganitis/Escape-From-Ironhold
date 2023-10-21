@@ -1,4 +1,4 @@
-# attributes.py
+# properties.py
 from abc import ABC, abstractmethod
 
 

@@ -9,7 +9,7 @@ def generate_possible_commands():
 
     # Get game element names from the game elements repository
     from game.game import Game
-    game_element_names = list(Game().game_elements_repository.keys())
+    game_element_names = list(Game().get_all_game_elements())
 
     # Initialize a list to store all possible commands
     possible_commands = []

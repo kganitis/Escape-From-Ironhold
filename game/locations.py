@@ -1,12 +1,22 @@
 # locations.py module
-from game.items import Lock
 from game.game_elements import Location
+from game.location_connections import Door
 
 
 class Cell(Location):
-
     def __init__(self):
         name = "cell"
-        description = "You find yourself in a dimly lit prison cell..."
+        description = "A prison cell."
         super().__init__(name, description)
-        self.items.append(Lock(locked=True))
+        cell_door = Door(name="door", description="A heavy wooden cell door.")
+        dungeon = Dungeon()
+        cell_door.connected_locations.extend([self, dungeon])
+        self.location_connections.append(cell_door)
+        dungeon.location_connections.append(cell_door)
+
+
+class Dungeon(Location):
+    def __init__(self):
+        name = "dungeon"
+        description = "A prison dungeon."
+        super().__init__(name, description)

@@ -1,6 +1,4 @@
 # command.py module
-from game.result import Result
-
 
 # Quantifier functions
 # Check if an arguments list contains certain arguments count
@@ -39,8 +37,8 @@ _available_commands = {
     },
     "use": {
         "rule": (__args_count_is_at_least, 1),
-        "description": "Use an item or perform an action using one or more items.",
-        "syntax": "use {item}+"
+        "description": "Use an object or perform an action using one or more objects.",
+        "syntax": "use {item}+|{location_connection}+"
     },
     "combine": {
         "rule": (__args_count_is_at_least, 2),
@@ -82,7 +80,7 @@ _available_commands = {
 
 def get_available_command_verbs():
     available_command_verbs = _available_commands.keys()
-    available_command_verbs = ["use", "combine"]  # TODO delete this once all commands have been implemented
+    available_command_verbs = ["use", "combine", "go"]  # TODO delete this once all commands have been implemented
     return available_command_verbs
 
 
@@ -96,6 +94,7 @@ def _get_args_count_limitation(verb):
 
 class Command:
     def __init__(self, verb, args=None):
+        from game.result import Result
         self.verb = verb
         # Make sure args is a list
         if args is None:

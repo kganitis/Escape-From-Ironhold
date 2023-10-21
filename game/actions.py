@@ -1,11 +1,11 @@
 # actions.py module
-from game.game import Game
-from game.game_elements import Item
+from game.game_elements import Item, Location, LocationConnection
 from game.properties import *
 
 
 class Action:
     def __init__(self, command):
+        from game.game import Game
         self.command = command
         # Convert argument stings to actual instances of game elements, retrieved from game elements repository
         self.game_elements = [Game().get_game_element(arg) for arg in command.args]
@@ -25,15 +25,15 @@ class Action:
         if two_or_more_elements:
             return self.combine()
 
-        item_to_use = self.game_elements[0]
-        if not isinstance(item_to_use, Item):
-            return f"Invalid item: {item_to_use}"
+        object_to_use = self.game_elements[0]
+        if not (isinstance(object_to_use, Item) or isinstance(object_to_use, LocationConnection)):
+            return f"Invalid object: {object_to_use}"
 
         outcome = False
-        if isinstance(item_to_use, Usable):
-            outcome = item_to_use.use()
+        if isinstance(object_to_use, Usable):
+            outcome = object_to_use.use()
         if not outcome:
-            outcome = f"can't use {item_to_use}"
+            outcome = f"Can't use {object_to_use}"
         return outcome
 
     def combine(self):
@@ -51,6 +51,17 @@ class Action:
         elif isinstance(item2, Combinable):
             outcome = item2.combine(item1)
         if not outcome:
-            outcome = f"can't combine {item1} and {item2}"
+            outcome = f"Can't combine {item1} and {item2}"
         return outcome
 
+    def go(self):
+        location_to_go = self.game_elements[0]
+        if not isinstance(location_to_go, Location):
+            return f"Invalid location: {location_to_go}"
+
+        outcome = False
+        if isinstance(location_to_go, Accessible):
+            outcome = location_to_go.go()
+        if not outcome:
+            outcome = f"Can't go to {location_to_go}"
+        return outcome

@@ -1,6 +1,6 @@
 # items.py module
 from game.game_elements import Item
-from game.properties import *
+from game.properties import Combinable
 
 
 class LockPick(Item, Combinable):

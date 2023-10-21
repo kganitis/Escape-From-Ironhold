@@ -19,7 +19,7 @@ class Game:
         # A repository to hold every game element created
         # Using the element's name, we'll be able to retrieve the instance of the game element
         # Useful for matching command arguments to actual instances of game elements
-        self.game_elements_repository = {}
+        self.__game_elements_repository = {}
 
         # Initialize game elements here
         self.hero = Hero()
@@ -31,10 +31,13 @@ class Game:
         self.initialize()
 
     def update_game_elements_repository(self, game_element):
-        self.game_elements_repository[game_element.name] = game_element
+        self.__game_elements_repository[game_element.name] = game_element
 
     def get_game_element(self, game_element_name):
-        return self.game_elements_repository.get(game_element_name, game_element_name)
+        return self.__game_elements_repository.get(game_element_name, game_element_name)
+
+    def get_all_game_elements(self):
+        return self.__game_elements_repository.keys()
 
     def run(self):
         print("Escape From Ironhold: Prison Cell")
