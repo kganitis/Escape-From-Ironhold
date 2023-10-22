@@ -1,43 +1,22 @@
 # game.py module
-from game.command import get_available_command_verbs
 from game.locations import Cell
 from game.player import Hero
-from tests.generate_command_tree import generate_possible_commands
+from game.command import Command, show_available_commands
+from game.actions import Action
 
 
 class Game:
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(Game, cls).__new__(cls)
-            cls._instance.initialize()
-        return cls._instance
-
-    # noinspection PyAttributeOutsideInit
-    def initialize(self):
+    def __init__(self):
         # A repository to hold every game element created
         # Using the element's name, we'll be able to retrieve the instance of the game element
         # Useful for matching command arguments to actual instances of game elements
-        self.__game_elements_repository = {}
+        self.game_elements_repository = {}
+        self.result_history = []
 
         # Initialize game elements here
-        self.hero = Hero()
-        self.starting_location = Cell()
+        self.hero = Hero(self)
+        self.starting_location = Cell(self)
         self.current_location = self.starting_location
-
-    def reset(self):
-        # Reset the game state to initial values
-        self.initialize()
-
-    def update_game_elements_repository(self, game_element):
-        self.__game_elements_repository[game_element.name] = game_element
-
-    def get_game_element(self, game_element_name):
-        return self.__game_elements_repository.get(game_element_name, game_element_name)
-
-    def get_all_game_elements(self):
-        return self.__game_elements_repository.keys()
 
     def run(self):
         print("Escape From Ironhold: Prison Cell")
@@ -59,49 +38,38 @@ class Game:
                 print("Empty input!")
                 continue
             else:
-                result = parse_command(input_command)
+                result = self.parse(input_command)
 
             # TODO send result to chatbot for processing, for now we print the outcome here
             print("\n" + result.outcome)
 
-    # Collect the results from all possible commands
-    def generate_all_possible_results(self, max_depth, current_depth=1, results=None):
-        if results is None:
-            results = []
+    def parse(self, input_command):
+        # Split the command into words
+        words = input_command.split()
+        if not words:
+            return None
+        verb = words[0]  # The first word is the verb
+        args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
 
-        if current_depth > max_depth:
-            return results
+        # Execute the command
+        command = Command(verb, args)
+        if command.is_valid():
+            outcome = self.execute(command)
+        else:
+            outcome = (f"Invalid command: {command}", False)
 
-        possible_commands = generate_possible_commands()
+        # Update, then return the result
+        command.result.outcome, command.result.advance_game_state = outcome
+        if command.result.advance_game_state:
+            self.result_history.append(command.result)
+        return command.result
 
-        for command in possible_commands:
-            result = parse_command(command)
-            self.reset()
-
-            if result.advance == "yes":
-                results.append({"command": command, "result": result})
-
-                # Recursively explore deeper levels
-                deeper_results = self.generate_all_possible_results(max_depth, current_depth + 1, results)
-                results.extend(deeper_results)
-
-        return results
-
-
-def show_available_commands():
-    print("Available commands:")
-    print(", ".join([command for command in get_available_command_verbs()]))
-
-
-def parse_command(input_command):
-    # Split the command into words
-    words = input_command.split()
-    if not words:
-        return None
-
-    verb = words[0]  # The first word is the verb
-    args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
-
-    from game.command import Command
-    command = Command(verb, args)
-    return command.execute()
+    def execute(self, command):
+        # Convert argument stings to actual instances of game elements, retrieved from game elements repository
+        game_elements = [self.game_elements_repository.get(arg, arg) for arg in command.args]
+        action = Action(command.verb, game_elements)
+        if action.is_executable():
+            outcome = action.execute()
+        else:
+            raise ValueError(f"Action not found for verb: {command.verb}")
+        return outcome if isinstance(outcome, tuple) else (outcome, False)

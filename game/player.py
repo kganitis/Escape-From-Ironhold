@@ -4,10 +4,10 @@ from game.items import LockPick
 
 
 class Inventory(GameElement):
-    def __init__(self):
+    def __init__(self, game):
         name = "inventory"
         description = "Your inventory of items."
-        super().__init__(name, description)
+        super().__init__(game, name, description)
         self.items = []
 
     def add(self, item):
@@ -15,9 +15,9 @@ class Inventory(GameElement):
 
 
 class Hero(Player):
-    def __init__(self):
+    def __init__(self, game):
         name = "Hero"
         description = "You are a brave hero."
-        super().__init__(name, description)
-        self.inventory = Inventory()
-        self.inventory.add(LockPick())
+        super().__init__(game, name, description)
+        self.inventory = Inventory(game)
+        self.inventory.add(LockPick(game))

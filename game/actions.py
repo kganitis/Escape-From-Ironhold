@@ -4,21 +4,13 @@ from game.properties import *
 
 
 class Action:
-    def __init__(self, command):
-        from game.game import Game
-        self.command = command
-        # Convert argument stings to actual instances of game elements, retrieved from game elements repository
-        self.game_elements = [Game().get_game_element(arg) for arg in command.args]
+    def __init__(self, command_verb, game_elements):
+        # Dynamically set the action method corresponding to the command verb string
+        self.execute = getattr(self, command_verb, None)
+        self.game_elements = game_elements
 
-    def execute(self):
-        # Dynamically get the action method corresponding to the command verb string
-        verb = self.command.verb.lower()
-        action = getattr(self, verb, None)
-        if action and callable(action):
-            outcome = action()
-            return outcome
-        else:
-            raise ValueError(f"Action not found for verb: {verb}")
+    def is_executable(self):
+        return self.execute and callable(self.execute)
 
     def use(self):
         two_or_more_elements = len(self.game_elements) >= 2
@@ -26,45 +18,26 @@ class Action:
             return self.combine()
 
         object_to_use = self.game_elements[0]
-        if not (isinstance(object_to_use, Item) or isinstance(object_to_use, LocationConnection)):
+        if not isinstance(object_to_use, (Item, LocationConnection)) or (not isinstance(object_to_use, (Usable, Combinable))):
             return f"Invalid object: {object_to_use}"
 
-        outcome = False
-        if isinstance(object_to_use, Usable):
-            outcome = object_to_use.use()
-        # if not usable, try to combine it
-        elif isinstance(object_to_use, Combinable):
-            outcome = object_to_use.combine()
-        if not outcome:
-            outcome = f"Can't use {object_to_use}"
-        return outcome
+        outcome = object_to_use.use() if isinstance(object_to_use, Usable) else object_to_use.combine()
+        return outcome or f"Can't use {object_to_use}"
 
     def combine(self):
-        items_to_combine = self.game_elements
-        item1 = items_to_combine[0]
-        item2 = items_to_combine[1] if len(items_to_combine) > 1 else None
-
-        invalid_items = [f"{item}" for item in items_to_combine if not isinstance(item, Item)]
+        items_to_combine = self.game_elements[:2]
+        invalid_items = [item for item in items_to_combine if not isinstance(item, Item)]
         if invalid_items:
             return f"Invalid item(s): {', '.join(invalid_items)}"
 
-        outcome = False
-        if isinstance(item1, Combinable):
-            outcome = item1.combine(item2)
-        elif isinstance(item2, Combinable):
-            outcome = item2.combine(item1)
-        if not outcome:
-            outcome = f"Can't combine {item1} and {item2}"
-        return outcome
+        item1, item2 = items_to_combine
+        outcome = item1.combine(item2) or item2.combine(item1)
+        return outcome or f"Can't combine {item1} and {item2}"
 
     def go(self):
         location_to_go = self.game_elements[0]
-        if not isinstance(location_to_go, Location):
+        if not (isinstance(location_to_go, Location) and isinstance(location_to_go, Accessible)):
             return f"Invalid location: {location_to_go}"
 
-        outcome = False
-        if isinstance(location_to_go, Accessible):
-            outcome = location_to_go.go()
-        if not outcome:
-            outcome = f"Can't go to {location_to_go}"
-        return outcome
+        outcome = location_to_go.go()
+        return outcome or f"Can't go to {location_to_go}"

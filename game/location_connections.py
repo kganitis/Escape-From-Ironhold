@@ -4,9 +4,9 @@ from game.properties import Usable
 
 
 class Door(LocationConnection, Usable):
-    def __init__(self, name, description):
-        super().__init__(name, description)
-        self.lock = Lock(locked=True)
+    def __init__(self, game, name, description):
+        super().__init__(game, name, description)
+        self.lock = Lock(game, locked=True)
         self.items.append(self.lock)
         self.open = False
 
@@ -22,9 +22,10 @@ class Door(LocationConnection, Usable):
     def use(self):
         if self.lock.locked:
             return self.is_blocked()
+
         self.open = not self.open
         if self.open:
-            outcome = (f"You opened the {self}", "yes")
+            outcome = f"You opened the {self}"
         else:
-            outcome = (f"You closed the {self}", "yes")
-        return outcome
+            outcome = f"You closed the {self}"
+        return outcome, self.ADVANCE_GAME_STATE

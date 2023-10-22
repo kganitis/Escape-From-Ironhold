@@ -1,4 +1,6 @@
 # command.py module
+from game.result import Result
+
 
 # Quantifier functions
 # Check if an arguments list contains certain arguments count
@@ -85,17 +87,13 @@ def get_available_command_verbs():
     return available_command_verbs
 
 
-def _get_quantifier_function(verb):
-    return _available_commands[verb]["rule"][0]
-
-
-def _get_args_count_limitation(verb):
-    return _available_commands[verb]["rule"][1]
+def show_available_commands():
+    print("Available commands:")
+    print(", ".join([command for command in get_available_command_verbs()]))
 
 
 class Command:
     def __init__(self, verb, args=None):
-        from game.result import Result
         self.verb = verb
         # Make sure args is a list
         if args is None:
@@ -108,29 +106,12 @@ class Command:
     def __str__(self):
         return f"{self.verb} {' '.join(self.args)}"
 
-    def __is_valid_verb(self):
+    def is_valid(self):
         valid_verbs = get_available_command_verbs()
         is_valid_verb = self.verb in valid_verbs
-        return is_valid_verb
 
-    def __args_count_is_valid(self):
-        quantifier = _get_quantifier_function(self.verb)
-        quantity = _get_args_count_limitation(self.verb)
-        args_count_is_valid = quantifier(self.args, quantity)
-        return args_count_is_valid
+        quantifier_function = _available_commands[self.verb]["rule"][0]
+        args_count_limitation = _available_commands[self.verb]["rule"][1]
+        args_count_is_valid = quantifier_function(self.args, args_count_limitation)
 
-    def __is_valid(self):
-        return self.__is_valid_verb() and self.__args_count_is_valid()
-
-    def execute(self):
-        if self.__is_valid():
-            from game.actions import Action
-            outcome = Action(self).execute()
-        else:
-            outcome = f"Invalid command: {self}"
-        if isinstance(outcome, tuple):
-            self.result.outcome = outcome[0]
-            self.result.advance = outcome[1]
-        else:
-            self.result.outcome = outcome
-        return self.result
+        return is_valid_verb and args_count_is_valid
