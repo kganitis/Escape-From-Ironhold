@@ -1,6 +1,6 @@
 # items.py module
 from game.game_elements import Item
-from game.properties import Combinable
+from game.properties import *
 
 
 class LockPick(Item, Combinable):
@@ -9,15 +9,12 @@ class LockPick(Item, Combinable):
         description = "A simple lock pick that could be useful for picking locks."
         super().__init__(game, name, description)
 
-    def combine(self, item=None):
-        if not item:
-            return self.NONE_ITEM_ERROR
-
+    def combine(self, item):
         if isinstance(item, Lock):
             if item.locked:
                 item.locked = False
-                return "lock unlocked with lockpick", self.ADVANCE_GAME_STATE
-            return "lock already unlocked"
+                return "lock unlocked with lockpick", SUCCESS
+            return "lock already unlocked", FAIL
         return False
 
 
@@ -28,11 +25,7 @@ class Lock(Item, Combinable):
         super().__init__(game, name, description)
         self.locked = locked
 
-    def combine(self, item=None):
-        if not item:
-            return self.NONE_ITEM_ERROR
-
+    def combine(self, item):
         if isinstance(item, LockPick):
             return item.combine(self)
-
         return False

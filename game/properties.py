@@ -2,6 +2,13 @@
 from abc import ABC, abstractmethod
 
 
+# result types
+SUCCESS = "SUCCESS"  # result advances the game state
+NEUTRAL = "NEUTRAL"  # command executed successfully but the result does not advance the game state
+FAIL = "FAIL"  # command is valid but failed to be executed
+ERROR = "ERROR"  # invalid command
+
+
 class Usable(ABC):
     @abstractmethod
     def use(self):
@@ -10,7 +17,7 @@ class Usable(ABC):
 
 class Combinable(ABC):
     @abstractmethod
-    def combine(self, item=None):
+    def combine(self, item):
         pass
 
 

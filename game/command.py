@@ -109,9 +109,13 @@ class Command:
     def is_valid(self):
         valid_verbs = get_available_command_verbs()
         is_valid_verb = self.verb in valid_verbs
+        if not is_valid_verb:
+            return False
 
         quantifier_function = _available_commands[self.verb]["rule"][0]
         args_count_limitation = _available_commands[self.verb]["rule"][1]
         args_count_is_valid = quantifier_function(self.args, args_count_limitation)
+        if not args_count_is_valid:
+            return False
 
-        return is_valid_verb and args_count_is_valid
+        return True

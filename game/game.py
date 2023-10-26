@@ -1,8 +1,10 @@
 # game.py module
+from chatbot.chatbot import *
 from game.locations import Cell
-from game.player import Hero
+from game.character import Hero
 from game.command import Command, show_available_commands
 from game.actions import Action
+from game.properties import ERROR
 
 
 class Game:
@@ -11,12 +13,12 @@ class Game:
         # Using the element's name, we'll be able to retrieve the instance of the game element
         # Useful for matching command arguments to actual instances of game elements
         self.game_elements_repository = {}
+
         self.result_history = []
 
         # Initialize game elements here
-        self.hero = Hero(self)
-        self.starting_location = Cell(self)
-        self.current_location = self.starting_location
+        self.player = Hero(self)
+        self.current_location = Cell(self)
 
     def run(self):
         print("Escape From Ironhold: Prison Cell")
@@ -40,8 +42,9 @@ class Game:
             else:
                 result = self.parse(input_command)
 
-            # TODO send result to chatbot for processing, for now we print the outcome here
-            print("\n" + result.outcome)
+            print(f"\nOutcome: {result.outcome}")
+            message = generate_message(result)
+            print(f"Message: {message}")
 
     def parse(self, input_command):
         # Split the command into words
@@ -56,20 +59,25 @@ class Game:
         if command.is_valid():
             outcome = self.execute(command)
         else:
-            outcome = (f"Invalid command: {command}", False)
+            outcome = f"Invalid command", ERROR
 
-        # Update, then return the result
-        command.result.outcome, command.result.advance_game_state = outcome
-        if command.result.advance_game_state:
-            self.result_history.append(command.result)
+        # Update the result, then return it
+        command.result.outcome, command.result.type = outcome
+        if isinstance(command.result.outcome, tuple):
+            raise ValueError(f"Outcome {command.result.outcome} is a tuple [Command: ({command})")
+        self.result_history.append(command.result)
         return command.result
 
     def execute(self, command):
-        # Convert argument stings to actual instances of game elements, retrieved from game elements repository
+        # Convert argument stings to actual instances of game elements, retrieved from the game elements repository
         game_elements = [self.game_elements_repository.get(arg, arg) for arg in command.args]
+
         action = Action(command.verb, game_elements)
         if action.is_executable():
             outcome = action.execute()
         else:
             raise ValueError(f"Action not found for verb: {command.verb}")
-        return outcome if isinstance(outcome, tuple) else (outcome, False)
+
+        if not isinstance(outcome, tuple):
+            raise ValueError(f"Outcome {outcome} does not have a type")
+        return outcome

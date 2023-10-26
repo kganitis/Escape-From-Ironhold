@@ -1,5 +1,5 @@
-# player.py module
-from game.game_elements import Player, GameElement
+# character.py module
+from game.game_elements import Character, GameElement
 from game.items import LockPick
 
 
@@ -14,10 +14,10 @@ class Inventory(GameElement):
         self.items.append(item)
 
 
-class Hero(Player):
+class Hero(Character):
     def __init__(self, game):
         name = "Hero"
-        description = "You are a brave hero."
+        description = "A brave hero trying to escape from the Ironhold prison."
         super().__init__(game, name, description)
         self.inventory = Inventory(game)
         self.inventory.add(LockPick(game))

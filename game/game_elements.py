@@ -1,7 +1,5 @@
 # game_elements.py module
-from abc import ABC
-
-from game.properties import Accessible
+from game.properties import *
 
 
 # Define a common parent class for all game elements (locations, items, actions etc.)
@@ -11,7 +9,6 @@ class GameElement(ABC):
         self.name = name
         self.description = description
         game.game_elements_repository[name] = self  # every game element created is added to the repository
-        self.ADVANCE_GAME_STATE = True
 
     def __str__(self):
         return self.name
@@ -21,7 +18,7 @@ class GameElement(ABC):
 
 
 # All game elements are further represented by abstract classes
-class Player(GameElement, ABC):
+class Character(GameElement, ABC):
     def __init__(self, game, name, description):
         super().__init__(game, name, description)
 
@@ -29,7 +26,6 @@ class Player(GameElement, ABC):
 class Item(GameElement, ABC):
     def __init__(self, game, name, description):
         super().__init__(game, name, description)
-        self.NONE_ITEM_ERROR = "Must be combined with something else"
 
 
 class Location(GameElement, Accessible, ABC):
@@ -55,17 +51,19 @@ class Location(GameElement, Accessible, ABC):
         connection_to_current_location = new_location.get_connection_to(current_location)
 
         if new_location == current_location:
-            return f"Already in {new_location}"
+            # return f"Already in {new_location}", FAIL
+            return f"Already in this location", FAIL
 
         if not connection_to_current_location:
-            return f"Can't access {new_location} from {current_location}"
+            # return f"Can't access {new_location} from {current_location}", FAIL
+            return f"Can't access that from your current location", FAIL
 
         blocked = connection_to_current_location.is_blocked()
         if blocked:
             return blocked
 
         self.game.current_location = new_location
-        return f"Accessed the {new_location}", self.ADVANCE_GAME_STATE
+        return f"Accessed the {new_location}", SUCCESS
 
 
 class LocationConnection(GameElement, ABC):
@@ -75,5 +73,4 @@ class LocationConnection(GameElement, ABC):
         self.items = []  # Items found in this location connection
 
     def is_blocked(self):
-        outcome = f"{self} is blocked"
-        return outcome
+        return f"{self} is blocked", FAIL
