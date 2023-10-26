@@ -93,13 +93,13 @@ def generate_results(available_commands, max_depth, csv_file_path, filter_invali
         # Write all the fields of all result instances in the same row of the csv file
         all_result_fields = []
         for r in results:
-            all_result_fields.extend([r.command, r.outcome, r.type, ''])
+            all_result_fields.extend([r.command, r.outcome, r.type, '.                                           .'])
         writer.writerow(all_result_fields)
 
     def explore(game_instance, possible_commands, all_results, current_results, depth, prev_result=None):
         # end recursion
         if prev_result and (prev_result.is_fail_or_error() or not possible_commands or depth >= max_depth):
-            all_results.append(current_results.copy())
+            all_results.append(current_results)
             save_results_to_csv(current_results)
             return
 
@@ -122,7 +122,7 @@ def generate_results(available_commands, max_depth, csv_file_path, filter_invali
     # Initialize result tree csv with the headers and pass it to the explore method
     with open(csv_file_path + "_tree.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerow(['command', 'outcome', 'type', 'empty column'] * max_depth)
+        writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
         explore(Game(), available_commands, [], [], 0)
 
     # Write the result set
