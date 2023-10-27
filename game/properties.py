@@ -48,7 +48,7 @@ class Openable(ABC):
     opened = False
 
     @abstractmethod
-    def open(self):
+    def open(self, indirect_object=None):
         pass
 
     def close(self):

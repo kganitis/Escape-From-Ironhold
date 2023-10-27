@@ -59,12 +59,12 @@ _available_commands = {
     "unlock": {
         "rule": (__args_count_is_not_zero_and_at_most, 2),
         "description": "Unlock an lockable object",
-        "syntax": "unlock {object} with {item}?"
+        "syntax": "unlock {object} {item}?"
     },
     "open": {
-        "rule": (__args_count_is_exactly, 1),
+        "rule": (__args_count_is_not_zero_and_at_most, 2),
         "description": "Open an object.",
-        "syntax": "open {object}"
+        "syntax": "open {object} {item}?"
     },
     "close": {
         "rule": (__args_count_is_exactly, 1),

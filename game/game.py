@@ -39,11 +39,7 @@ class Game:
                 print("Empty input!")
                 continue
             else:
-                result = self.parse(input_command)
-
-            print(f"\nOutcome: {result.outcome}")
-            message = generate_message(result)
-            # print(f"Message: {message}")
+                self.parse(input_command)
 
     def parse(self, input_command):
         # Split the command into words
@@ -60,12 +56,16 @@ class Game:
         else:
             outcome = INVALID_COMMAND
 
-        # Update the result, then return it
-        command.result.outcome, command.result.type = outcome
-        if isinstance(command.result.outcome, tuple):
-            raise ValueError(f"Outcome {command.result.outcome} is a tuple [Command: ({command})")
-        self.result_history.append(command.result)
-        return command.result
+        # Update the result
+        result = command.result
+        result.outcome, result.type = outcome
+        if isinstance(result.outcome, tuple):
+            raise ValueError(f"Outcome {result.outcome} is a tuple [Command: ({command})")
+        self.result_history.append(result)
+
+        print(f"\nOutcome: {result.outcome}")
+        message = generate_message(result)
+        # print(f"Message: {message}")
 
     def execute(self, command):
         # Convert argument stings to actual instances of game elements, retrieved from the game elements repository

@@ -88,7 +88,11 @@ class Action:
         if not isinstance(object_to_open, Openable):
             return NOT_OPENABLE
 
-        return object_to_open.open() or CANT_OPEN_OBJECT
+        opening_tool = None
+        if len(self.game_elements) > 1:
+            opening_tool = self.game_elements[1]
+
+        return object_to_open.open(opening_tool) or CANT_OPEN_OBJECT
 
     def close(self):
         object_to_close = self.game_elements[0]

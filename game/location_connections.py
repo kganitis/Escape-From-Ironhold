@@ -18,9 +18,12 @@ class Door(LocationConnection, Openable, Lockable):
             outcome = DOOR_CLOSED_FAIL
         return outcome
 
-    def open(self):
+    def open(self, opening_tool=None):
         if self._lock.locked:
-            return DOOR_LOCKED_FAIL
+            if isinstance(opening_tool, LockingTool):
+                self.game.parse(f"unlock {self} {opening_tool}")
+            else:
+                return DOOR_LOCKED_FAIL
 
         if self.opened:
             return ALREADY_OPEN
