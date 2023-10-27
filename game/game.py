@@ -4,7 +4,7 @@ from game.locations import Cell
 from game.character import Hero
 from game.command import Command, show_available_commands
 from game.actions import Action
-from game.properties import ERROR
+from game.outcomes import *
 
 
 class Game:
@@ -59,7 +59,7 @@ class Game:
         if command.is_valid():
             outcome = self.execute(command)
         else:
-            outcome = f"Invalid command", ERROR
+            outcome = INVALID_COMMAND
 
         # Update the result, then return it
         command.result.outcome, command.result.type = outcome

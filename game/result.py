@@ -1,4 +1,4 @@
-from game.properties import *
+from game.outcomes import *
 
 
 class Result:
@@ -18,4 +18,4 @@ class Result:
         return f"{self.command} => {self.outcome}"
 
     def is_fail_or_error(self):
-        return self.type == FAIL or self.type == ERROR
+        return self.type == FAIL or self.type == INVALID

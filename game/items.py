@@ -1,5 +1,6 @@
 # items.py module
 from game.game_elements import Item
+from game.outcomes import *
 from game.properties import *
 
 
@@ -13,8 +14,8 @@ class LockPick(Item, Combinable):
         if isinstance(item, Lock):
             if item.locked:
                 item.locked = False
-                return "lock unlocked with lockpick", SUCCESS
-            return "lock already unlocked", FAIL
+                return LOCK_LOCKPICK_SUCCESS
+            return LOCK_LOCKPICK_FAIL
         return False
 
 

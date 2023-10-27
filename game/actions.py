@@ -1,5 +1,6 @@
 # actions.py module
-from game.game_elements import Item, Location, LocationConnection
+from game.game_elements import *
+from game.outcomes import *
 from game.properties import *
 
 
@@ -19,36 +20,29 @@ class Action:
 
         object_to_use = self.game_elements[0]
         if (not isinstance(object_to_use, (Item, LocationConnection))) or (not isinstance(object_to_use, (Usable, Combinable))):
-            # return f"Invalid object: {object_to_use}", ERROR
-            return f"Invalid object", ERROR
+            return INVALID_OBJECT
 
         outcome = object_to_use.use() if isinstance(object_to_use, Usable) else self.combine()
-        # return outcome or (f"Can't use {object_to_use}", FAIL)
-        return outcome or (f"Can't use that", FAIL)
+        return outcome or CANT_USE_OBJECT
 
     def combine(self):
         items_to_combine = self.game_elements[:2]
 
         invalid_items = [f"{item}" for item in items_to_combine if not isinstance(item, Item)]
         if invalid_items:
-            # return f"Invalid item(s): {', '.join(invalid_items)}", ERROR
-            return f"Invalid item(s)", ERROR
+            return INVALID_ITEMS
 
         if len(items_to_combine) == 1:
-            # return f"Must combine {items_to_combine[0]} with something else", FAIL
-            return f"Must combine that with something else", FAIL
+            return MUST_BE_COMBINED
 
         item1, item2 = items_to_combine
         outcome = item1.combine(item2) or item2.combine(item1)
-        # return outcome or (f"Can't combine {item1} and {item2}", FAIL)
-        return outcome or (f"Can't combine these", FAIL)
+        return outcome or CANT_COMBINE
 
     def go(self):
         location_to_go = self.game_elements[0]
         if not (isinstance(location_to_go, Location) and isinstance(location_to_go, Accessible)):
-            # return f"Invalid location: {location_to_go}", ERROR
-            return f"Invalid location", ERROR
+            return INVALID_LOCATION
 
         outcome = location_to_go.go()
-        # return outcome or (f"Can't go to {location_to_go}", FAIL)
-        return outcome or (f"Can't go to that location", FAIL)
+        return outcome or CANT_GO_TO_LOCATION

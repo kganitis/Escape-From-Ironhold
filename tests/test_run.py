@@ -88,7 +88,7 @@ def generate_possible_commands():
     return possible_commands
 
 
-def generate_results(available_commands, max_depth, csv_file_path, filter_invalid_commands=False, filter_failed_commands=False):
+def generate_results(available_commands, max_depth, csv_file_path, filter_invalid=False, filter_failed=False):
     def save_results_to_csv(results=None):
         # Write all the fields of all result instances in the same row of the csv file
         all_result_fields = []
@@ -106,9 +106,9 @@ def generate_results(available_commands, max_depth, csv_file_path, filter_invali
         for cmd in possible_commands:
             game_copy = copy.deepcopy(game_instance)
             rlt = game_copy.parse(cmd)
-            if filter_invalid_commands and rlt.type == ERROR:
+            if filter_invalid and rlt.type == INVALID:
                 continue
-            if filter_failed_commands and rlt.type == FAIL:
+            if filter_failed and rlt.type == FAIL:
                 continue
             current_results.append(rlt)
             result_set.add((rlt.command, rlt.outcome, rlt.type))
@@ -145,8 +145,8 @@ def main():
     possible_commands = generate_possible_commands()
     filtered_commands = prefilter_invalid_commands(possible_commands)
     generate_results(possible_commands, max_depth, "all_results")
-    generate_results(filtered_commands, max_depth, "valid_results", filter_invalid_commands=True)
-    generate_results(filtered_commands, max_depth, "successful_results", filter_invalid_commands=True, filter_failed_commands=True)
+    generate_results(filtered_commands, max_depth, "valid_results", filter_invalid=True)
+    generate_results(filtered_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)
 
 
 if __name__ == "__main__":

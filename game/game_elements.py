@@ -1,4 +1,5 @@
 # game_elements.py module
+from game.outcomes import *
 from game.properties import *
 
 
@@ -51,19 +52,17 @@ class Location(GameElement, Accessible, ABC):
         connection_to_current_location = new_location.get_connection_to(current_location)
 
         if new_location == current_location:
-            # return f"Already in {new_location}", FAIL
-            return f"Already in this location", FAIL
+            return ALREADY_IN_LOCATION
 
         if not connection_to_current_location:
-            # return f"Can't access {new_location} from {current_location}", FAIL
-            return f"Can't access that from your current location", FAIL
+            return CANT_ACCESS_FROM_HERE
 
         blocked = connection_to_current_location.is_blocked()
         if blocked:
             return blocked
 
         self.game.current_location = new_location
-        return f"Accessed the {new_location}", SUCCESS
+        return ACCESSED_LOCATION
 
 
 class LocationConnection(GameElement, ABC):
@@ -73,4 +72,4 @@ class LocationConnection(GameElement, ABC):
         self.items = []  # Items found in this location connection
 
     def is_blocked(self):
-        return f"{self} is blocked", FAIL
+        return BLOCKED_LOCATION

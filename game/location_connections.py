@@ -1,5 +1,6 @@
 from game.game_elements import LocationConnection
 from game.items import Lock
+from game.outcomes import *
 from game.properties import *
 
 
@@ -13,9 +14,9 @@ class Door(LocationConnection, Usable):
     def is_blocked(self):
         outcome = False
         if self.lock.locked:
-            outcome = f"The {self} is locked", FAIL
+            outcome = DOOR_LOCKED_FAIL
         elif not self.open:
-            outcome = f"The {self} is closed", FAIL
+            outcome = DOOR_CLOSED_FAIL
         return outcome
 
     def use(self):
@@ -24,7 +25,7 @@ class Door(LocationConnection, Usable):
 
         self.open = not self.open
         if self.open:
-            outcome = f"You opened the {self}"
+            outcome = DOOR_OPENED_SUCCESS
         else:
-            outcome = f"You closed the {self}"
+            outcome = DOOR_CLOSED_SUCCESS
         return outcome, SUCCESS
