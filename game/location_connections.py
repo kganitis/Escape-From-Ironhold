@@ -28,4 +28,4 @@ class Door(LocationConnection, Usable):
             outcome = DOOR_OPENED_SUCCESS
         else:
             outcome = DOOR_CLOSED_SUCCESS
-        return outcome, SUCCESS
+        return outcome

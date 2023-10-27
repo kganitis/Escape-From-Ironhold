@@ -1,17 +1,16 @@
 # game.py module
 from chatbot.chatbot import *
-from game.locations import Cell
-from game.character import Hero
-from game.command import Command, show_available_commands
-from game.actions import Action
-from game.outcomes import *
+from .locations import Cell
+from .character import Hero
+from .command import Command, show_available_commands
+from .actions import Action
+from .outcomes import *
 
 
 class Game:
     def __init__(self):
         # A repository to hold every game element created
-        # Using the element's name, we'll be able to retrieve the instance of the game element
-        # Useful for matching command arguments to actual instances of game elements
+        # It maps the element's name to the actual instance of the game element
         self.game_elements_repository = {}
 
         self.result_history = []

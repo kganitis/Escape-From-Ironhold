@@ -3,7 +3,7 @@ import csv
 
 from game.command import *
 from game.game import Game
-from game.properties import *
+from game.outcomes import *
 
 
 def sample_possible_commands():
@@ -138,6 +138,8 @@ def generate_results(available_commands, max_depth, csv_file_path, filter_invali
         writer.writerow(['outcome', 'type'])
         for outcome in outcome_set:
             writer.writerow(outcome)
+
+    print("Results generated successfully")
 
 
 def main():

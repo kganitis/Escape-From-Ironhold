@@ -51,7 +51,7 @@ _available_commands = {
     "talk": {
         "rule": (__args_count_is_exactly, 1),
         "description": "Talk to a character.",
-        "syntax": "fight {character}"
+        "syntax": "talk {character}"
     },
     "fight": {
         "rule": (__args_count_is_exactly, 1),

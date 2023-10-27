@@ -37,12 +37,12 @@ ACCESSED_LOCATION = f"Accessed the location", SUCCESS
 # object specific outcomes
 # lockpick
 LOCK_LOCKPICK_SUCCESS = "lock unlocked with lockpick", SUCCESS
-LOCK_LOCKPICK_FAIL = "lock already unlocked"
+LOCK_LOCKPICK_FAIL = "lock already unlocked", FAIL
 
 # door
-DOOR_OPENED_SUCCESS = f"You opened the door"
+DOOR_OPENED_SUCCESS = f"You opened the door", SUCCESS
 # OPENED_SUCCESS = f"You opened the {self}"
-DOOR_CLOSED_SUCCESS = f"You opened the door"
+DOOR_CLOSED_SUCCESS = f"You closed the door", SUCCESS
 # CLOSED_SUCCESS = f"You closed the {self}"
 DOOR_LOCKED_FAIL = f"The door is locked", FAIL
 # LOCKED_FAIL = f"The {self} is locked", FAIL
