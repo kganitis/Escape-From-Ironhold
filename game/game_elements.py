@@ -29,6 +29,23 @@ class Item(GameElement, ABC):
         super().__init__(game, name, description)
 
 
+class LockingTool(Item, Usable, ABC):
+    def __init__(self, game, name, description):
+        super().__init__(game, name, description)
+        self.can_unlock = True
+        self.can_lock = True
+
+    def use(self, target_object=None):
+        if target_object:
+            if isinstance(target_object, Lockable):
+                if target_object.locked:
+                    return target_object.unlock(self)
+                else:
+                    return target_object.lock(self)
+            return NOT_UNLOCKABLE
+        return CANT_USE_OBJECT_ALONE
+
+
 class Location(GameElement, Accessible, ABC):
     def __init__(self, game, name, description):
         super().__init__(game, name, description)

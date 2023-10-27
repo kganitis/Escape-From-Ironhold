@@ -13,6 +13,10 @@ def __args_count_is_at_least(args, quantity):  # useful to represent the '+' qua
     return len(args) >= quantity
 
 
+def __args_count_is_not_zero_and_at_most(args, quantity):
+    return len(args) > 0 and len(args) <= quantity
+
+
 def __args_count_is_exactly(args, quantity):  # useful to check if a command must be followed by exactly 0 or 1 argument
     return len(args) == quantity
 
@@ -43,10 +47,29 @@ _available_commands = {
         "syntax": "use {item}+|{location_connection}+"
     },
     "combine": {
-        # it's allowed to follow combine with only one item, but will always lead to an error message from the narrator
         "rule": (__args_count_is_at_least, 1),
         "description": "Combine two or more items.",
-        "syntax": "combine {item}+"
+        "syntax": "combine {item} {item}+"
+    },
+    "lock": {
+        "rule": (__args_count_is_not_zero_and_at_most, 2),
+        "description": "Lock a lockable object",
+        "syntax": "lock {object} with {item}?"
+    },
+    "unlock": {
+        "rule": (__args_count_is_not_zero_and_at_most, 2),
+        "description": "Unlock an lockable object",
+        "syntax": "unlock {object} with {item}?"
+    },
+    "open": {
+        "rule": (__args_count_is_exactly, 1),
+        "description": "Open an object.",
+        "syntax": "open {object}"
+    },
+    "close": {
+        "rule": (__args_count_is_exactly, 1),
+        "description": "Close an object.",
+        "syntax": "close {object}"
     },
     "talk": {
         "rule": (__args_count_is_exactly, 1),
@@ -83,7 +106,7 @@ _available_commands = {
 
 def get_available_command_verbs():
     available_command_verbs = _available_commands.keys()
-    available_command_verbs = ["use", "combine", "go"]  # TODO delete this once all commands have been implemented
+    available_command_verbs = ["use", "lock", "unlock", "open", "close", "go"]  # TODO delete this once all commands have been implemented
     return available_command_verbs
 
 

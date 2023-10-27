@@ -43,7 +43,7 @@ class Game:
 
             print(f"\nOutcome: {result.outcome}")
             message = generate_message(result)
-            print(f"Message: {message}")
+            # print(f"Message: {message}")
 
     def parse(self, input_command):
         # Split the command into words
@@ -71,7 +71,7 @@ class Game:
         # Convert argument stings to actual instances of game elements, retrieved from the game elements repository
         game_elements = [self.game_elements_repository.get(arg, arg) for arg in command.args]
 
-        action = Action(command.verb, game_elements)
+        action = Action(self, command.verb, game_elements)
         if action.is_executable():
             outcome = action.execute()
         else:

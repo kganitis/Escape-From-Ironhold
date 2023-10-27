@@ -1,31 +1,50 @@
-from game.game_elements import LocationConnection
+from game.game_elements import *
 from game.items import Lock
 from game.outcomes import *
 from game.properties import *
 
 
-class Door(LocationConnection, Usable):
+class Door(LocationConnection, Openable, Lockable):
     def __init__(self, game, name, description):
         super().__init__(game, name, description)
-        self.lock = Lock(game, locked=True)
-        self.items.append(self.lock)
-        self.open = False
+        self._lock = Lock(game)
+        self.items.append(self._lock)
 
     def is_blocked(self):
         outcome = False
-        if self.lock.locked:
+        if self._lock.locked:
             outcome = DOOR_LOCKED_FAIL
-        elif not self.open:
+        elif not self.opened:
             outcome = DOOR_CLOSED_FAIL
         return outcome
 
-    def use(self):
-        if self.lock.locked:
-            return self.is_blocked()
+    def open(self):
+        if self._lock.locked:
+            return DOOR_LOCKED_FAIL
 
-        self.open = not self.open
-        if self.open:
-            outcome = DOOR_OPENED_SUCCESS
-        else:
-            outcome = DOOR_CLOSED_SUCCESS
+        if self.opened:
+            return ALREADY_OPEN
+
+        self.opened = True
+        return DOOR_OPENED_SUCCESS
+
+    def close(self):
+        if not self.opened:
+            return ALREADY_CLOSED
+        self.opened = False
+        return DOOR_CLOSED_SUCCESS
+
+    def toggle_locked(self, locked, locking_tool):
+        if not isinstance(locking_tool, LockingTool):
+            return MISSING_LOCKING_TOOL
+        outcome = self._lock.lock(locking_tool) if locked else self._lock.unlock(locking_tool)
+        self.locked = self._lock.locked
         return outcome
+
+    def lock(self, locking_tool):
+        if self.opened:
+            return DOOR_OPEN_FAIL
+        return self.toggle_locked(True, locking_tool)
+
+    def unlock(self, locking_tool):
+        return self.toggle_locked(False, locking_tool)

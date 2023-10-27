@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 class Usable(ABC):
     @abstractmethod
-    def use(self):
+    def use(self, indirect_object=None):
         pass
 
 
@@ -29,4 +29,27 @@ class Accessible(ABC):
 class Examinable(ABC):
     @abstractmethod
     def examine(self):
+        pass
+
+
+class Lockable(ABC):
+    locked = True
+
+    @abstractmethod
+    def lock(self, locking_tool):
+        pass
+
+    @abstractmethod
+    def unlock(self, unlocking_tool):
+        pass
+
+
+class Openable(ABC):
+    opened = False
+
+    @abstractmethod
+    def open(self):
+        pass
+
+    def close(self):
         pass
