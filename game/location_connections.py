@@ -1,53 +1,50 @@
 from game.game_elements import *
 from game.items import Lock
 from game.outcomes import *
-from game.properties import *
+from game.attributes import *
 
 
 class Door(LocationConnection, Openable, Lockable):
     def __init__(self, game, name, description):
         super().__init__(game, name, description)
-        self._lock = Lock(game)
-        self.items.append(self._lock)
+        Openable.__init__(self)
+        Lockable.__init__(self)
+        self.__lock = Lock(game, self)
+        self.items.append(self.__lock)
+
+    def locked(self):
+        return self.__lock.locked
 
     def is_blocked(self):
-        outcome = False
-        if self._lock.locked:
-            outcome = DOOR_LOCKED_FAIL
-        elif not self.opened:
-            outcome = DOOR_CLOSED_FAIL
-        return outcome
+        if self.__lock.locked:
+            return DOOR_LOCKED_FAIL
+        if not self._open:
+            return DOOR_CLOSED_FAIL
+        return False
 
     def open(self, opening_tool=None):
-        if self._lock.locked:
-            if isinstance(opening_tool, LockingTool):
+        if self.__lock.locked:
+            if opening_tool and isinstance(opening_tool, LockingTool):
                 self.game.parse(f"unlock {self} {opening_tool}")
             else:
                 return DOOR_LOCKED_FAIL
 
-        if self.opened:
+        if self._open:
             return ALREADY_OPEN
 
-        self.opened = True
+        self._open = True
         return DOOR_OPENED_SUCCESS
 
     def close(self):
-        if not self.opened:
+        if not self._open:
             return ALREADY_CLOSED
-        self.opened = False
+        self._open = False
         return DOOR_CLOSED_SUCCESS
 
-    def toggle_locked(self, locked, locking_tool):
-        if not isinstance(locking_tool, LockingTool):
-            return MISSING_LOCKING_TOOL
-        outcome = self._lock.lock(locking_tool) if locked else self._lock.unlock(locking_tool)
-        self.locked = self._lock.locked
-        return outcome
-
     def lock(self, locking_tool):
-        if self.opened:
+        if self._open:
             return DOOR_OPEN_FAIL
-        return self.toggle_locked(True, locking_tool)
+        return self.__lock.lock(locking_tool)
 
-    def unlock(self, locking_tool):
-        return self.toggle_locked(False, locking_tool)
+    def unlock(self, unlocking_tool):
+        return self.__lock.unlock(unlocking_tool)

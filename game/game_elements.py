@@ -1,14 +1,15 @@
 # game_elements.py module
 from game.outcomes import *
-from game.properties import *
+from game.attributes import *
 
 
 # Define a common parent class for all game elements (locations, items, actions etc.)
 class GameElement(ABC):
-    def __init__(self, game, name, description):
+    def __init__(self, game, name, description, parent=None):
         self.game = game
         self.name = name
         self.description = description
+        self.parent = parent
         game.game_elements_repository[name] = self  # every game element created is added to the repository
 
     def __str__(self):
@@ -20,30 +21,29 @@ class GameElement(ABC):
 
 # All game elements are further represented by abstract classes
 class Character(GameElement, ABC):
-    def __init__(self, game, name, description):
-        super().__init__(game, name, description)
+    def __init__(self, game, name, description, parent):
+        super().__init__(game, name, description, parent)
 
 
 class Item(GameElement, ABC):
-    def __init__(self, game, name, description):
-        super().__init__(game, name, description)
+    def __init__(self, game, name, description, parent):
+        super().__init__(game, name, description, parent)
 
 
 class LockingTool(Item, Usable, ABC):
-    def __init__(self, game, name, description):
-        super().__init__(game, name, description)
+    def __init__(self, game, name, description, parent):
+        super().__init__(game, name, description, parent)
         self.can_unlock = True
         self.can_lock = True
 
     def use(self, target_object=None):
-        if target_object:
-            if isinstance(target_object, Lockable):
-                if target_object.locked:
-                    return target_object.unlock(self)
-                else:
-                    return target_object.lock(self)
-            return NOT_UNLOCKABLE
-        return CANT_USE_OBJECT_ALONE
+        if not target_object:
+            return CANT_USE_OBJECT_ALONE
+
+        if not isinstance(target_object, Lockable):
+            return NOT_LOCKABLE
+
+        return target_object.unlock(self) if target_object.locked else target_object.lock(self)
 
 
 class Location(GameElement, Accessible, ABC):

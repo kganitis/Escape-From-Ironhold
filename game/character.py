@@ -15,9 +15,9 @@ class Inventory(GameElement):
 
 
 class Hero(Character):
-    def __init__(self, game):
+    def __init__(self, game, parent):
         name = "Hero"
         description = "A brave hero trying to escape from the Ironhold prison."
-        super().__init__(game, name, description)
+        super().__init__(game, name, description, parent)
         self.inventory = Inventory(game)
-        self.inventory.add(LockPick(game))
+        self.inventory.add(LockPick(game, self.inventory))

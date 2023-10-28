@@ -28,7 +28,7 @@ ALREADY_IN_LOCATION = f"Already in this location", FAIL
 CANT_ACCESS_FROM_HERE = f"Can't access that from your current location", FAIL
 BLOCKED_LOCATION = f"Location is blocked", FAIL
 
-NOT_LOCKABLE = f"Can't be locked", FAIL
+NOT_LOCKABLE = f"Can't be (un)locked", FAIL
 CANT_LOCK = f"You can't lock that this way", FAIL
 MISSING_LOCKING_TOOL = f"Missing a locking tool", FAIL
 ALREADY_LOCKED = "Object already locked", FAIL

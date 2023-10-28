@@ -2,7 +2,7 @@
 import game.character
 from game.game_elements import *
 from game.outcomes import *
-from game.properties import *
+from game.attributes import *
 
 
 class Action:

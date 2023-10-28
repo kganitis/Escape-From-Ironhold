@@ -100,7 +100,7 @@ def generate_results(available_commands, max_depth, file_name, filter_invalid=Fa
         # end recursion
         if prev_result and (prev_result.is_fail_or_error() or not possible_commands or depth >= max_depth):
             all_results.append(current_results)
-            save_results_to_csv(current_results)
+            # save_results_to_csv(current_results)
             return
 
         for cmd in possible_commands:
@@ -123,7 +123,7 @@ def generate_results(available_commands, max_depth, file_name, filter_invalid=Fa
     with open(file_name + "_tree.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
-        explore(Game(), available_commands, [], [], 0)
+        explore(Game(test=True), available_commands, [], [], 0)
 
     # Write the result set
     with open(file_name + "_set.csv", 'w', newline='') as csv_file:

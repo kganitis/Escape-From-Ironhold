@@ -1,4 +1,4 @@
-# properties.py
+# attributes.py
 from abc import ABC, abstractmethod
 
 
@@ -33,7 +33,16 @@ class Examinable(ABC):
 
 
 class Lockable(ABC):
-    locked = True
+    def __init__(self, locked=True):
+        self._locked = locked
+
+    @property
+    def locked(self):
+        return self._locked
+
+    @locked.setter
+    def locked(self, value):
+        self._locked = value
 
     @abstractmethod
     def lock(self, locking_tool):
@@ -45,11 +54,13 @@ class Lockable(ABC):
 
 
 class Openable(ABC):
-    opened = False
+    def __init__(self, _open=False):
+        self._open = _open
 
     @abstractmethod
-    def open(self, indirect_object=None):
+    def open(self, opening_tool=None):
         pass
 
+    @abstractmethod
     def close(self):
         pass

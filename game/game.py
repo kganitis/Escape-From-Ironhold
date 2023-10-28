@@ -8,7 +8,9 @@ from .outcomes import *
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, test=False):
+        self.test = test
+
         # A repository to hold every game element created
         # It maps the element's name to the actual instance of the game element
         self.game_elements_repository = {}
@@ -16,8 +18,8 @@ class Game:
         self.result_history = []
 
         # Initialize game elements here
-        self.player = Hero(self)
         self.current_location = Cell(self)
+        self.player = Hero(self, self.current_location)
 
     def run(self):
         print("Escape From Ironhold: Prison Cell")
@@ -63,7 +65,9 @@ class Game:
             raise ValueError(f"Outcome {result.outcome} is a tuple [Command: ({command})")
         self.result_history.append(result)
 
-        print(f"\nOutcome: {result.outcome}")
+        if self.test:
+            return result
+        print(f"\n{result.outcome}")
         message = generate_message(result)
         # print(f"Message: {message}")
 
