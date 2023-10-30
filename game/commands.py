@@ -1,4 +1,4 @@
-# command.py module
+# commands.py module
 from game.result import Result
 
 
@@ -37,9 +37,9 @@ _available_commands = {
         "syntax": "examine {item}?|{location}?"
     },
     "take": {
-        "rule": (__args_count_is_exactly, 1),
-        "description": "Take a specific item.",
-        "syntax": "take {item}"
+        "rule": (__args_count_is_at_least, 1),
+        "description": "Take the specified items.",
+        "syntax": "take {item}+"
     },
     "use": {
         "rule": (__args_count_is_at_least, 1),
@@ -106,7 +106,7 @@ _available_commands = {
 
 def get_available_command_verbs():
     available_command_verbs = _available_commands.keys()
-    available_command_verbs = ["use", "lock", "unlock", "open", "close", "go"]  # TODO delete this once all commands have been implemented
+    available_command_verbs = ["take", "use", "lock", "unlock", "open", "close", "go"]  # TODO delete this once all commands have been implemented
     return available_command_verbs
 
 
@@ -124,7 +124,6 @@ class Command:
         if not isinstance(args, list):
             args = [arg for arg in args]
         self.args = args
-        self.result = Result(command=f"{self}")
 
     def __str__(self):
         return f"{self.verb} {' '.join(self.args)}"
@@ -138,4 +137,3 @@ class Command:
             return False
 
         return True
-

@@ -4,7 +4,7 @@ from game.outcomes import *
 from game.attributes import *
 
 
-class LockPick(LockingTool):
+class LockPick(LockingTool, Obtainable):
     def __init__(self, game, parent):
         name = "lockpick"
         description = "A simple lock pick that could be useful for picking locks."

@@ -15,9 +15,9 @@ class Combinable(ABC):
 
 
 class Obtainable(ABC):
-    @abstractmethod
-    def take(self):
-        pass
+    def take(self, new_holder):
+        new_holder.append(self)
+        self.parent = new_holder
 
 
 class Accessible(ABC):

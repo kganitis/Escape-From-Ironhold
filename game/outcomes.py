@@ -5,6 +5,13 @@ FAIL = "FAIL"  # command is valid but failed to be executed
 INVALID = "INVALID"  # invalid command
 
 
+def create_outcome(outcome_const, *args):
+    outcome_text, outcome_type = outcome_const
+    args = args[0] if args and isinstance(args[0], list) else list(args)
+    args = [f"{arg}" for arg in args]
+    return outcome_text, args, outcome_type
+
+
 # outcomes
 # invalid outcomes
 INVALID_COMMAND = f"Invalid command", INVALID
@@ -14,6 +21,9 @@ INVALID_LOCATION = f"Invalid location", INVALID
 
 
 # fail generic outcomes
+NOT_OBTAINABLE = f"This object cannot be taken", FAIL
+ALREADY_OBTAINED = f"This object is already in your possession", FAIL
+
 NOT_USABLE = f"Object is not usable", FAIL
 CANT_USE_OBJECT = f"You can't use that this way", FAIL
 CANT_USE_OBJECT_ALONE = f"You must use that with something else", FAIL
@@ -53,6 +63,7 @@ ALREADY_CLOSED = "Object already closed", FAIL
 ACCESSED_LOCATION = f"Accessed the location", SUCCESS
 LOCK_SUCCESS = f"Object locked", SUCCESS
 UNLOCK_SUCCESS = f"Object unlocked", SUCCESS
+TAKE_SUCCESS = f"Object taken", SUCCESS
 
 # object specific outcomes
 # door
@@ -61,3 +72,24 @@ DOOR_CLOSED_SUCCESS = f"You closed the door", SUCCESS
 DOOR_LOCKED_FAIL = f"The door is locked and must be unlocked first", FAIL
 DOOR_CLOSED_FAIL = f"The door is closed and must be opened first", FAIL
 DOOR_OPEN_FAIL = f"The door is open and must be closed first", FAIL
+
+
+def test_outcome_function():
+    # Test a single outcome constant without arguments
+    result = create_outcome(NOT_OBTAINABLE)
+    assert result == (NOT_OBTAINABLE[0], [], NOT_OBTAINABLE[1])
+
+    # Test a single outcome constant with a single argument
+    result = create_outcome(NOT_OBTAINABLE, "arg1")
+    assert result == (NOT_OBTAINABLE[0], ["arg1"], NOT_OBTAINABLE[1])
+
+    # Test a single outcome constant with arguments as separate parameters
+    result = create_outcome(NOT_OBTAINABLE, "arg1", "arg2", "arg3")
+    assert result == (NOT_OBTAINABLE[0], ["arg1", "arg2", "arg3"], NOT_OBTAINABLE[1])
+
+    # Test a single outcome constant with a list of arguments
+    result = create_outcome(NOT_OBTAINABLE, ["arg1", "arg2", "arg3"])
+    assert result == (NOT_OBTAINABLE[0], ["arg1", "arg2", "arg3"], NOT_OBTAINABLE[1])
+
+
+test_outcome_function()

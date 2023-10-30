@@ -1,5 +1,6 @@
 # locations.py module
 from game.game_elements import Location
+from game.items import LockPick
 from game.location_connections import Door
 
 
@@ -8,6 +9,9 @@ class Cell(Location):
         name = "cell"
         description = "A dimly lit prison cell."
         super().__init__(game, name, description)
+
+        self.items.append(LockPick(game, self))
+
         cell_door = Door(game, name="door", description="A heavy wooden cell door.")
         dungeon = Dungeon(game)
         cell_door.connected_locations.extend([self, dungeon])

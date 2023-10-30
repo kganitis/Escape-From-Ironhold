@@ -2,9 +2,10 @@
 from chatbot.chatbot import *
 from .locations import Cell
 from .character import Hero
-from .command import Command, show_available_commands
+from .commands import Command, show_available_commands
 from .actions import Action
 from .outcomes import *
+from .result import Result
 
 
 class Game:
@@ -53,34 +54,22 @@ class Game:
 
         # Execute the command
         command = Command(verb, args)
+        outcome_text, outcome_type = INVALID_COMMAND
+        results = [Result(command, outcome_text, [], outcome_type)]
         if command.is_valid():
-            outcome = self.execute(command)
-        else:
-            outcome = INVALID_COMMAND
-
-        # Update the result
-        result = command.result
-        result.outcome, result.type = outcome
-        if isinstance(result.outcome, tuple):
-            raise ValueError(f"Outcome {result.outcome} is a tuple [Command: ({command})")
-        self.result_history.append(result)
+            # Convert argument stings to actual instances of game elements, retrieved from the game elements repository
+            game_elements = [self.game_elements_repository.get(arg, arg) for arg in command.args]
+            action = Action(self, command, game_elements)
+            if action.is_executable():
+                action.execute()
+                results = action.results
+            else:
+                raise ValueError(f"Action not found for verb: {command.verb}")
+        self.result_history.extend(results)
 
         if self.test:
-            return result
-        print(f"\n{result.outcome}")
-        message = generate_message(result)
-        # print(f"Message: {message}")
-
-    def execute(self, command):
-        # Convert argument stings to actual instances of game elements, retrieved from the game elements repository
-        game_elements = [self.game_elements_repository.get(arg, arg) for arg in command.args]
-
-        action = Action(self, command.verb, game_elements)
-        if action.is_executable():
-            outcome = action.execute()
-        else:
-            raise ValueError(f"Action not found for verb: {command.verb}")
-
-        if not isinstance(outcome, tuple):
-            raise ValueError(f"Outcome {outcome} does not have a type")
-        return outcome
+            return results
+        for result in results:
+            print(f"\n{result.outcome} {result.related_elements}")
+            # message = generate_message(result)
+            # print(f"Message: {message}")

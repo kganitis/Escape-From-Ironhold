@@ -1,40 +1,65 @@
 import copy
 import csv
 
-from game.command import *
+from game.commands import *
 from game.game import Game
 from game.outcomes import *
 
 
-def sample_possible_commands():
+def test_possible_commands():
     return [
-        "use lock lockpick",
-        "use door",
-        "go dungeon",
-        "nonsense"
-    ]
-
-
-def more_possible_commands():
-    return [
-        "combine lockpick lock",
-        "combine nonsense nonsense",
-        "combine lock lock",
-        "combine lock",
-        "combine nonsense",
-        "combine",
-        "use lock lockpick",
-        "use nonsense nonsense",
-        "use lock lock",
-        "use door",
-        "use lockpick",
-        "use nonsense",
+        "nonsense",
+        "take",
+        "take lockpick",
+        "take lock",
+        "take door",
+        "take nonsense",
+        "take lockpick lock",
+        "take lockpick nonsense",
         "use",
-        "go cell",
-        "go dungeon",
-        "go nonsense",
+        "use lockpick",
+        "use lock",
+        "use door",
+        "use nonsense",
+        "use lockpick lock",
+        "use lockpick door",
+        "use lock lockpick",
+        "use door lockpick",
+        "use lockpick nonsense",
+        "lock",
+        "lock lockpick",
+        "lock lock",
+        "lock nonsense",
+        "lock lock lockpick",
+        "lock door lockpick",
+        "lock door lock",
+        "lock nonsense lockpick",
+        "lock door nonsense",
+        "unlock lockpick",
+        "unlock lock",
+        "unlock nonsense",
+        "unlock lockpick lock",
+        "unlock lock lockpick",
+        "unlock door lockpick",
+        "unlock lockpick door",
+        "unlock door lock",
+        "unlock nonsense lockpick",
+        "unlock door nonsense",
+        "open lockpick",
+        "open lock",
+        "open nonsense",
+        "open door lockpick",
+        "open door lock",
+        "open nonsense lockpick",
+        "open door nonsense",
+        "close lock",
+        "close door",
+        "close nonsense",
+        "close door lock",
+        "close nonsense door",
         "go",
-        "nonsense"
+        "go dungeon",
+        "go nonsense"
     ]
 
 
@@ -50,10 +75,13 @@ def prefilter_invalid_commands(unfiltered_commands):
         command = Command(verb, args)
         if command.is_valid():
             filtered_commands.append(cmd)
+
+        # append just a sample invalid command
+        filtered_commands.append("nonsense")
     return filtered_commands
 
 
-def generate_possible_commands():
+def generate_all_possible_commands():
     # Get available command verbs
     available_commands = get_available_command_verbs()
 
@@ -88,33 +116,34 @@ def generate_possible_commands():
     return possible_commands
 
 
-def generate_results(available_commands, max_depth, file_name, filter_invalid=False, filter_failed=False):
+def generate_results(possible_commands, max_depth, file_name, filter_invalid=False, filter_failed=False):
     def save_results_to_csv(results=None):
         # Write all the fields of all result instances in the same row of the csv file
         all_result_fields = []
         for r in results:
-            all_result_fields.extend([r.command, r.outcome, r.type, '.                                           .'])
+            all_result_fields.extend([r.command.__str__(), r.outcome, r.type, '.                                           .'])
         writer.writerow(all_result_fields)
 
-    def explore(game_instance, possible_commands, all_results, current_results, depth, prev_result=None):
+    def explore(game_instance, all_results, current_results, depth, prev_result=None):
         # end recursion
         if prev_result and (prev_result.is_fail_or_error() or not possible_commands or depth >= max_depth):
             all_results.append(current_results)
-            # save_results_to_csv(current_results)
+            save_results_to_csv(current_results)
             return
 
         for cmd in possible_commands:
             game_copy = copy.deepcopy(game_instance)
-            rlt = game_copy.parse(cmd)
-            if filter_invalid and rlt.type == INVALID:
-                continue
-            if filter_failed and rlt.type == FAIL:
-                continue
-            current_results.append(rlt)
-            result_set.add((rlt.command, rlt.outcome, rlt.type))
-            outcome_set.add((rlt.outcome, rlt.type))
-            explore(game_copy, possible_commands, all_results, current_results, depth + 1, rlt)
-            current_results.pop()
+            results = game_copy.parse(cmd)
+            for rlt in results:
+                if filter_invalid and rlt.type == INVALID:
+                    continue
+                if filter_failed and rlt.type == FAIL:
+                    continue
+                current_results.append(rlt)
+                result_set.add((rlt.command.__str__(), rlt.outcome, rlt.type))
+                outcome_set.add((rlt.outcome, rlt.type))
+                explore(game_copy, all_results, current_results, depth + 1, rlt)
+                current_results.pop()
 
     result_set = set()
     outcome_set = set()
@@ -123,7 +152,7 @@ def generate_results(available_commands, max_depth, file_name, filter_invalid=Fa
     with open(file_name + "_tree.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
-        explore(Game(test=True), available_commands, [], [], 0)
+        explore(Game(test=True), [], [], 0)
 
     # Write the result set
     with open(file_name + "_set.csv", 'w', newline='') as csv_file:
@@ -144,11 +173,11 @@ def generate_results(available_commands, max_depth, file_name, filter_invalid=Fa
 
 def main():
     max_depth = 3
-    possible_commands = generate_possible_commands()
+    possible_commands = test_possible_commands()
     filtered_commands = prefilter_invalid_commands(possible_commands)
     generate_results(possible_commands, max_depth, "all_results")
-    generate_results(filtered_commands, max_depth, "valid_results", filter_invalid=True)
-    generate_results(filtered_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)
+    generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)
+    generate_results(possible_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)
 
 
 if __name__ == "__main__":

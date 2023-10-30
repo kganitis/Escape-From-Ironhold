@@ -5,7 +5,7 @@ import random
 
 def generate_message(result):
     # Tokenize the outcome into individual words
-    outcome_tokens = result.outcome.split()
+    outcome_tokens = result.create_outcome.split()
 
     # Tokenize the command into individual words
     command_tokens = result.command.split()

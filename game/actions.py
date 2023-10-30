@@ -1,44 +1,73 @@
 # actions.py module
-import game.character
 from game.game_elements import *
-from game.outcomes import *
 from game.attributes import *
+from game.result import Result
 
 
 class Action:
-    def __init__(self, game_instance, command_verb, game_elements):
+    def __init__(self, game_instance, command, game_elements):
         self.game = game_instance
-        # Dynamically set the action method corresponding to the command verb string
-        self.execute = getattr(self, command_verb, None)
+        self.command = command
         self.game_elements = game_elements
+        # Dynamically set the action method corresponding to the command verb string
+        self.execute = getattr(self, command.verb, None)
+        # Initialize a list to keep all the results of the execution
+        self.results = []
 
     def is_executable(self):
         return self.execute and callable(self.execute)
+
+    def produce_result(self, outcome_const, *args):
+        result = Result(self.command, *create_outcome(outcome_const, *args))
+        self.results.append(result)
+
+    def take(self):
+        invalid_items, not_obtainable, already_obtained, items_to_take = [], [], [], []
+        for item in self.game_elements:
+            if not isinstance(item, Item):
+                invalid_items.append(f"{item}")
+            elif not isinstance(item, Obtainable):
+                not_obtainable.append(item)
+            elif item in self.game.player.inventory.items:
+                already_obtained.append(item)
+            else:
+                items_to_take.append(item)
+
+        if invalid_items:
+            self.produce_result(INVALID_ITEMS, invalid_items)
+        if not_obtainable:
+            self.produce_result(NOT_OBTAINABLE, not_obtainable)
+        if already_obtained:
+            self.produce_result(ALREADY_OBTAINED, already_obtained)
+
+        # Take the rest of the items
+        if items_to_take:
+            for item in items_to_take:
+                item.take(self.game.player.inventory.items)
+            self.produce_result(TAKE_SUCCESS, items_to_take)
 
     def use(self):
         # Check syntax rules
         invalid_objects = [f"{obj}" for obj in self.game_elements[:2] if not isinstance(obj, (Item, LocationConnection))]
         if invalid_objects:
-            return INVALID_OBJECT
+            return self.produce_result(INVALID_OBJECT, invalid_objects)
 
         object_to_use = self.game_elements[0]
         if not isinstance(object_to_use, Usable):
-            return NOT_USABLE
+            return self.produce_result(NOT_USABLE, object_to_use)
 
-        target_object = None
-        if len(self.game_elements) > 1:
-            target_object = self.game_elements[1]
-
-        return object_to_use.use(target_object) or CANT_USE_OBJECT
+        target_object = self.game_elements[1] if len(self.game_elements) > 1 else None
+        outcome = object_to_use.use(target_object) or CANT_USE_OBJECT
+        self.produce_result(outcome, object_to_use, target_object)
 
     def lock(self):
         object_to_lock = self.game_elements[0]
 
         if not isinstance(object_to_lock, (Item, LocationConnection)):
-            return INVALID_OBJECT
+            return self.produce_result(INVALID_OBJECT, object_to_lock)
 
         if not isinstance(object_to_lock, Lockable):
-            return NOT_LOCKABLE
+            return self.produce_result(NOT_LOCKABLE, object_to_lock)
 
         # Find the locking tool, if any
         locking_tool = False
@@ -51,18 +80,19 @@ class Action:
                 if isinstance(item, LockingTool):
                     locking_tool = item
         if not locking_tool:
-            return MISSING_LOCKING_TOOL
+            return self.produce_result(MISSING_LOCKING_TOOL)
 
-        return object_to_lock.lock(locking_tool) or CANT_LOCK
+        outcome = object_to_lock.lock(locking_tool) or CANT_LOCK
+        self.produce_result(outcome, object_to_lock, locking_tool)
 
     def unlock(self):
         object_to_unlock = self.game_elements[0]
 
         if not isinstance(object_to_unlock, (Item, LocationConnection)):
-            return INVALID_OBJECT
+            return self.produce_result(INVALID_OBJECT, object_to_unlock)
 
         if not isinstance(object_to_unlock, Lockable):
-            return NOT_UNLOCKABLE
+            return self.produce_result(NOT_UNLOCKABLE, object_to_unlock)
 
         # Find the unlocking tool, if any
         unlocking_tool = False
@@ -75,56 +105,43 @@ class Action:
                 if isinstance(item, LockingTool):
                     unlocking_tool = item
         if not unlocking_tool:
-            return MISSING_LOCKING_TOOL
+            return self.produce_result(MISSING_LOCKING_TOOL)
 
-        return object_to_unlock.unlock(unlocking_tool) or CANT_UNLOCK
+        outcome = object_to_unlock.unlock(unlocking_tool) or CANT_UNLOCK
+        self.produce_result(outcome, object_to_unlock, unlocking_tool)
 
     def open(self):
         object_to_open = self.game_elements[0]
 
         if not isinstance(object_to_open, (Item, LocationConnection)):
-            return INVALID_OBJECT
+            return self.produce_result(INVALID_OBJECT, object_to_open)
 
         if not isinstance(object_to_open, Openable):
-            return NOT_OPENABLE
+            return self.produce_result(NOT_OPENABLE, object_to_open)
 
         opening_tool = None
         if len(self.game_elements) > 1:
             opening_tool = self.game_elements[1]
 
-        return object_to_open.open(opening_tool) or CANT_OPEN_OBJECT
+        outcome = object_to_open.open(opening_tool) or CANT_OPEN_OBJECT
+        self.produce_result(outcome, object_to_open, opening_tool)
 
     def close(self):
         object_to_close = self.game_elements[0]
 
         if not isinstance(object_to_close, (Item, LocationConnection)):
-            return INVALID_OBJECT
+            return self.produce_result(INVALID_OBJECT, object_to_close)
 
         if not isinstance(object_to_close, Openable):
-            return NOT_CLOSABLE
+            return self.produce_result(NOT_CLOSABLE, object_to_close)
 
-        return object_to_close.close() or CANT_CLOSE_OBJECT
-
-    def combine(self):
-        items_to_combine = self.game_elements[:2]
-
-        invalid_items = [f"{item}" for item in items_to_combine if not isinstance(item, Item)]
-        if invalid_items:
-            return INVALID_ITEMS
-
-        if len(items_to_combine) == 1:
-            return MUST_BE_COMBINED if isinstance(items_to_combine[0], Combinable) else NOT_COMBINABLE
-
-        item1, item2 = items_to_combine
-        if not isinstance(item1, Combinable) or not isinstance(item2, Combinable):
-            return NOT_COMBINABLE
-
-        return item1.combine(item2) or item2.combine(item1) or CANT_COMBINE
+        outcome = object_to_close.close() or CANT_CLOSE_OBJECT
+        self.produce_result(outcome, object_to_close)
 
     def go(self):
         location_to_go = self.game_elements[0]
         if not (isinstance(location_to_go, Location) and isinstance(location_to_go, Accessible)):
-            return INVALID_LOCATION
+            return self.produce_result(INVALID_LOCATION, location_to_go)
 
-        outcome = location_to_go.go()
-        return outcome or CANT_GO_TO_LOCATION
+        outcome = location_to_go.go() or CANT_GO_TO_LOCATION
+        self.produce_result(outcome, location_to_go)
