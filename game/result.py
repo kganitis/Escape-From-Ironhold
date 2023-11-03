@@ -2,12 +2,12 @@ from game.outcomes import *
 
 
 class Result:
-    def __init__(self, command=None, outcome_text="", related_elements=None, outcome_type=False):
-        if related_elements is None:
-            related_elements = []
+    def __init__(self, command=None, outcome_text="", related_objects=None, outcome_type=False):
+        if related_objects is None:
+            related_objects = []
         self.command = command
         self.outcome = outcome_text
-        self.related_elements = related_elements
+        self.related_objects = related_objects
         self.type = outcome_type
         self.message = ""
 

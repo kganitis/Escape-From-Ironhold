@@ -86,7 +86,7 @@ def generate_all_possible_commands():
     available_commands = get_available_command_verbs()
 
     # Get game element names from the game elements repository
-    game_element_names = list(Game().game_elements_repository.keys())
+    game_element_names = list(Game().game_objects_repository.keys())
 
     # Initialize a list to store all possible commands
     possible_commands = []
@@ -133,6 +133,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
         for cmd in possible_commands:
             game_copy = copy.deepcopy(game_instance)
+            # print(cmd)
             results = game_copy.parse(cmd)
             for rlt in results:
                 if filter_invalid and rlt.type == INVALID:
@@ -152,7 +153,9 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
     with open(file_name + "_tree.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
-        explore(Game(test=True), [], [], 0)
+        game = Game(test=True)
+        game.game_world.populate()
+        explore(game, [], [], 0)
 
     # Write the result set
     with open(file_name + "_set.csv", 'w', newline='') as csv_file:

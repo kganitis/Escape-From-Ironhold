@@ -1,16 +1,16 @@
-from game.game_elements import *
+from game.game_objects import *
 from game.items import Lock
 from game.outcomes import *
 from game.attributes import *
 
 
 class Door(LocationConnection, Openable, Lockable):
-    def __init__(self, game, name, description):
-        super().__init__(game, name, description)
+    def __init__(self, game, name, description, parent):
+        super().__init__(game, name, description, parent)
         Openable.__init__(self)
         Lockable.__init__(self)
-        self.__lock = Lock(game, self)
-        self.items.append(self.__lock)
+        self.__lock = Lock(game, parent=self)
+        self.attach(self.__lock)
 
     def locked(self):
         return self.__lock.locked

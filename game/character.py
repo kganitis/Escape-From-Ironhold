@@ -1,17 +1,5 @@
 # character.py module
-from game.game_elements import Character, GameElement
-
-
-class Inventory(GameElement):
-    def __init__(self, game, parent):
-        name = "inventory"
-        description = "Your inventory of items."
-        super().__init__(game, name, description, parent)
-        self.items = []
-
-    def add(self, item):
-        self.items.append(item)
-        item.parent = self
+from game.game_objects import Character
 
 
 class Hero(Character):
@@ -19,4 +7,15 @@ class Hero(Character):
         name = "Hero"
         description = "A brave hero trying to escape from the Ironhold prison."
         super().__init__(game, name, description, parent)
-        self.inventory = Inventory(game, self)
+
+    @property
+    def inventory(self):
+        return self.children
+
+    @property
+    def scope(self, modifier=None):
+        scope = super().scope
+        scope.update(self.game.current_location.internal_scope)
+        for con in self.game.current_location.connections:
+            scope.update(con.scope)
+        return scope

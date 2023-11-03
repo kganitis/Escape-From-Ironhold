@@ -15,9 +15,8 @@ class Combinable(ABC):
 
 
 class Obtainable(ABC):
-    def take(self, new_holder):
-        new_holder.append(self)
-        self.parent = new_holder
+    def take(self):
+        self.move_to(self.player)
 
 
 class Accessible(ABC):

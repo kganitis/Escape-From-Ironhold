@@ -15,10 +15,12 @@ def create_outcome(outcome_const, *args):
 # outcomes
 # invalid outcomes
 INVALID_COMMAND = f"Invalid command", INVALID
-INVALID_OBJECT = f"Invalid object", INVALID
-INVALID_ITEMS = f"Invalid item(s)", INVALID
+INVALID_OBJECTS = f"Invalid objects", INVALID
+INVALID_ITEMS = f"Invalid items", INVALID
 INVALID_LOCATION = f"Invalid location", INVALID
 
+# scope outcomes
+OUT_OF_SCOPE = f"Object is out of scope", FAIL
 
 # fail generic outcomes
 NOT_OBTAINABLE = f"This object cannot be taken", FAIL
@@ -29,10 +31,6 @@ CANT_USE_OBJECT = f"You can't use that this way", FAIL
 CANT_USE_OBJECT_ALONE = f"You must use that with something else", FAIL
 MUST_USE_OBJECT_ALONE = f"You must use that alone", FAIL
 
-NOT_COMBINABLE = f"Items are not combinable", FAIL
-MUST_BE_COMBINED = f"Must combine that with something else", FAIL
-CANT_COMBINE = f"Can't combine these this way", FAIL
-
 CANT_GO_TO_LOCATION = f"Can't go to that location", FAIL
 ALREADY_IN_LOCATION = f"Already in this location", FAIL
 CANT_ACCESS_FROM_HERE = f"Can't access that from your current location", FAIL
@@ -40,10 +38,10 @@ BLOCKED_LOCATION = f"Location is blocked", FAIL
 
 NOT_LOCKABLE = f"Can't be (un)locked", FAIL
 CANT_LOCK = f"You can't lock that this way", FAIL
-MISSING_LOCKING_TOOL = f"Missing a locking tool", FAIL
 ALREADY_LOCKED = "Object already locked", FAIL
+MISSING_LOCKING_TOOL = f"Missing a locking tool", FAIL
 
-NOT_UNLOCKABLE = f"Can't be unlocked", FAIL
+NOT_UNLOCKABLE = f"Can't be (un)locked", FAIL
 CANT_UNLOCK = f"You can't unlock that this way", FAIL
 ALREADY_UNLOCKED = "Object already unlocked", FAIL
 

@@ -1,26 +1,16 @@
 # locations.py module
-from game.game_elements import Location
-from game.items import LockPick
-from game.location_connections import Door
+from game.game_objects import Location
 
 
 class Cell(Location):
-    def __init__(self, game):
+    def __init__(self, game, parent):
         name = "cell"
         description = "A dimly lit prison cell."
-        super().__init__(game, name, description)
-
-        self.items.append(LockPick(game, self))
-
-        cell_door = Door(game, name="door", description="A heavy wooden cell door.")
-        dungeon = Dungeon(game)
-        cell_door.connected_locations.extend([self, dungeon])
-        self.location_connections.append(cell_door)
-        dungeon.location_connections.append(cell_door)
+        super().__init__(game, name, description, parent)
 
 
 class Dungeon(Location):
-    def __init__(self, game):
+    def __init__(self, game, parent):
         name = "dungeon"
         description = "A prison dungeon."
-        super().__init__(game, name, description)
+        super().__init__(game, name, description, parent)

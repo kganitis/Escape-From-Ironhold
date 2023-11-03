@@ -1,5 +1,5 @@
 # items.py module
-from game.game_elements import Item, LockingTool
+from game.game_objects import Item, LockingTool
 from game.outcomes import *
 from game.attributes import *
 
@@ -34,3 +34,12 @@ class Lock(Item, Lockable):
             return LOCKING_TOOL_UNLOCK_FAIL
         self.locked = False
         return UNLOCK_SUCCESS
+
+
+class Barel(Item, Openable):
+
+    def open(self, opening_tool=None):
+        pass
+
+    def close(self):
+        pass

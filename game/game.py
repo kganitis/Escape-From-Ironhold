@@ -1,10 +1,9 @@
 # game.py module
 from chatbot.chatbot import *
-from .locations import Cell
-from .character import Hero
-from .commands import Command, show_available_commands
+from .world import World
+from .commands import Command
 from .actions import Action
-from .outcomes import *
+from .outcomes import INVALID_COMMAND
 from .result import Result
 
 
@@ -12,64 +11,53 @@ class Game:
     def __init__(self, test=False):
         self.test = test
 
-        # A repository to hold every game element created
-        # It maps the element's name to the actual instance of the game element
-        self.game_elements_repository = {}
+        # A repository to hold every game object created
+        # It maps the object's name to the actual instance of the game object
+        self.game_objects_repository = {}
 
-        self.result_history = []
+        # Initialize game objects here
+        self.game_world = World(self)
 
-        # Initialize game elements here
-        self.current_location = Cell(self)
-        self.player = Hero(self, self.current_location)
+    @property
+    def current_location(self):
+        return self.game_world.current_location
+
+    @property
+    def player(self):
+        return self.game_world.hero
 
     def run(self):
+        self.game_world.populate()
         print("Escape From Ironhold: Prison Cell")
         self.current_location.describe()
         while True:
             print("\nWhat do you want to do? (type 'help' for commands)")
             input_command = input("> ").strip().lower()
-
             # TODO send command input string to nlp package for parsing
-
-            # further parse the command to translate it into an in game action
-            if input_command == "help":
-                show_available_commands()
-                continue
-            elif input_command == "exit":
-                print("Goodbye!")
-                break
-            elif input_command == '':
-                print("Empty input!")
-                continue
-            else:
-                self.parse(input_command)
+            self.parse(input_command)
 
     def parse(self, input_command):
         # Split the command into words
         words = input_command.split()
-        if not words:
-            return None
         verb = words[0]  # The first word is the verb
         args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
 
-        # Execute the command
+        # Create the command and check syntax
         command = Command(verb, args)
-        outcome_text, outcome_type = INVALID_COMMAND
-        results = [Result(command, outcome_text, [], outcome_type)]
         if command.is_valid():
-            # Convert argument stings to actual instances of game elements, retrieved from the game elements repository
-            game_elements = [self.game_elements_repository.get(arg, arg) for arg in command.args]
-            action = Action(self, command, game_elements)
-            if action.is_executable():
-                action.execute()
-                results = action.results
-            else:
-                raise ValueError(f"Action not found for verb: {command.verb}")
-        self.result_history.extend(results)
+            # Map argument stings to actual instances of game objects, retrieved from the game objects repository
+            game_objects = [self.game_objects_repository.get(arg, arg) for arg in command.args]
+            # Execute the command
+            action = Action(self, command, game_objects)
+            results = action.execute()
+        else:
+            outcome_text, outcome_type = INVALID_COMMAND
+            results = [Result(command, outcome_text, [], outcome_type)]
 
+        # Print the results
         if self.test:
             return results
         for result in results:
-            print(f"\n{result.outcome} {result.related_elements}")
+            print(f"\n{result.outcome} {result.related_objects}")
             # message = generate_message(result)
             # print(f"Message: {message}")
