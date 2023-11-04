@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from nlp.parser import parse
 from game.game import Game
 from game.outcomes import *
 
@@ -9,11 +10,11 @@ class TestActions(TestCase):
         expected_results = expected_results[0] if isinstance(expected_results[0], list) else [expected_results]
         commands = list(self.commands) if isinstance(self.commands, tuple) else [self.commands]
         game = Game(test=True)
-        game.game_world.populate()
+        game.world.populate()
         results = []
 
         for cmd in commands:
-            results = game.parse(cmd)
+            results = parse(game.world, cmd)
 
         self.assertEqual(len(results), len(expected_results))
 

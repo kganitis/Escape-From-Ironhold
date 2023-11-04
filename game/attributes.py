@@ -56,6 +56,14 @@ class Openable(ABC):
     def __init__(self, _open=False):
         self._open = _open
 
+    @property
+    def is_open(self):
+        return self._open
+
+    @is_open.setter
+    def is_open(self, value):
+        self._open = value
+
     @abstractmethod
     def open(self, opening_tool=None):
         pass

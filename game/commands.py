@@ -1,5 +1,5 @@
 # commands.py module
-from game.result import Result
+from .result import Result
 
 
 # Quantifier functions

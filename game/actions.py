@@ -1,12 +1,16 @@
 # actions.py module
-from game.game_objects import *
-from game.attributes import *
-from game.result import Result
+from game.game_object import *
+from .character import *
+from .location_connections import *
+from .locations import *
+from .items import *
+from .attributes import *
+from .result import *
 
 
 class Action:
-    def __init__(self, game_instance, command, game_objects):
-        self.game = game_instance
+    def __init__(self, world, command, game_objects):
+        self.world = world
         self.command = command
         self.game_objects = game_objects
 
@@ -17,12 +21,12 @@ class Action:
         self.results = []
 
     @property
-    def player(self):
-        return self.game.player
+    def scope(self):
+        return self.world.player.scope
 
     @property
-    def scope(self):
-        return self.player.scope
+    def player(self):
+        return self.world.player
 
     def execute(self):
         if self.execution_function and callable(self.execution_function):

@@ -1,4 +1,4 @@
-from .game_objects import *
+from .game_object import *
 from .character import *
 from .location_connections import *
 from .locations import *
@@ -6,24 +6,29 @@ from .items import *
 
 
 class World(GameObject):
-    def __init__(self, game):
+    def __init__(self):
         name = "Ironhold"
         description = "The prison of Ironhold fortress"
-        super().__init__(game, name, description)
+        super().__init__(name, description, parent=None)
 
-        self.current_location = None
-        self.hero = Hero(game, parent=None)
+        # A repository to hold every game object created
+        # It maps the object's name to the actual instance of the game object
+        self.game_objects_repository = {}
+
+        self.location = None
+        self.hero = Hero(parent=None)
 
     def populate(self):
-        game = self.game
-        cell = Cell(game, parent=self)
+        cell = Cell(parent=self)
         cell.add_child(self.hero)
-        self.current_location = cell
+        self.location = cell
 
-        lockpick = LockPick(game, parent=cell)
+        lockpick = LockPick(parent=cell)
 
-        dungeon = Dungeon(game, parent=self)
-        Barel(game, "barel", "Just a barel", parent=dungeon)
+        dungeon = Dungeon(parent=self)
+        Barel("barel", "Just a barel", parent=dungeon)
 
-        cell_door = Door(game, name="door", description="A heavy wooden cell door", parent=self)
+        lock = Lock(parent=None)
+        cell_door = Door(name="door", description="A heavy wooden cell door", lock=lock, parent=self)
+        cell_door.add_child(lock)
         cell_door.add_connected_locations(cell, dungeon)

@@ -1,12 +1,17 @@
 # character.py module
-from game.game_objects import Character
+from .game_object import *
+
+
+class Character(GameObject, ABC):
+    def __init__(self, name, description, parent):
+        super().__init__(name, description, parent)
 
 
 class Hero(Character):
-    def __init__(self, game, parent):
+    def __init__(self, parent):
         name = "Hero"
         description = "A brave hero trying to escape from the Ironhold prison."
-        super().__init__(game, name, description, parent)
+        super().__init__(name, description, parent)
 
     @property
     def inventory(self):
@@ -15,7 +20,7 @@ class Hero(Character):
     @property
     def scope(self, modifier=None):
         scope = super().scope
-        scope.update(self.game.current_location.internal_scope)
-        for con in self.game.current_location.connections:
+        scope.update(self.current_location.internal_scope)
+        for con in self.current_location.connections:
             scope.update(con.scope)
         return scope

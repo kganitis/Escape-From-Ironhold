@@ -1,9 +1,9 @@
 import copy
 import csv
 
-from game.commands import *
+from nlp.parser import parse
 from game.game import Game
-from game.outcomes import *
+from game.outcomes import INVALID, FAIL
 
 
 def test_possible_commands():
@@ -63,59 +63,6 @@ def test_possible_commands():
     ]
 
 
-def prefilter_invalid_commands(unfiltered_commands):
-    filtered_commands = []
-    for cmd in unfiltered_commands:
-        words = cmd.split()
-        if not words:
-            return None
-        verb = words[0]
-        args = words[1:] if len(words) > 1 else None
-
-        command = Command(verb, args)
-        if command.is_valid():
-            filtered_commands.append(cmd)
-
-        # append just a sample invalid command
-        filtered_commands.append("nonsense")
-    return filtered_commands
-
-
-def generate_all_possible_commands():
-    # Get available command verbs
-    available_commands = get_available_command_verbs()
-
-    # Get game element names from the game elements repository
-    game_element_names = list(Game().game_objects_repository.keys())
-
-    # Initialize a list to store all possible commands
-    possible_commands = []
-
-    # Generate all possible 1-word commands
-    possible_commands.extend(available_commands)
-    possible_commands.extend(game_element_names)
-    possible_commands.append("nonsense")  # a word to simulate unsupported words
-
-    # Generate all possible 2-word commands
-    two_word_commands = []
-    for word1 in possible_commands:
-        for word2 in possible_commands:
-            two_word_commands.append(f"{word1} {word2}")
-
-    # Generate all possible 3-word commands
-    three_word_commands = []
-    for word1 in possible_commands:
-        for word2 in possible_commands:
-            for word3 in possible_commands:
-                three_word_commands.append(f"{word1} {word2} {word3}")
-
-    possible_commands.extend(two_word_commands)
-    possible_commands.extend(three_word_commands)
-
-    # You now have a list of all possible commands
-    return possible_commands
-
-
 def generate_results(possible_commands, max_depth, file_name, filter_invalid=False, filter_failed=False):
     def save_results_to_csv(results=None):
         # Write all the fields of all result instances in the same row of the csv file
@@ -124,7 +71,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
             all_result_fields.extend([r.command.__str__(), r.outcome, r.type, '.                                           .'])
         writer.writerow(all_result_fields)
 
-    def explore(game_instance, all_results, current_results, depth, prev_result=None):
+    def explore(world, all_results, current_results, depth, prev_result=None):
         # end recursion
         if prev_result and (prev_result.is_fail_or_error() or not possible_commands or depth >= max_depth):
             all_results.append(current_results)
@@ -132,9 +79,9 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
             return
 
         for cmd in possible_commands:
-            game_copy = copy.deepcopy(game_instance)
+            world_copy = copy.deepcopy(world)
             # print(cmd)
-            results = game_copy.parse(cmd)
+            results = parse(world_copy, cmd)
             for rlt in results:
                 if filter_invalid and rlt.type == INVALID:
                     continue
@@ -143,7 +90,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
                 current_results.append(rlt)
                 result_set.add((rlt.command.__str__(), rlt.outcome, rlt.type))
                 outcome_set.add((rlt.outcome, rlt.type))
-                explore(game_copy, all_results, current_results, depth + 1, rlt)
+                explore(world_copy, all_results, current_results, depth + 1, rlt)
                 current_results.pop()
 
     result_set = set()
@@ -154,8 +101,8 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
         game = Game(test=True)
-        game.game_world.populate()
-        explore(game, [], [], 0)
+        game.world.populate()
+        explore(game.world, [], [], 0)
 
     # Write the result set
     with open(file_name + "_set.csv", 'w', newline='') as csv_file:
@@ -177,10 +124,9 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 def main():
     max_depth = 3
     possible_commands = test_possible_commands()
-    filtered_commands = prefilter_invalid_commands(possible_commands)
-    generate_results(possible_commands, max_depth, "all_results")
-    generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)
-    generate_results(possible_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)
+    generate_results(possible_commands, max_depth, "results_tree/all_results")
+    generate_results(possible_commands, max_depth, "results_tree/valid_results", filter_invalid=True)
+    generate_results(possible_commands, max_depth, "results_tree/successful_results", filter_invalid=True, filter_failed=True)
 
 
 if __name__ == "__main__":
