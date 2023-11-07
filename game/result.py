@@ -18,7 +18,7 @@ class Result:
         return self.command == other.command and self.outcome == other.create_outcome and self.type == other.type and self.message == other.message
 
     def __str__(self):
-        return f"{self.command} => {self.outcome}"
+        return f"{self.command} => ({self.outcome}, {self.related_objects}, {self.type})"
 
     def is_fail_or_error(self):
         return self.type == FAIL or self.type == INVALID

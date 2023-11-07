@@ -2,7 +2,7 @@ import copy
 import csv
 
 from nlp.parser import parse
-from game.game import Game
+from game.world import World
 from game.outcomes import INVALID, FAIL
 
 
@@ -13,9 +13,10 @@ def test_possible_commands():
         "take lockpick",
         "take lock",
         "take door",
+        "take barel"
         "take nonsense",
-        "take lockpick lock",
-        "take lockpick nonsense",
+        "take lock door",
+        "take nonsense barel lock lockpick",
         "use",
         "use lockpick",
         "use lock",
@@ -96,23 +97,24 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
     result_set = set()
     outcome_set = set()
 
+    path = "results_tree/"
     # Initialize result tree csv with the headers and pass it to the explore method
-    with open(file_name + "_tree.csv", 'w', newline='') as csv_file:
+    with open(path + file_name + "_tree.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
-        game = Game(test=True)
-        game.world.populate()
-        explore(game.world, [], [], 0)
+        world = World()
+        world.populate()
+        explore(world, [], [], 0)
 
     # Write the result set
-    with open(file_name + "_set.csv", 'w', newline='') as csv_file:
+    with open(path + file_name + "_set.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type'])
         for result in result_set:
             writer.writerow(result)
 
     # Write the outcome set
-    with open(file_name + "_outcome_set.csv", 'w', newline='') as csv_file:
+    with open(path + file_name + "_outcome_set.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['outcome', 'type'])
         for outcome in outcome_set:
@@ -124,9 +126,9 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 def main():
     max_depth = 3
     possible_commands = test_possible_commands()
-    generate_results(possible_commands, max_depth, "results_tree/all_results")
-    generate_results(possible_commands, max_depth, "results_tree/valid_results", filter_invalid=True)
-    generate_results(possible_commands, max_depth, "results_tree/successful_results", filter_invalid=True, filter_failed=True)
+    generate_results(possible_commands, max_depth, "all_results")
+    generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)
+    generate_results(possible_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)
 
 
 if __name__ == "__main__":

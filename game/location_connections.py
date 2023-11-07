@@ -1,7 +1,5 @@
 from .game_object import *
-from .items import LockingTool
 from .outcomes import *
-from .attributes import *
 
 
 class LocationConnection(GameObject, ABC):
@@ -14,13 +12,20 @@ class LocationConnection(GameObject, ABC):
     def items(self):
         return self.children
 
+    @property
+    def scope(self, modifier=None):
+        scope = super().scope
+        scope.update(self.connected_locations)
+        return scope
+
     def add_connected_locations(self, *locations):
         self.connected_locations.extend(locations)
         for loc in locations:
             loc.add_connection(self)
 
+    @property
     def is_blocked(self):
-        return BLOCKED_LOCATION
+        return BLOCKED_CONNECTION
 
 
 class Door(LocationConnection, Openable, Lockable):
@@ -38,33 +43,27 @@ class Door(LocationConnection, Openable, Lockable):
     @property
     def is_blocked(self):
         if self.locked:
-            return DOOR_LOCKED_FAIL
+            return BLOCKED_OBJECT_LOCKED_FAIL
         if not self.is_open:
-            return DOOR_CLOSED_FAIL
+            return BLOCKED_OBJECT_CLOSED_FAIL
         return False
 
     def open(self, opening_tool=None):
+        open_with_tool = False
         if self.locked:
-            if opening_tool and isinstance(opening_tool, LockingTool):
-                return self.unlock(opening_tool)
+            if opening_tool:
+                # Generate a command to unlock the door first, before attempting to open
+                result = self.world.parse(f"unlock {self} {opening_tool}")
+                open_with_tool = result[0].outcome == UNLOCK_SUCCESS[0]
             else:
-                return DOOR_LOCKED_FAIL
-
-        if self.is_open:
-            return ALREADY_OPEN
+                return BLOCKED_OBJECT_LOCKED_FAIL
 
         self.is_open = True
-        return DOOR_OPENED_SUCCESS
-
-    def close(self):
-        if not self.is_open:
-            return ALREADY_CLOSED
-        self.is_open = False
-        return DOOR_CLOSED_SUCCESS
+        return OPEN_WITH_TOOL_SUCCESS if open_with_tool else OPEN_SUCCESS
 
     def lock(self, locking_tool):
         if self.is_open:
-            return DOOR_OPEN_FAIL
+            return OBJECT_OPEN_FAIL
         return self.__lock.lock(locking_tool)
 
     def unlock(self, unlocking_tool):

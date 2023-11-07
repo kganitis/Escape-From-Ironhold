@@ -1,6 +1,5 @@
-# game.py module
-from chatbot.chatbot import *
 from .world import World
+from nlp.parser import parse
 
 
 class Game:
@@ -11,11 +10,9 @@ class Game:
     def run(self):
         self.world.populate()
         print("Escape From Ironhold: Prison Cell")
-        self.current_location.describe()
         while True:
-            print("\nWhat do you want to do? (type 'help' for commands)")
+            print("\nWhat do you want to do?")
             input_command = input("> ").strip().lower()
-            # TODO send command input string to nlp package for parsing
             results = parse(self.world, input_command)
             if not self.test:
                 for result in results:

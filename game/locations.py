@@ -24,23 +24,6 @@ class Location(GameObject, Accessible, ABC):
     def get_connection_to(self, location):
         return self.location_connections.get(location)
 
-    def go(self):
-        new_location = self
-        if new_location == self.current_location:
-            return ALREADY_IN_LOCATION
-
-        connection_to_current_location = new_location.get_connection_to(self.current_location)
-        if not connection_to_current_location:
-            return CANT_ACCESS_FROM_HERE
-
-        blocked = connection_to_current_location.is_blocked
-        if blocked:
-            return blocked
-
-        self.player.move_to(new_location)
-        self.current_location = new_location
-        return ACCESSED_LOCATION
-
 
 class Cell(Location):
     def __init__(self, parent):

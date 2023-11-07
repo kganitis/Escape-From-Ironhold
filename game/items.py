@@ -1,7 +1,7 @@
-# items.py module
+# items. module
+from .attributes import *
 from .game_object import *
 from .outcomes import *
-from .attributes import *
 
 
 class Item(GameObject, ABC):
@@ -55,6 +55,10 @@ class Lock(Item, Lockable):
             return LOCKING_TOOL_UNLOCK_FAIL
         self.locked = False
         return UNLOCK_SUCCESS
+
+
+class Stone(Item, Obtainable):
+    pass
 
 
 class Barel(Item, Openable):

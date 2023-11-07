@@ -1,5 +1,5 @@
-# attributes.py
 from abc import ABC, abstractmethod
+from .outcomes import *
 
 
 class Usable(ABC):
@@ -17,12 +17,14 @@ class Combinable(ABC):
 class Obtainable(ABC):
     def take(self):
         self.move_to(self.player)
+        return TAKE_SUCCESS
 
 
 class Accessible(ABC):
-    @abstractmethod
     def go(self):
-        pass
+        self.player.move_to(self)
+        self.current_location = self
+        return ACCESSED_LOCATION_SUCCESS
 
 
 class Examinable(ABC):
@@ -32,8 +34,10 @@ class Examinable(ABC):
 
 
 class Lockable(ABC):
-    def __init__(self, locked=True):
+    def __init__(self, locked=True, key=None, can_be_picked=True):
         self._locked = locked
+        self.key = key
+        self.can_be_picked = can_be_picked
 
     @property
     def locked(self):
@@ -68,6 +72,6 @@ class Openable(ABC):
     def open(self, opening_tool=None):
         pass
 
-    @abstractmethod
     def close(self):
-        pass
+        self.is_open = False
+        return CLOSE_SUCCESS

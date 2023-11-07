@@ -1,5 +1,3 @@
-# game_object.py module
-from abc import ABC
 from .attributes import *
 
 

@@ -1,4 +1,3 @@
-# character.py module
 from .game_object import *
 
 
@@ -16,6 +15,10 @@ class Hero(Character):
     @property
     def inventory(self):
         return self.children
+
+    @property
+    def held(self):
+        return self.inventory
 
     @property
     def scope(self, modifier=None):

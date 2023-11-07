@@ -1,7 +1,3 @@
-# commands.py module
-from .result import Result
-
-
 # Quantifier functions
 # Check if an arguments list contains certain arguments count
 # Used to ensure that a command is followed by a valid count of arguments

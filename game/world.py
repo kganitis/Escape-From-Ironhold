@@ -1,8 +1,8 @@
-from .game_object import *
+from nlp.parser import parse
 from .character import *
+from .items import *
 from .location_connections import *
 from .locations import *
-from .items import *
 
 
 class World(GameObject):
@@ -24,11 +24,15 @@ class World(GameObject):
         self.location = cell
 
         lockpick = LockPick(parent=cell)
+        stone = Stone("stone", "A stone of the cell's walls", parent=cell)
 
         dungeon = Dungeon(parent=self)
-        Barel("barel", "Just a barel", parent=dungeon)
+        Barel("barel", "A barel just large enough to fit a person", parent=dungeon)
 
         lock = Lock(parent=None)
         cell_door = Door(name="door", description="A heavy wooden cell door", lock=lock, parent=self)
         cell_door.add_child(lock)
         cell_door.add_connected_locations(cell, dungeon)
+
+    def parse(self, command):
+        return parse(self, command)
