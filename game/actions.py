@@ -62,6 +62,16 @@ class Action:
         outcome = object_to_take.take()
         self.produce_result(outcome, object_to_take)
 
+    def drop(self):
+        object_to_drop = self.direct_object
+
+        not_in_possession = object_to_drop not in self.player.inventory and object_to_drop not in self.player.held
+        if not_in_possession:
+            return self.produce_result(NOT_IN_POSSESSION, object_to_drop)
+
+        outcome = object_to_drop.drop()
+        self.produce_result(outcome, object_to_drop)
+
     def use(self):
         object_to_use = self.direct_object
         second_object = self.indirect_object
@@ -85,6 +95,10 @@ class Action:
         if not_lockable:
             return self.produce_result(NOT_LOCKABLE, lockable_object)
 
+        already_locked_or_unlocked = lockable_object.locked if operation == 'lock' else not lockable_object.locked
+        if already_locked_or_unlocked:
+            return self.produce_result(ALREADY_LOCKED if operation == 'lock' else ALREADY_UNLOCKED, lockable_object)
+
         not_a_locking_tool = locking_tool is not None and not isinstance(locking_tool, LockingTool)
         if not_a_locking_tool:
             return self.produce_result(NOT_A_LOCKING_TOOL if operation == 'lock' else NOT_AN_UNLOCKING_TOOL, locking_tool)
@@ -102,6 +116,11 @@ class Action:
                     break
             else:
                 return self.produce_result(MISSING_LOCKING_TOOL if operation == 'lock' else MISSING_UNLOCKING_TOOL)
+
+        if operation == 'lock' and not locking_tool.can_lock:
+            return self.produce_result(LOCKING_TOOL_LOCK_FAIL, locking_tool)
+        elif operation == 'unlock' and not locking_tool.can_unlock:
+            return self.produce_result(LOCKING_TOOL_UNLOCK_FAIL, locking_tool)
 
         outcome = lockable_object.lock(locking_tool) if operation == 'lock' else lockable_object.unlock(locking_tool)
         self.produce_result(outcome, lockable_object, locking_tool)

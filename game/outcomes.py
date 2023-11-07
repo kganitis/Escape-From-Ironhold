@@ -25,12 +25,13 @@ OUT_OF_SCOPE = f"Object is out of scope", FAIL
 # fail generic outcomes
 NOT_OBTAINABLE = f"This object cannot be taken", FAIL
 ALREADY_OBTAINED = f"This object is already in your possession", FAIL
-
 NOT_HELD = f"You don't hold an object like that", FAIL
+NOT_IN_POSSESSION = f"You don't possess an object like that", FAIL
 
 NOT_USABLE = f"Object is not usable", FAIL
 CANT_USE_OBJECT_ALONE = f"You must use that with something else", FAIL
 MUST_USE_OBJECT_ALONE = f"You must use that alone", FAIL
+CANT_USE_ON_TARGET = f"You can't use that on this target", FAIL
 
 NOT_ACCESSIBLE = f"Location is not accessible", FAIL
 ALREADY_IN_LOCATION = f"Already in this location", FAIL
@@ -62,6 +63,7 @@ ACCESSED_LOCATION_SUCCESS = f"Accessed the location", SUCCESS
 LOCK_SUCCESS = f"Object locked", SUCCESS
 UNLOCK_SUCCESS = f"Object unlocked", SUCCESS
 TAKE_SUCCESS = f"Object taken from its previous owner", SUCCESS
+DROP_SUCCESS = f"Object dropped successfully", SUCCESS
 OPEN_SUCCESS = f"Object opened", SUCCESS
 OPEN_WITH_TOOL_SUCCESS = f"Object opened using a tool", SUCCESS
 CLOSE_SUCCESS = f"You closed the door", SUCCESS

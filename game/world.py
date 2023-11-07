@@ -29,10 +29,16 @@ class World(GameObject):
         dungeon = Dungeon(parent=self)
         Barel("barel", "A barel just large enough to fit a person", parent=dungeon)
 
-        lock = Lock(parent=None)
-        cell_door = Door(name="door", description="A heavy wooden cell door", lock=lock, parent=self)
-        cell_door.add_child(lock)
+        cell_door_lock = Lock(parent=cell)
+        cell_door_key = Key(parent=cell, lockable_target=cell_door_lock)
+        cell_door = Door(name="door", description="A heavy wooden cell door", parent=self, lock=cell_door_lock)
         cell_door.add_connected_locations(cell, dungeon)
+
+        courtyard = Courtyard(parent=self)
+        courtyard.add_to_scope()
 
     def parse(self, command):
         return parse(self, command)
+
+    def get_all_game_object_instances(self):
+        return list(self.world.game_objects_repository.values())

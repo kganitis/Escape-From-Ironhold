@@ -29,16 +29,18 @@ class LocationConnection(GameObject, ABC):
 
 
 class Door(LocationConnection, Openable, Lockable):
-    def __init__(self, name, description, lock, parent):
+    def __init__(self, name, description, parent, lock):
         super().__init__(name, description, parent)
         Openable.__init__(self)
         Lockable.__init__(self)
-        self.__lock = lock
-        self.attach(self.__lock)
+        self.lock_ = lock
+        self.attach(self.lock_)
+        self.key = lock.key
+        self.can_be_picked = lock.can_be_picked
 
     @property
     def locked(self):
-        return self.__lock.locked
+        return self.lock_.locked
 
     @property
     def is_blocked(self):
@@ -64,7 +66,7 @@ class Door(LocationConnection, Openable, Lockable):
     def lock(self, locking_tool):
         if self.is_open:
             return OBJECT_OPEN_FAIL
-        return self.__lock.lock(locking_tool)
+        return self.lock_.lock(locking_tool)
 
     def unlock(self, unlocking_tool):
-        return self.__lock.unlock(unlocking_tool)
+        return self.lock_.unlock(unlocking_tool)

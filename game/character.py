@@ -26,4 +26,7 @@ class Hero(Character):
         scope.update(self.current_location.internal_scope)
         for con in self.current_location.connections:
             scope.update(con.scope)
+        for obj in self.world.get_all_game_object_instances():
+            if obj.added_to_scope and obj not in scope:
+                scope.add(obj)
         return scope

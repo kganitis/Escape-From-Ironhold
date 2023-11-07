@@ -19,6 +19,10 @@ class Obtainable(ABC):
         self.move_to(self.player)
         return TAKE_SUCCESS
 
+    def drop(self):
+        self.move_to(self.player.parent)
+        return DROP_SUCCESS
+
 
 class Accessible(ABC):
     def go(self):
@@ -37,6 +41,8 @@ class Lockable(ABC):
     def __init__(self, locked=True, key=None, can_be_picked=True):
         self._locked = locked
         self.key = key
+        if key:
+            key.lockable_target = self
         self.can_be_picked = can_be_picked
 
     @property

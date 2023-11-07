@@ -11,6 +11,7 @@ class GameObject(ABC):
             parent.add_child(self)
         self.children = []
         self.attached = []
+        self.added_to_scope = False
 
     @property
     def world(self):
@@ -65,6 +66,12 @@ class GameObject(ABC):
 
         for attached in self.attached:
             attached.__update_scope(scope, modifier)
+
+    def add_to_scope(self):
+        self.added_to_scope = True
+
+    def remove_from_scope(self):
+        self.added_to_scope = False
 
     def __str__(self):
         return self.name

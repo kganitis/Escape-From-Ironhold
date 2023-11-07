@@ -37,6 +37,11 @@ _available_commands = {
         "description": "Take the specified items.",
         "syntax": "take {item}+"
     },
+    "drop": {
+        "rule": (__args_count_is_at_least, 1),
+        "description": "Drop the specified items.",
+        "syntax": "drop {item}+"
+    },
     "use": {
         "rule": (__args_count_is_at_least, 1),
         "description": "Use an object or perform an action using one or more objects.",
@@ -102,7 +107,7 @@ _available_commands = {
 
 def get_available_command_verbs():
     available_command_verbs = _available_commands.keys()
-    available_command_verbs = ["take", "use", "lock", "unlock", "open", "close", "go"]  # TODO delete this once all commands have been implemented
+    available_command_verbs = ['take', 'drop', 'use', 'lock', 'unlock', 'open', 'close', 'go']  # TODO delete this once all commands have been implemented
     return available_command_verbs
 
 

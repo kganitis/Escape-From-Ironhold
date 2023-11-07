@@ -37,3 +37,10 @@ class Dungeon(Location):
         name = "dungeon"
         description = "A prison dungeon."
         super().__init__(name, description, parent)
+
+
+class Courtyard(Location):
+    def __init__(self, parent):
+        name = "courtyard"
+        description = "Ironhold prison's courtyard."
+        super().__init__(name, description, parent)
