@@ -69,12 +69,12 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
         # Write all the fields of all result instances in the same row of the csv file
         all_result_fields = []
         for r in results:
-            all_result_fields.extend([r.command.__str__(), r.outcome, r.type, '.                                           .'])
+            all_result_fields.extend([r.action.command.__str__(), r.outcome.description, r.outcome.type, '.                                           .'])
         writer.writerow(all_result_fields)
 
     def explore(world, all_results, current_results, depth, prev_result=None):
         # end recursion
-        if prev_result and (prev_result.is_fail_or_error() or not possible_commands or depth >= max_depth):
+        if prev_result and (prev_result.is_fail_or_invalid() or not possible_commands or depth >= max_depth):
             all_results.append(current_results)
             save_results_to_csv(current_results)
             return
@@ -82,17 +82,16 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
         for cmd in possible_commands:
             world_copy = copy.deepcopy(world)
             # print(cmd)
-            results = parse(world_copy, cmd)
-            for rlt in results:
-                if filter_invalid and rlt.type == INVALID:
-                    continue
-                if filter_failed and rlt.type == FAIL:
-                    continue
-                current_results.append(rlt)
-                result_set.add((rlt.command.__str__(), rlt.outcome, rlt.type))
-                outcome_set.add((rlt.outcome, rlt.type))
-                explore(world_copy, all_results, current_results, depth + 1, rlt)
-                current_results.pop()
+            rlt = parse(world_copy, cmd)
+            if filter_invalid and rlt.outcome.type == INVALID:
+                continue
+            if filter_failed and rlt.outcome.type == FAIL:
+                continue
+            current_results.append(rlt)
+            result_set.add((rlt.action.command.__str__(), rlt.outcome.description, rlt.outcome.type))
+            outcome_set.add((rlt.outcome.description, rlt.outcome.type))
+            explore(world_copy, all_results, current_results, depth + 1, rlt)
+            current_results.pop()
 
     result_set = set()
     outcome_set = set()

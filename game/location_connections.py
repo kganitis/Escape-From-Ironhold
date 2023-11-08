@@ -56,7 +56,7 @@ class Door(LocationConnection, Openable, Lockable):
             if opening_tool:
                 # Generate a command to unlock the door first, before attempting to open
                 result = self.world.parse(f"unlock {self} {opening_tool}")
-                open_with_tool = result[0].outcome == UNLOCK_SUCCESS[0]
+                open_with_tool = result.outcome.outcome == UNLOCK_SUCCESS
             else:
                 return BLOCKED_OBJECT_LOCKED_FAIL
 

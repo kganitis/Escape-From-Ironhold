@@ -13,7 +13,6 @@ class Game:
         while True:
             print("\nWhat do you want to do?")
             input_command = input("> ").strip().lower()
-            results = parse(self.world, input_command)
+            result = parse(self.world, input_command)
             if not self.test:
-                for result in results:
-                    print(f"\n{result.outcome} {result.related_objects}")
+                print(f"\n{result.outcome.description} {result.objects}")

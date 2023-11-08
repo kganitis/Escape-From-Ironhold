@@ -1,6 +1,6 @@
 from game.actions import Action
 from game.commands import Command
-from game.outcomes import INVALID_COMMAND
+from game.outcomes import Outcome, INVALID_COMMAND
 from game.result import Result
 
 
@@ -13,8 +13,9 @@ def parse(world, input_command):
     # Syntax Analysis
     command = Command(verb, args)
     if not command.is_valid():
-        outcome_text, outcome_type = INVALID_COMMAND
-        return [Result(command, outcome_text, [], outcome_type)]
+        action = Action(world, command)
+        outcome = Outcome(INVALID_COMMAND)
+        return Result(action, outcome)
 
     # Lexical Analysis
     game_objects = [world.game_objects_repository.get(arg, arg) for arg in command.args]
@@ -23,4 +24,5 @@ def parse(world, input_command):
 
     # Execution
     action = Action(world, command, direct_object, indirect_object)
-    return action.execute()
+    outcome = action.execute()
+    return Result(action, outcome)

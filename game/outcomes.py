@@ -1,18 +1,27 @@
-# result types
+class Outcome:
+    def __init__(self, outcome, direct_object=None, indirect_object=None):
+        self.outcome = outcome
+        self.description = outcome[0]
+        self.type = outcome[1]
+        self.direct_object = direct_object
+        self.indirect_object = indirect_object
+        self.objects = [obj for obj in [direct_object, indirect_object] if obj is not None]
+
+    def __str__(self):
+        return f"{self.description}, {self.objects}, {self.type}"
+
+    def __eq__(self, other):
+        return self.outcome == other.outcome and self.objects == other.objects
+
+
+# outcome types
 SUCCESS = "SUCCESS"  # command executed successfully and the result advances the game state
 NEUTRAL = "NEUTRAL"  # command executed successfully but the result does not advance the game state
 FAIL = "FAIL"  # command is valid but failed to be executed
 INVALID = "INVALID"  # invalid command
 
 
-def create_outcome(outcome_const, *args):
-    outcome_text, outcome_type = outcome_const
-    args = args[0] if args and isinstance(args[0], list) else list(args)
-    args = [f"{arg}" for arg in args if arg]
-    return outcome_text, args, outcome_type
-
-
-# outcomes
+# outcomes (description, type)
 # invalid outcomes
 INVALID_COMMAND = f"Invalid command", INVALID
 INVALID_OBJECTS = f"Invalid objects", INVALID
@@ -20,7 +29,7 @@ INVALID_ITEMS = f"Invalid items", INVALID
 INVALID_LOCATION = f"Invalid location", INVALID
 
 # scope outcomes
-OUT_OF_SCOPE = f"Object is out of scope", FAIL
+OUT_OF_SCOPE = "Object is out of scope", FAIL
 
 # fail generic outcomes
 NOT_OBTAINABLE = f"This object cannot be taken", FAIL
@@ -67,24 +76,3 @@ DROP_SUCCESS = f"Object dropped successfully", SUCCESS
 OPEN_SUCCESS = f"Object opened", SUCCESS
 OPEN_WITH_TOOL_SUCCESS = f"Object opened using a tool", SUCCESS
 CLOSE_SUCCESS = f"You closed the door", SUCCESS
-
-
-def test_outcome_function():
-    # Test a single outcome constant without arguments
-    result = create_outcome(NOT_OBTAINABLE)
-    assert result == (NOT_OBTAINABLE[0], [], NOT_OBTAINABLE[1])
-
-    # Test a single outcome constant with a single argument
-    result = create_outcome(NOT_OBTAINABLE, "arg1")
-    assert result == (NOT_OBTAINABLE[0], ["arg1"], NOT_OBTAINABLE[1])
-
-    # Test a single outcome constant with arguments as separate parameters
-    result = create_outcome(NOT_OBTAINABLE, "arg1", "arg2", "arg3")
-    assert result == (NOT_OBTAINABLE[0], ["arg1", "arg2", "arg3"], NOT_OBTAINABLE[1])
-
-    # Test a single outcome constant with a list of arguments
-    result = create_outcome(NOT_OBTAINABLE, ["arg1", "arg2", "arg3"])
-    assert result == (NOT_OBTAINABLE[0], ["arg1", "arg2", "arg3"], NOT_OBTAINABLE[1])
-
-
-test_outcome_function()
