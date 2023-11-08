@@ -6,10 +6,12 @@ from .locations import *
 
 
 class World(GameObject):
-    def __init__(self):
+    def __init__(self, test=False):
         name = "Ironhold"
         description = "The prison of Ironhold fortress"
         super().__init__(name, description, parent=None)
+
+        self.test = test
 
         # A repository to hold every game object created
         # It maps the object's name to the actual instance of the game object
@@ -38,7 +40,7 @@ class World(GameObject):
         courtyard.add_to_scope()
 
     def parse(self, command):
-        return parse(self, command)
+        return parse(self, command, self.test)
 
     def get_all_game_object_instances(self):
         return list(self.world.game_objects_repository.values())

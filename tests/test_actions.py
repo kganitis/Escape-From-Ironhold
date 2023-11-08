@@ -2,7 +2,6 @@ from unittest import TestCase
 
 from game.outcomes import *
 from game.world import World
-from nlp.parser import parse
 
 
 class TestAction(TestCase):
@@ -17,7 +16,7 @@ class TestAction(TestCase):
         actual_outcome_objects = []
 
         for cmd in commands:
-            actual_result = parse(world, cmd)
+            actual_result = world.parse(cmd)
             actual_outcome = actual_result.outcome
             actual_outcome_objects = [f"{obj}" for obj in actual_outcome.objects]
         # actual_outcome.show()
@@ -33,6 +32,10 @@ class TestExecute(TestAction):
     def test_out_of_scope(self):
         self.commands = "take barel"
         self.assert_outcome(OUT_OF_SCOPE, ['barel'])
+
+    def test_command_transform(self):
+        self.commands = "take lockpick", "use lockpick lock"
+        self.assert_outcome(COMMAND_TRANSFORMED, ['lockpick', 'lock'])
 
 
 class TestTake(TestAction):
@@ -73,8 +76,7 @@ class TestUse(TestAction):
         self.assert_outcome(INVALID_COMMAND, [])
 
     def test_usable_on_target(self):
-        self.commands = "take lockpick", "use lockpick lock"
-        self.assert_outcome(UNLOCK_SUCCESS, ['lockpick', 'lock'])
+        pass
 
     def test_not_usable(self):
         self.commands = "use lock"
@@ -212,7 +214,7 @@ class TestGo(TestAction):
 
     def test_go(self):
         self.commands = "take lockpick", "open door lockpick", "go dungeon"
-        self.assert_outcome(ACCESSED_LOCATION_SUCCESS, ['dungeon'])
+        self.assert_outcome(ACCESS_LOCATION_SUCCESS, ['dungeon'])
 
     def test_connection_blocked(self):
         self.commands = "go dungeon"

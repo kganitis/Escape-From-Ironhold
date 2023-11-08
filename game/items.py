@@ -22,13 +22,16 @@ class LockingTool(Item, Usable, ABC):
         if not isinstance(target_object, Lockable):
             return CANT_USE_ON_TARGET
 
-        return target_object.unlock(self) if target_object.locked else target_object.lock(self)
+        # Transform the command to lock/unlock target object
+        verb = 'unlock' if target_object.locked else 'unlock'
+        self.world.parse(f"{verb} {target_object} {self}")
+        return COMMAND_TRANSFORMED
 
 
 class LockPick(LockingTool, Obtainable):
     def __init__(self, parent):
         name = "lockpick"
-        description = "A simple lock pick that could be useful for picking locks."
+        description = "A simple lockpick that could be useful for picking locks."
         super().__init__(name, description, parent)
         self.can_lock = False
 

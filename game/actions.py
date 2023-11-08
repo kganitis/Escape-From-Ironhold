@@ -5,13 +5,13 @@ from .result import *
 
 
 class Action:
-    def __init__(self, world, command, direct_object=None, indirect_object=None):
+    def __init__(self, world, command, primary_object=None, secondary_object=None):
         self.world = world
         self.player = world.player
         self.command = command
-        self.direct_object = direct_object
-        self.indirect_object = indirect_object
-        self.objects = [obj for obj in [direct_object, indirect_object] if obj is not None]
+        self.primary_object = primary_object
+        self.secondary_object = secondary_object
+        self.objects = [obj for obj in [primary_object, secondary_object] if obj is not None]
 
         # Dynamically get the action execution function matching the command verb
         self.execution_function = getattr(self, command.verb, None)
@@ -31,22 +31,28 @@ class Action:
         else:
             raise ValueError(f"Action not found for verb: {self.command.verb}")
 
-    def _outcome(self, outcome, *args):
-        object1, object2 = None, None
-        if args:
-            if self.direct_object in args:
-                object1 = self.direct_object
-            else:
-                object1 = args[0]
-            if len(args) > 1:
-                if self.indirect_object in args:
-                    object2 = self.indirect_object
-                else:
-                    object2 = args[1]
-        return Outcome(outcome, object1, object2)
+    # TODO simplify this shit
+    def _outcome(self, outcome, *objects):
+        # Make sure objects count is exactly 2 and replace any missing objects with None
+        objects = (objects[0] if objects else None, objects[1] if objects and len(objects) > 1 else None)
+
+        # First decide the objects based on the instance fields
+        primary = self.primary_object if self.primary_object in objects else None
+        secondary = self.secondary_object if self.secondary_object in objects else None
+
+        # If the objects given are not in the instance's primary and secondary fields,
+        # get the missing objects from the objects tuple.
+        if not (primary and secondary):
+            primary, secondary = objects
+        elif primary and not secondary:
+            secondary = objects[0] if objects[0] != primary else objects[1]
+        elif secondary and not primary:
+            primary = objects[0] if objects[0] != secondary else objects[1]
+
+        return Outcome(outcome, primary, secondary)
 
     def take(self):
-        object_to_take = self.direct_object
+        object_to_take = self.primary_object
 
         not_obtainable = not isinstance(object_to_take, Obtainable)
         if not_obtainable:
@@ -60,7 +66,7 @@ class Action:
         return self._outcome(outcome, object_to_take)
 
     def drop(self):
-        object_to_drop = self.direct_object
+        object_to_drop = self.primary_object
 
         not_in_possession = object_to_drop not in self.player.inventory and object_to_drop not in self.player.held
         if not_in_possession:
@@ -70,8 +76,8 @@ class Action:
         return self._outcome(outcome, object_to_drop)
 
     def use(self):
-        object_to_use = self.direct_object
-        second_object = self.indirect_object
+        object_to_use = self.primary_object
+        secondary_object = self.secondary_object
 
         not_usable = not isinstance(object_to_use, Usable)
         if not_usable:
@@ -81,12 +87,12 @@ class Action:
         if not_held:
             return self._outcome(NOT_HELD, object_to_use)
 
-        outcome = object_to_use.use(second_object)
-        return self._outcome(outcome, object_to_use, second_object)
+        outcome = object_to_use.use(secondary_object)
+        return self._outcome(outcome, object_to_use, secondary_object)
 
     def __execute_lock_or_unlock(self, operation):
-        lockable_object = self.direct_object
-        locking_tool = self.indirect_object
+        lockable_object = self.primary_object
+        locking_tool = self.secondary_object
 
         not_lockable = not isinstance(lockable_object, Lockable)
         if not_lockable:
@@ -129,8 +135,8 @@ class Action:
         return self.__execute_lock_or_unlock('unlock')
 
     def open(self):
-        object_to_open = self.direct_object
-        opening_tool = self.indirect_object
+        object_to_open = self.primary_object
+        opening_tool = self.secondary_object
 
         not_openable = not isinstance(object_to_open, Openable)
         if not_openable:
@@ -144,7 +150,7 @@ class Action:
         return self._outcome(outcome, object_to_open, opening_tool)
 
     def close(self):
-        object_to_close = self.direct_object
+        object_to_close = self.primary_object
 
         not_closable = not isinstance(object_to_close, Openable)
         if not_closable:
@@ -158,7 +164,7 @@ class Action:
         return self._outcome(outcome, object_to_close)
 
     def go(self):
-        location_to_go = self.direct_object
+        location_to_go = self.primary_object
 
         not_accessible = not isinstance(location_to_go, Accessible)
         if not_accessible:

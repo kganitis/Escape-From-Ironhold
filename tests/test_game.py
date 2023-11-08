@@ -82,7 +82,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
         for cmd in possible_commands:
             world_copy = copy.deepcopy(world)
             # print(cmd)
-            rlt = parse(world_copy, cmd)
+            rlt = world_copy.parse(cmd)
             if filter_invalid and rlt.outcome.type == INVALID:
                 continue
             if filter_failed and rlt.outcome.type == FAIL:
@@ -101,7 +101,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
     with open(path + file_name + "_tree.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
-        world = World()
+        world = World(test=True)
         world.populate()
         explore(world, [], [], 0)
 

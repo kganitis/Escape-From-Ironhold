@@ -28,7 +28,7 @@ class Accessible(ABC):
     def go(self):
         self.player.move_to(self)
         self.current_location = self
-        return ACCESSED_LOCATION_SUCCESS
+        return ACCESS_LOCATION_SUCCESS
 
 
 class Examinable(ABC):
