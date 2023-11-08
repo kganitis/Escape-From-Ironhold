@@ -1,11 +1,11 @@
 import copy
 import csv
 
-from nlp.parser import parse
 from game.world import World
 from game.outcomes import INVALID, FAIL
 
 
+# TODO re-write this
 def test_possible_commands():
     return [
         "nonsense",

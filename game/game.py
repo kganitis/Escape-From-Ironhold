@@ -1,5 +1,4 @@
 from .world import World
-from nlp.parser import parse
 
 
 class Game:

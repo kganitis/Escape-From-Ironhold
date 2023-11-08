@@ -1,4 +1,4 @@
-from nlp.parser import parse
+from nlp.simple_parser import parse
 from .character import *
 from .items import *
 from .location_connections import *

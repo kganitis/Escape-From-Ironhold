@@ -7,19 +7,22 @@ from game.world import World
 class TestAction(TestCase):
 
     def assert_outcome(self, expected_outcome, expected_outcome_objects=None):
+        # Initialization
         if expected_outcome_objects is None:
             expected_outcome_objects = []
         commands = list(self.commands) if isinstance(self.commands, tuple) else [self.commands]
-        world = World()
+        world = World(test=True)
         world.populate()
         actual_outcome = None
         actual_outcome_objects = []
 
+        # Get the actual result
         for cmd in commands:
             actual_result = world.parse(cmd)
             actual_outcome = actual_result.outcome
             actual_outcome_objects = [f"{obj}" for obj in actual_outcome.objects]
-        # actual_outcome.show()
+
+        # Compare with the expected result
         self.assertEqual(expected_outcome, actual_outcome.outcome)
         self.assertEqual(expected_outcome_objects, actual_outcome_objects)
 
