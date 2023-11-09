@@ -18,14 +18,17 @@ class LocationConnection(GameObject, ABC):
         scope.update(self.connected_locations)
         return scope
 
-    def add_connected_locations(self, *locations):
+    @property
+    def is_blocked(self):
+        return BLOCKED_CONNECTION
+
+    def connect_locations(self, *locations):
         self.connected_locations.extend(locations)
         for loc in locations:
             loc.add_connection(self)
 
-    @property
-    def is_blocked(self):
-        return BLOCKED_CONNECTION
+    def get_connected_location_from(self, coming_location):
+        return next((loc for loc in self.connected_locations if loc != coming_location), None)
 
 
 class Door(LocationConnection, Openable, Lockable):
@@ -45,9 +48,9 @@ class Door(LocationConnection, Openable, Lockable):
     @property
     def is_blocked(self):
         if self.locked:
-            return BLOCKED_OBJECT_LOCKED_FAIL
+            return BLOCKED_OBJECT_LOCKED
         if not self.is_open:
-            return BLOCKED_OBJECT_CLOSED_FAIL
+            return BLOCKED_OBJECT_CLOSED
         return False
 
     def open(self, opening_tool=None):
@@ -58,14 +61,14 @@ class Door(LocationConnection, Openable, Lockable):
                 result = self.world.parse(f"unlock {self} {opening_tool}")
                 open_with_tool = result.outcome.outcome == UNLOCK_SUCCESS
             else:
-                return BLOCKED_OBJECT_LOCKED_FAIL
+                return BLOCKED_OBJECT_LOCKED
 
         self.is_open = True
         return OPEN_WITH_TOOL_SUCCESS if open_with_tool else OPEN_SUCCESS
 
     def lock(self, locking_tool):
         if self.is_open:
-            return OBJECT_OPEN_FAIL
+            return MUST_CLOSE_OBJECT
         return self.lock_.lock(locking_tool)
 
     def unlock(self, unlocking_tool):

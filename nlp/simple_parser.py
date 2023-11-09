@@ -4,12 +4,12 @@ from game.outcomes import Outcome, INVALID_COMMAND
 from game.result import Result
 
 
-stop_words = ["the", "a", "an", "and"]
+stop_words = ["the", "a", "an", "and", "in", "on", "to", "with", "for", "as", "at", "from"]
 
 
 def parse(world, input_command, test=False):
     # Tokenizing
-    words = [word for word in input_command.split() if word not in stop_words]
+    words = [word for word in input_command.strip().lower().split() if word not in stop_words]
     verb = words[0]  # The first word is the verb
     args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
 

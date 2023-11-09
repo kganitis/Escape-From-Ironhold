@@ -1,5 +1,4 @@
 # items. module
-from .attributes import *
 from .game_object import *
 from .outcomes import *
 
@@ -20,7 +19,7 @@ class LockingTool(Item, Usable, ABC):
             return CANT_USE_OBJECT_ALONE
 
         if not isinstance(target_object, Lockable):
-            return CANT_USE_ON_TARGET
+            return CANT_USE_OBJECT_ON_TARGET
 
         # Transform the command to lock/unlock target object
         verb = 'unlock' if target_object.locked else 'unlock'

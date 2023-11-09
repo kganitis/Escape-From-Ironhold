@@ -7,11 +7,14 @@ class Outcome:
         self.objects = [obj for obj in [primary_object, secondary_object] if obj is not None]
 
     def __str__(self):
-        objects = [f"{obj}" for obj in self.objects]
-        return f"{self.description}, {objects}, {self.type}"
+        return f"{self.description}, {self.object_names}, {self.type}"
 
     def __eq__(self, other):
         return self.outcome == other.outcome and self.objects == other.objects
+
+    @property
+    def object_names(self):
+        return [str(obj) for obj in self.objects]
 
     @property
     def formatted_description(self):
@@ -42,6 +45,7 @@ INVALID_LOCATION = "Invalid location", INVALID
 
 # scope outcomes
 OUT_OF_SCOPE = "The {primary} is out of scope", FAIL
+NON_EXISTING_OBJECT = "There isn't any {primary} around", FAIL
 
 # fail generic outcomes
 NOT_OBTAINABLE = "The {primary} cannot be taken", FAIL
@@ -52,14 +56,17 @@ NOT_IN_POSSESSION = "There isn't any {primary} in your possession", FAIL
 NOT_USABLE = "The {primary} is not usable", FAIL
 CANT_USE_OBJECT_ALONE = "You must use the {primary} with something else", FAIL
 MUST_USE_OBJECT_ALONE = "You must use the {primary} alone", FAIL
-CANT_USE_ON_TARGET = "You can't use the {primary} on the {secondary}", FAIL
+CANT_USE_OBJECT_ON_TARGET = "You can't use the {primary} on the {secondary}", FAIL
 
 NOT_ACCESSIBLE = "The {primary} is not accessible", FAIL
 ALREADY_IN_LOCATION = "Already in {primary}", FAIL
 NOT_ACCESSIBLE_FROM_CURRENT_LOCATION = "The {primary} is not accessible from {secondary}", FAIL
 BLOCKED_CONNECTION = "The {primary} is blocked", FAIL
-BLOCKED_OBJECT_LOCKED_FAIL = "The {primary} is locked and must be unlocked first", FAIL
-BLOCKED_OBJECT_CLOSED_FAIL = "The {primary} is closed and must be opened first", FAIL
+BLOCKED_OBJECT_LOCKED = "The {primary} is locked and must be unlocked first", FAIL
+BLOCKED_OBJECT_CLOSED = "The {primary} is closed and must be opened first", FAIL
+
+NOT_IN_LOCATION = "You're not in the {primary} at the moment", FAIL
+UNSPECIFIED_EXIT = "There are multiple exits from the {primary}. You must specify one", FAIL
 
 NOT_LOCKABLE = "The {primary} can't be (un)locked", FAIL
 ALREADY_LOCKED = "The {primary} is already locked", FAIL
@@ -68,8 +75,8 @@ NOT_A_LOCKING_TOOL = "The {primary} can't be used for locking", FAIL
 NOT_AN_UNLOCKING_TOOL = "The {primary} can't be used for unlocking", FAIL
 MISSING_LOCKING_TOOL = "You need something that can lock", FAIL
 MISSING_UNLOCKING_TOOL = "You need something that can unlock", FAIL
-LOCKING_TOOL_LOCK_FAIL = "The {primary} can't be used for locking", FAIL
-LOCKING_TOOL_UNLOCK_FAIL = "The {primary} can't be used for unlocking", FAIL
+CANT_LOCK_WITH_OBJECT = "The {primary} can't be used for locking", FAIL
+CANT_UNLOCK_WITH_OBJECT = "The {primary} can't be used for unlocking", FAIL
 
 NOT_OPENABLE = "The {primary} can't be opened", FAIL
 ALREADY_OPEN = "The {primary} is already open", FAIL
@@ -77,7 +84,7 @@ ALREADY_OPEN = "The {primary} is already open", FAIL
 NOT_CLOSABLE = "The {primary} can't be closed", FAIL
 ALREADY_CLOSED = "The {primary} is already closed", FAIL
 
-OBJECT_OPEN_FAIL = "The {primary} is open and must be closed first", FAIL
+MUST_CLOSE_OBJECT = "The {primary} is open and must be closed first", FAIL
 
 # successful generic outcomes
 ACCESS_LOCATION_SUCCESS = "You accessed the {primary} successfully", SUCCESS

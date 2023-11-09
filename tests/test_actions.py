@@ -2,6 +2,9 @@ from unittest import TestCase
 
 from game.outcomes import *
 from game.world import World
+from game.actions import Action
+from game.commands import Command
+from game.items import *
 
 
 class TestAction(TestCase):
@@ -25,6 +28,70 @@ class TestAction(TestCase):
         # Compare with the expected result
         self.assertEqual(expected_outcome, actual_outcome.outcome)
         self.assertEqual(expected_outcome_objects, actual_outcome_objects)
+
+
+class TestOutcome(TestCase):
+    def test_outcome(self):
+        world = World()
+        world.populate()
+        command = Command("open", ["door", "lockpick"])
+
+        door = world.game_objects_repository["door"]
+        lockpick = world.game_objects_repository["lockpick"]
+        other = Barel('barel', "", parent=None)
+        other2 = Stone('stone', "", parent=None)
+        action = Action(world, command, door, lockpick)
+        outcome_const = OPEN_WITH_TOOL_SUCCESS
+
+        # Test door, lockpick
+        actual_outcome = action.outcome(outcome_const, door, lockpick).object_names
+        expected_outcome = Outcome(outcome_const, door, lockpick).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test lockpick, door
+        actual_outcome = action.outcome(outcome_const, lockpick, door).object_names
+        expected_outcome = Outcome(outcome_const, door, lockpick).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test door
+        actual_outcome = action.outcome(outcome_const, door).object_names
+        expected_outcome = Outcome(outcome_const, door).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test lockpick
+        actual_outcome = action.outcome(outcome_const, lockpick).object_names
+        expected_outcome = Outcome(outcome_const, lockpick).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test other
+        actual_outcome = action.outcome(outcome_const, other).object_names
+        expected_outcome = Outcome(outcome_const, other).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test door, other
+        actual_outcome = action.outcome(outcome_const, door, other).object_names
+        expected_outcome = Outcome(outcome_const, door, other).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test other, door
+        actual_outcome = action.outcome(outcome_const, other, door).object_names
+        expected_outcome = Outcome(outcome_const, door, other).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test lockpick, other
+        actual_outcome = action.outcome(outcome_const, lockpick, other).object_names
+        expected_outcome = Outcome(outcome_const, lockpick, other).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test other, lockpick
+        actual_outcome = action.outcome(outcome_const, other, lockpick).object_names
+        expected_outcome = Outcome(outcome_const, other, lockpick).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
+
+        # Test other, other2
+        actual_outcome = action.outcome(outcome_const, other, other2).object_names
+        expected_outcome = Outcome(outcome_const, other, other2).object_names
+        self.assertEqual(expected_outcome, actual_outcome)
 
 
 class TestExecute(TestAction):
@@ -97,7 +164,7 @@ class TestLock(TestAction):
 
     def test_with_lockpick(self):
         self.commands = "take lockpick", "unlock lock", "lock lock lockpick"
-        self.assert_outcome(LOCKING_TOOL_LOCK_FAIL, ['lockpick'])
+        self.assert_outcome(CANT_LOCK_WITH_OBJECT, ['lockpick'])
 
     def test_with_key(self):
         self.commands = "take key", "unlock lock key", "lock lock key"
@@ -105,7 +172,7 @@ class TestLock(TestAction):
 
     def test_with_lockpick_in_inventory(self):
         self.commands = "take lockpick", "unlock lock", "lock lock"
-        self.assert_outcome(LOCKING_TOOL_LOCK_FAIL, ['lockpick'])
+        self.assert_outcome(CANT_LOCK_WITH_OBJECT, ['lockpick'])
 
     def test_with_key_in_inventory(self):
         self.commands = "take key", "unlock lock", "lock lock"
@@ -113,7 +180,11 @@ class TestLock(TestAction):
 
     def test_locking_tool_cant_lock(self):
         self.commands = "take lockpick", "unlock lock", "lock lock lockpick"
-        self.assert_outcome(LOCKING_TOOL_LOCK_FAIL, ['lockpick'])
+        self.assert_outcome(CANT_LOCK_WITH_OBJECT, ['lockpick'])
+
+    def test_locking_tool_not_in_possession(self):
+        self.commands = "take key", "unlock door", "lock lock lockpick"
+        self.assert_outcome(NOT_IN_POSSESSION, ['lockpick'])
 
     def test_missing_locking_tool(self):
         self.commands = "take key", "unlock lock", "drop key", "lock lock"
@@ -153,6 +224,10 @@ class TestUnlock(TestAction):
         self.commands = "take key", "unlock lock"
         self.assert_outcome(UNLOCK_SUCCESS, ['lock', 'key'])
 
+    def test_unlocking_tool_not_in_possession(self):
+        self.commands = "unlock lock lockpick"
+        self.assert_outcome(NOT_IN_POSSESSION, ['lockpick'])
+
     def test_missing_unlocking_tool(self):
         self.commands = "unlock lock"
         self.assert_outcome(MISSING_UNLOCKING_TOOL, [])
@@ -177,7 +252,7 @@ class TestOpen(TestAction):
 
     def test_open_locked(self):
         self.commands = "take lockpick", "open door"
-        self.assert_outcome(BLOCKED_OBJECT_LOCKED_FAIL, ['door'])
+        self.assert_outcome(BLOCKED_OBJECT_LOCKED, ['door'])
 
     def test_open_locked_with_opening_tool(self):
         self.commands = "take lockpick", "open door lockpick"
@@ -221,7 +296,7 @@ class TestGo(TestAction):
 
     def test_connection_blocked(self):
         self.commands = "go dungeon"
-        self.assert_outcome(BLOCKED_OBJECT_LOCKED_FAIL, ['door'])
+        self.assert_outcome(BLOCKED_OBJECT_LOCKED, ['door'])
 
     def test_not_connection_to_current_location(self):
         self.commands = "go courtyard"
@@ -236,6 +311,38 @@ class TestGo(TestAction):
         self.assert_outcome(NOT_ACCESSIBLE, ['stone'])
 
 
+class TestExit(TestAction):
+    def test_exit(self):
+        self.commands = "take key", "unlock door", "exit"
+        self.assert_outcome(COMMAND_TRANSFORMED)
+
+    def test_current_location(self):
+        self.commands = "take key", "unlock door", "exit the cell"
+        self.assert_outcome(COMMAND_TRANSFORMED)
+
+    def test_specified_exit(self):
+        self.commands = "take key", "unlock door", "exit from the door"
+        self.assert_outcome(COMMAND_TRANSFORMED)
+
+    def test_current_location_using_specified_exit(self):
+        self.commands = "take key", "unlock door", "exit the cell from the door"
+        self.assert_outcome(COMMAND_TRANSFORMED)
+
+    def test_multiple_exits(self):
+        # self.commands = "exit the cell"
+        # self.assert_outcome(UNSPECIFIED_EXIT, ['cell'])
+        pass
+
+    def test_another_location(self):
+        self.commands = "exit the dungeon"
+        self.assert_outcome(NOT_IN_LOCATION, ['dungeon'])
+
+    def test_not_existing_exit(self):
+        # self.commands = "exit from window"
+        # self.assert_outcome(NON_EXISTING_OBJECT, ['window'])
+        pass
+
+
 class TestLockingTool(TestAction):
     def test_use_usable_alone(self):
         self.commands = "take lockpick", "use lockpick"
@@ -243,21 +350,21 @@ class TestLockingTool(TestAction):
 
     def test_use_on_not_lockable(self):
         self.commands = "take lockpick", "use lockpick stone"
-        self.assert_outcome(CANT_USE_ON_TARGET, ['lockpick', 'stone'])
+        self.assert_outcome(CANT_USE_OBJECT_ON_TARGET, ['lockpick', 'stone'])
 
 
 class TestDoor(TestAction):
     def test_blocked_locked(self):
         self.commands = "go dungeon"
-        self.assert_outcome(BLOCKED_OBJECT_LOCKED_FAIL, ['door'])
+        self.assert_outcome(BLOCKED_OBJECT_LOCKED, ['door'])
 
     def test_blocked_closed(self):
         self.commands = "take lockpick", "unlock door", "go dungeon"
-        self.assert_outcome(BLOCKED_OBJECT_CLOSED_FAIL, ['door'])
+        self.assert_outcome(BLOCKED_OBJECT_CLOSED, ['door'])
 
     def test_open_locked(self):
         self.commands = "open door"
-        self.assert_outcome(BLOCKED_OBJECT_LOCKED_FAIL, ['door'])
+        self.assert_outcome(BLOCKED_OBJECT_LOCKED, ['door'])
 
     def test_open_locked_with_tool(self):
         self.commands = "take lockpick", "open door lockpick"
@@ -265,4 +372,4 @@ class TestDoor(TestAction):
 
     def test_lock_open(self):
         self.commands = "take key", "open door key", "lock door"
-        self.assert_outcome(OBJECT_OPEN_FAIL, ['door', 'key'])
+        self.assert_outcome(MUST_CLOSE_OBJECT, ['door', 'key'])

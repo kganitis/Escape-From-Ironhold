@@ -1,12 +1,11 @@
 # locations.py module
 from .game_object import *
-from .outcomes import *
 
 
 class Location(GameObject, Accessible, ABC):
     def __init__(self, name, description, parent):
         super().__init__(name, description, parent)
-        self.location_connections = {}  # All the location connections to this location
+        self.location_connections = {}  # All the location connections to this location (location: connection)
 
     @property
     # All the items that can be found in this location
@@ -14,8 +13,8 @@ class Location(GameObject, Accessible, ABC):
         return self.children
 
     def add_connection(self, location_connection):
-        for location in location_connection.connected_locations:
-            self.location_connections[location] = location_connection
+        other_location = next((loc for loc in location_connection.connected_locations if loc != self), None)
+        self.location_connections[other_location] = location_connection
 
     @property
     def connections(self):

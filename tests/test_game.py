@@ -1,66 +1,46 @@
 import copy
 import csv
 
-from game.world import World
 from game.outcomes import INVALID, FAIL
+from game.world import World
 
 
-# TODO re-write this
-def test_possible_commands():
+def test_sample_commands():
     return [
         "nonsense",
-        "take",
-        "take lockpick",
-        "take lock",
-        "take door",
-        "take barel"
-        "take nonsense",
-        "take lock door",
-        "take nonsense barel lock lockpick",
-        "use",
-        "use lockpick",
-        "use lock",
-        "use door",
         "use nonsense",
+        "take lockpick",
+        "take key",
+        "drop lockpick"
+        "drop key",
         "use lockpick lock",
         "use lockpick door",
-        "use lock lockpick",
-        "use door lockpick",
-        "use lockpick nonsense",
-        "lock",
-        "lock lockpick",
+        "use key door",
+        "use key lock",
         "lock lock",
-        "lock nonsense",
         "lock lock lockpick",
+        "lock lock key",
+        "lock door"
         "lock door lockpick",
-        "lock door lock",
-        "lock nonsense lockpick",
-        "lock door nonsense",
-        "unlock lockpick",
+        "lock door key",
         "unlock lock",
-        "unlock nonsense",
-        "unlock lockpick lock",
         "unlock lock lockpick",
+        "unlock lock key",
+        "unlock door",
         "unlock door lockpick",
-        "unlock lockpick door",
-        "unlock door lock",
-        "unlock nonsense lockpick",
-        "unlock door nonsense",
-        "open lockpick",
-        "open lock",
-        "open nonsense",
+        "unlock door key",
+        "open door",
         "open door lockpick",
-        "open door lock",
-        "open nonsense lockpick",
-        "open door nonsense",
-        "close lock",
+        "open door key",
         "close door",
-        "close nonsense",
-        "close door lock",
-        "close nonsense door",
-        "go",
         "go dungeon",
-        "go nonsense"
+        "go courtyard",
+        "go cell",
+        "exit",
+        "exit cell",
+        "exit from door",
+        "exit cell from door",
+        "exit dungeon"
     ]
 
 
@@ -123,8 +103,8 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
 
 def main():
-    max_depth = 3
-    possible_commands = test_possible_commands()
+    max_depth = 4
+    possible_commands = test_sample_commands()
     generate_results(possible_commands, max_depth, "all_results")
     generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)
     generate_results(possible_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)

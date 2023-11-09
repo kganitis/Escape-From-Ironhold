@@ -1,4 +1,4 @@
-from game.outcomes import FAIL, INVALID, INVALID_COMMAND
+from game.outcomes import FAIL, INVALID
 
 
 class Result:
