@@ -92,8 +92,6 @@ ALREADY_CLOSED = "The {primary} is already closed", FAIL
 MUST_CLOSE_OBJECT = "The {primary} is open and must be closed first", FAIL
 
 # successful generic outcomes
-EXAMINE_SUCCESS = False, SUCCESS  # False because we don't want to print a description. If examine was successful, something else has already been printed.
-ACCESS_ROOM_SUCCESS = "You accessed the {primary} successfully", SUCCESS
 LOCK_SUCCESS = "You locked the {primary} successfully using the {secondary}", SUCCESS
 UNLOCK_SUCCESS = "You unlocked the {primary} successfully using the {secondary}", SUCCESS
 TAKE_SUCCESS = "You took the {primary} successfully", SUCCESS
@@ -101,3 +99,7 @@ DROP_SUCCESS = "You dropped the {primary} successfully", SUCCESS
 OPEN_SUCCESS = "You opened the {primary} successfully", SUCCESS
 OPEN_WITH_TOOL_SUCCESS = "You opened the {primary} successfully using the {secondary}", SUCCESS
 CLOSE_SUCCESS = "You closed the {primary} successfully", SUCCESS
+
+# False because we don't want to print a description. If the command was successful, something else has already been printed.
+EXAMINE_SUCCESS = False, SUCCESS
+ACCESS_ROOM_SUCCESS = False, SUCCESS

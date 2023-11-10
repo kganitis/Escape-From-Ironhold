@@ -24,80 +24,100 @@ def words_count_is_exactly(words, quantity):  # useful to check if a command mus
 _available_commands = {
     "go": {
         "rule": (words_count_is_exactly, 1),
-        "description": "Go to a specific room or in a particular direction.",
-        "syntax": "go to {direction}|{room}"
+        "description": "Go to the specified room.",
+        "syntax": "go to the {room}",
+        "examples": ["Go to the dungeon"]
     },
     "exit": {
         "rule": (words_count_is_at_most, 2),
-        "description": "Exit the current room from a specified exit",
-        "syntax": "exit {room} from {connection}?"
+        "description": "Exit the current room (from a specified exit).",
+        "syntax": "exit the {room}? from the {connection}?",
+        "examples": ["Exit", "Exit the cell", "Exit the dungeon from the window"]
     },
     "examine": {
         "rule": (words_count_is_at_most, 1),
-        "description": "Examine an item or the current room.",
-        "syntax": "examine {item}?|{room}?"
+        "description": "Examine the current room (or an object).",
+        "syntax": "examine the {object}?|{room}?",
+        "examples": ["Examine", "Examine the cell", "Examine the door"]
     },
     "take": {
-        "rule": (words_count_is_at_least, 1),
-        "description": "Take the specified items.",
-        "syntax": "take {item}+"
+        "rule": (words_count_is_exactly, 1),
+        "description": "Take the specified item.",
+        "syntax": "take the {item}",
+        "examples": ["Take the lockpick"]
     },
     "drop": {
-        "rule": (words_count_is_at_least, 1),
-        "description": "Drop the specified items.",
-        "syntax": "drop {item}+"
+        "rule": (words_count_is_exactly, 1),
+        "description": "Drop the specified item.",
+        "syntax": "drop the {item}",
+        "examples": ["Drop the lockpick"]
     },
     "use": {
-        "rule": (words_count_is_at_least, 1),
-        "description": "Use an object or perform an action using one or more objects.",
-        "syntax": "use {item}+|{room_connection}+"
+        "rule": (words_count_is_not_zero_and_at_most, 2),
+        "description": "Use an object (with/on another object).",
+        "syntax": "use the {object} on/with the {object}?",
+        "examples": ["Use the lockpick", "Use the lockpick on the lock"]
     },
     "lock": {
         "rule": (words_count_is_not_zero_and_at_most, 2),
-        "description": "Lock a lockable object",
-        "syntax": "lock {object} with {item}?"
+        "description": "Lock a lockable object (with a specified item).",
+        "syntax": "lock the {object} with the {item}?",
+        "examples": ["Lock the door", "Lock the door with the key"]
     },
     "unlock": {
         "rule": (words_count_is_not_zero_and_at_most, 2),
-        "description": "Unlock an lockable object",
-        "syntax": "unlock {object} with {item}?"
+        "description": "Unlock an unlockable object (with a specified item).",
+        "syntax": "unlock the {object} with the {item}?",
+        "examples": ["Unlock the lock", "Unlock the lock with the lockpick"]
     },
     "open": {
         "rule": (words_count_is_not_zero_and_at_most, 2),
-        "description": "Open an object.",
-        "syntax": "open {object} with {item}?"
+        "description": "Open an object (with a specified item).",
+        "syntax": "open the {object} with the {item}?",
+        "examples": ["Open the door", "Open the door with the lockpick"]
     },
     "close": {
         "rule": (words_count_is_exactly, 1),
         "description": "Close an object.",
-        "syntax": "close {object}"
+        "syntax": "close the {object}"
     },
-    "wait": {
-        "rule": (words_count_is_exactly, 0),
-        "description": "Wait for some hours.",
-        "syntax": "wait"
-    },
-    "inventory": {
-        "rule": (words_count_is_exactly, 0),
-        "description": "Show player's inventory of items.",
-        "syntax": "inventory"
-    },
+    # "wait": {
+    #     "rule": (words_count_is_exactly, 0),
+    #     "description": "Wait for some hours.",
+    #     "syntax": "wait"
+    # },
+    # "inventory": {
+    #     "rule": (words_count_is_exactly, 0),
+    #     "description": "Show player's inventory of items.",
+    #     "syntax": "inventory"
+    # },
     "help": {
-        "rule": (words_count_is_exactly, 0),
-        "description": "Get assistance or see available commands.",
-        "syntax": "help {command}?"
-    },
+        "rule": (words_count_is_at_most, 2),
+        "description": "See available commands or get help for a specific command.",
+        "syntax": "help {command}? {examples}?",
+        "examples": ["Help", "Help take", "Help take examples"]
+    }
 }
 
 
 def get_available_command_verbs():
-    available_command_verbs = _available_commands.keys()
+    available_command_verbs = list(_available_commands.keys())
     return available_command_verbs
 
 
 def show_available_commands():
     print("Available commands:")
     print(", ".join([command for command in get_available_command_verbs()]))
+
+
+def show_syntax_for_verb(verb):
+    print(f"Syntax for {verb}:")
+    print(_available_commands[verb]['syntax'])
+
+
+def show_examples_for_verb(verb):
+    print(f"Examples for {verb}:")
+    print(", ".join([example for example in _available_commands[verb]['examples']]))
 
 
 class Command:

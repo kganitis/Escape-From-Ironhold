@@ -1,5 +1,5 @@
 from game.actions import Action
-from game.commands import Command
+from game.commands import *
 from game.outcomes import Outcome, INVALID_COMMAND
 from game.result import Result
 
@@ -16,8 +16,13 @@ def parse(world, input_command, test=False):
 
     command = Command(verb, words)
 
+    # Check if asked for help
+    if command.verb == 'help':
+        show_help(command.words)
+        return
+
     # Lexical Analysis
-    game_objects = [world.game_objects_repository.get(word, word) for word in command.words]
+    game_objects = [world.get_object_by_name(word) for word in command.words]
     primary_object = game_objects[0] if len(game_objects) > 0 else None
     secondary_object = game_objects[1] if len(game_objects) > 1 else None
 
@@ -36,3 +41,17 @@ def parse(world, input_command, test=False):
     if not test:
         result.show()
     return result
+
+
+def show_help(command=None):
+    verb = command[0] if command and command[0] in get_available_command_verbs() else None
+    examples = 'examples' if verb and len(command) == 2 and command[1] == 'examples' else None
+
+    if examples:
+        show_examples_for_verb(verb)
+    elif verb:
+        show_syntax_for_verb(verb)
+        print("Type 'help {command} {examples}' to get examples for a specific command.")
+    else:
+        show_available_commands()
+        print("Type 'help {command}' to get help for a specific command.")

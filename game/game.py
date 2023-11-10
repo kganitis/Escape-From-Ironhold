@@ -8,7 +8,15 @@ class Game:
         self.world.populate()
 
     def run(self):
+        print("\nWELCOME TO ESCAPE FROM IRONHOLD\n")
+
+        # Print help prompt
+        print("\nType 'help' to see a list of available commands.\n\n")
+
+        # First describe the initial room
         self.world.current_room.describe()
+
+        # Start the game loop
         while True:
             print("\nWhat do you want to do?")
             input_command = input("> ")

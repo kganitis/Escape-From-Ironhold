@@ -91,4 +91,4 @@ class World(GameObject):
         return list(self.world.game_objects_repository.values())
 
     def get_object_by_name(self, name):
-        return self.game_objects_repository.get(name, None)
+        return self.game_objects_repository.get(name, name)

@@ -16,7 +16,7 @@ class Action:
         self.execution_function = getattr(self, command.verb, None)
 
     def execute(self):
-        # Syntax Analysis
+        # More syntax analysis
         invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
         out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
         if invalid_objects:
