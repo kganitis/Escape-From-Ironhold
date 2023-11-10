@@ -4,13 +4,13 @@ from .outcomes import *
 
 
 class Item(GameObject, ABC):
-    def __init__(self, name, description, parent):
-        super().__init__(name, description, parent)
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
 
 
 class LockingTool(Item, Usable, ABC):
-    def __init__(self, name, description, parent):
-        super().__init__(name, description, parent)
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
         self.can_unlock = True
         self.can_lock = True
 
@@ -28,40 +28,27 @@ class LockingTool(Item, Usable, ABC):
 
 
 class LockPick(LockingTool, Obtainable):
-    def __init__(self, parent):
-        name = "lockpick"
-        description = "A simple lockpick that could be useful for picking locks."
-        super().__init__(name, description, parent)
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
         self.can_lock = False
 
 
 class Key(LockingTool, Obtainable):
-    def __init__(self, parent, lockable_target=None):
-        name = "key"
-        description = "A simple key. I wonder where it fits..."
-        super().__init__(name, description, parent)
+    def __init__(self, name, initial, description, parent, lockable_target=None):
+        super().__init__(name, initial, description, parent)
         self.lockable_target = lockable_target
         lockable_target.key = self
 
 
 class Lock(Item, Lockable):
-    def __init__(self, parent):
-        name = "lock"
-        description = "A simple lock that can be unlocked with a lockpick, if I had one..."
-        super().__init__(name, description, parent)
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
         Lockable.__init__(self)
-
-    def lock(self, locking_tool):
-        self.locked = True
-        return LOCK_SUCCESS
-
-    def unlock(self, unlocking_tool):
-        self.locked = False
-        return UNLOCK_SUCCESS
 
 
 class Stone(Item, Obtainable):
-    pass
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
 
 
 class Barel(Item, Openable):

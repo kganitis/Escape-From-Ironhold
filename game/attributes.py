@@ -5,13 +5,7 @@ from .outcomes import *
 
 class Usable(ABC):
     @abstractmethod
-    def use(self, indirect_object=None):
-        pass
-
-
-class Combinable(ABC):
-    @abstractmethod
-    def combine(self, item):
+    def use(self, secondary_object=None):
         pass
 
 
@@ -28,14 +22,9 @@ class Obtainable(ABC):
 class Accessible(ABC):
     def go(self):
         self.player.move_to(self)
-        self.current_location = self
-        return ACCESS_LOCATION_SUCCESS
-
-
-class Examinable(ABC):
-    @abstractmethod
-    def examine(self):
-        pass
+        self.current_room = self
+        self.print_message(self.description)
+        return ACCESS_ROOM_SUCCESS
 
 
 class Lockable(ABC):
@@ -54,13 +43,13 @@ class Lockable(ABC):
     def locked(self, value):
         self._locked = value
 
-    @abstractmethod
     def lock(self, locking_tool):
-        pass
+        self.locked = True
+        return LOCK_SUCCESS
 
-    @abstractmethod
     def unlock(self, unlocking_tool):
-        pass
+        self.locked = False
+        return UNLOCK_SUCCESS
 
 
 class Openable(ABC):
@@ -75,9 +64,9 @@ class Openable(ABC):
     def is_open(self, value):
         self._open = value
 
-    @abstractmethod
     def open(self, opening_tool=None):
-        pass
+        self.is_open = True
+        return OPEN_SUCCESS
 
     def close(self):
         self.is_open = False

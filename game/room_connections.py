@@ -2,38 +2,33 @@ from .game_object import *
 from .outcomes import *
 
 
-class LocationConnection(GameObject, ABC):
-    def __init__(self, name, description, parent):
-        super().__init__(name, description, parent)
-        self.connected_locations = []
-
-    @property
-    # Items found in this location connection
-    def items(self):
-        return self.children
+class RoomConnection(GameObject, ABC):
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
+        self.connected_rooms = []
 
     @property
     def scope(self, modifier=None):
         scope = super().scope
-        scope.update(self.connected_locations)
+        scope.update(self.connected_rooms)
         return scope
 
     @property
     def is_blocked(self):
         return BLOCKED_CONNECTION
 
-    def connect_locations(self, *locations):
-        self.connected_locations.extend(locations)
-        for loc in locations:
-            loc.add_connection(self)
+    def connect_rooms(self, *rooms):
+        self.connected_rooms.extend(rooms)
+        for room in rooms:
+            room.add_connection(self)
 
-    def get_connected_location_from(self, coming_location):
-        return next((loc for loc in self.connected_locations if loc != coming_location), None)
+    def get_connected_room_from(self, coming_room):
+        return next((room for room in self.connected_rooms if room != coming_room), None)
 
 
-class Door(LocationConnection, Openable, Lockable):
-    def __init__(self, name, description, parent, lock):
-        super().__init__(name, description, parent)
+class Door(RoomConnection, Openable, Lockable):
+    def __init__(self, name, initial, description, parent, lock):
+        super().__init__(name, initial, description, parent)
         Openable.__init__(self)
         Lockable.__init__(self)
         self.lock_ = lock
@@ -73,3 +68,12 @@ class Door(LocationConnection, Openable, Lockable):
 
     def unlock(self, unlocking_tool):
         return self.lock_.unlock(unlocking_tool)
+
+
+class Window(RoomConnection):
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
+
+    @property
+    def is_blocked(self):
+        return False

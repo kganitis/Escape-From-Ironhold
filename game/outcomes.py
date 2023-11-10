@@ -18,6 +18,8 @@ class Outcome:
 
     @property
     def formatted_description(self):
+        if not self.outcome:
+            return None
         formatted_description = self.description.format(
             primary=self.primary_object,
             secondary=self.secondary_object
@@ -41,13 +43,16 @@ COMMAND_TRANSFORMED = "", TRANSFORMED
 INVALID_COMMAND = "Invalid command", INVALID
 INVALID_OBJECTS = "Invalid objects", INVALID
 INVALID_ITEMS = "Invalid items", INVALID
-INVALID_LOCATION = "Invalid location", INVALID
+INVALID_LOCATION = "Invalid room", INVALID
 
 # scope outcomes
 OUT_OF_SCOPE = "The {primary} is out of scope", FAIL
 NON_EXISTING_OBJECT = "There isn't any {primary} around", FAIL
 
 # fail generic outcomes
+NOT_EXAMINABLE = "The {primary} cannot be examined", FAIL
+CANT_EXAMINE_FROM_CURRENT_ROOM = "You can't examine the {primary} from here", FAIL
+
 NOT_OBTAINABLE = "The {primary} cannot be taken", FAIL
 ALREADY_OBTAINED = "The {primary} is already in your possession", FAIL
 NOT_HELD = "You're not holding any {primary}", FAIL
@@ -59,8 +64,8 @@ MUST_USE_OBJECT_ALONE = "You must use the {primary} alone", FAIL
 CANT_USE_OBJECT_ON_TARGET = "You can't use the {primary} on the {secondary}", FAIL
 
 NOT_ACCESSIBLE = "The {primary} is not accessible", FAIL
-ALREADY_IN_LOCATION = "Already in {primary}", FAIL
-NOT_ACCESSIBLE_FROM_CURRENT_LOCATION = "The {primary} is not accessible from {secondary}", FAIL
+ALREADY_IN_ROOM = "Already in {primary}", FAIL
+NOT_ACCESSIBLE_FROM_CURRENT_ROOM = "The {primary} is not accessible from {secondary}", FAIL
 BLOCKED_CONNECTION = "The {primary} is blocked", FAIL
 BLOCKED_OBJECT_LOCKED = "The {primary} is locked and must be unlocked first", FAIL
 BLOCKED_OBJECT_CLOSED = "The {primary} is closed and must be opened first", FAIL
@@ -87,7 +92,8 @@ ALREADY_CLOSED = "The {primary} is already closed", FAIL
 MUST_CLOSE_OBJECT = "The {primary} is open and must be closed first", FAIL
 
 # successful generic outcomes
-ACCESS_LOCATION_SUCCESS = "You accessed the {primary} successfully", SUCCESS
+EXAMINE_SUCCESS = False, SUCCESS  # False because we don't want to print a description. If examine was successful, something else has already been printed.
+ACCESS_ROOM_SUCCESS = "You accessed the {primary} successfully", SUCCESS
 LOCK_SUCCESS = "You locked the {primary} successfully using the {secondary}", SUCCESS
 UNLOCK_SUCCESS = "You unlocked the {primary} successfully using the {secondary}", SUCCESS
 TAKE_SUCCESS = "You took the {primary} successfully", SUCCESS

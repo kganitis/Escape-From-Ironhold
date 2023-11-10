@@ -34,12 +34,12 @@ class TestOutcome(TestCase):
     def test_outcome(self):
         world = World()
         world.populate()
-        command = Command("open", ["door", "lockpick"])
+        command = Command('open', ['door', 'lockpick'])
 
-        door = world.game_objects_repository["door"]
-        lockpick = world.game_objects_repository["lockpick"]
-        other = Barel('barel', "", parent=None)
-        other2 = Stone('stone', "", parent=None)
+        door = world.get_object_by_name('door')
+        lockpick = world.get_object_by_name('lockpick')
+        other = world.get_object_by_name('barel')
+        other2 = world.get_object_by_name('stone')
         action = Action(world, command, door, lockpick)
         outcome_const = OPEN_WITH_TOOL_SUCCESS
 
@@ -106,6 +106,24 @@ class TestExecute(TestAction):
     def test_command_transform(self):
         self.commands = "take lockpick", "use lockpick lock"
         self.assert_outcome(COMMAND_TRANSFORMED, ['lockpick', 'lock'])
+
+
+class TextExamine(TestAction):
+    def test_examine(self):
+        self.commands = "examine"
+        self.assert_outcome(EXAMINE_SUCCESS, ['cell'])
+
+    def test_examine_current_room(self):
+        self.commands = "examine cell"
+        self.assert_outcome(EXAMINE_SUCCESS, ['cell'])
+
+    def test_examine_another_room(self):
+        self.commands = "examine dungeon"
+        self.assert_outcome(CANT_EXAMINE_FROM_CURRENT_ROOM, ['dungeon'])
+
+    def test_examine_object(self):
+        self.commands = "examine key"
+        self.assert_outcome(EXAMINE_SUCCESS, ['key'])
 
 
 class TestTake(TestAction):
@@ -292,19 +310,19 @@ class TestGo(TestAction):
 
     def test_go(self):
         self.commands = "take lockpick", "open door lockpick", "go dungeon"
-        self.assert_outcome(ACCESS_LOCATION_SUCCESS, ['dungeon'])
+        self.assert_outcome(ACCESS_ROOM_SUCCESS, ['dungeon'])
 
     def test_connection_blocked(self):
         self.commands = "go dungeon"
         self.assert_outcome(BLOCKED_OBJECT_LOCKED, ['door'])
 
-    def test_not_connection_to_current_location(self):
+    def test_not_connection_to_current_room(self):
         self.commands = "go courtyard"
-        self.assert_outcome(NOT_ACCESSIBLE_FROM_CURRENT_LOCATION, ['courtyard'])
+        self.assert_outcome(NOT_ACCESSIBLE_FROM_CURRENT_ROOM, ['courtyard'])
 
-    def test_already_in_location(self):
+    def test_already_in_room(self):
         self.commands = "go cell"
-        self.assert_outcome(ALREADY_IN_LOCATION, ['cell'])
+        self.assert_outcome(ALREADY_IN_ROOM, ['cell'])
 
     def test_not_accessible(self):
         self.commands = "go stone"
@@ -316,7 +334,7 @@ class TestExit(TestAction):
         self.commands = "take key", "unlock door", "exit"
         self.assert_outcome(COMMAND_TRANSFORMED)
 
-    def test_current_location(self):
+    def test_current_room(self):
         self.commands = "take key", "unlock door", "exit the cell"
         self.assert_outcome(COMMAND_TRANSFORMED)
 
@@ -324,23 +342,17 @@ class TestExit(TestAction):
         self.commands = "take key", "unlock door", "exit from the door"
         self.assert_outcome(COMMAND_TRANSFORMED)
 
-    def test_current_location_using_specified_exit(self):
+    def test_current_room_using_specified_exit(self):
         self.commands = "take key", "unlock door", "exit the cell from the door"
         self.assert_outcome(COMMAND_TRANSFORMED)
 
     def test_multiple_exits(self):
-        # self.commands = "exit the cell"
-        # self.assert_outcome(UNSPECIFIED_EXIT, ['cell'])
-        pass
+        self.commands = "take lockpick", "open door lockpick", "go dungeon", "exit dungeon"
+        self.assert_outcome(UNSPECIFIED_EXIT, [])
 
-    def test_another_location(self):
+    def test_another_room(self):
         self.commands = "exit the dungeon"
         self.assert_outcome(NOT_IN_LOCATION, ['dungeon'])
-
-    def test_not_existing_exit(self):
-        # self.commands = "exit from window"
-        # self.assert_outcome(NON_EXISTING_OBJECT, ['window'])
-        pass
 
 
 class TestLockingTool(TestAction):

@@ -1,6 +1,6 @@
 from .items import *
-from .locations import *
-from .location_connections import *
+from .rooms import *
+from .room_connections import *
 
 
 class Action:
@@ -34,13 +34,28 @@ class Action:
         # Convert objects to a tuple of 2, replace any missing objects with None
         objects = (objects[0] if objects else None, objects[1] if objects and len(objects) > 1 else None)
 
+        # The primary is always the instance's primary or the first object
         primary = self.primary_object if self.primary_object in objects else objects[0]
+
+        # The secondary is the other, if exists and not already set as primary
         if self.secondary_object in objects and self.secondary_object != primary:
             secondary = self.secondary_object
         else:
             secondary = objects[0] if primary != objects[0] else objects[1]
 
         return Outcome(outcome, primary, secondary)
+
+    def examine(self):
+        if not self.primary_object:
+            self.primary_object = self.world.current_room
+        object_to_examine = self.primary_object
+
+        another_room = isinstance(object_to_examine, Room) and object_to_examine != self.world.current_room
+        if another_room:
+            return self.outcome(CANT_EXAMINE_FROM_CURRENT_ROOM, object_to_examine)
+
+        outcome = object_to_examine.examine()
+        return self.outcome(outcome, object_to_examine)
 
     def take(self):
         object_to_take = self.primary_object
@@ -165,54 +180,54 @@ class Action:
         return self.outcome(outcome, object_to_close)
 
     def go(self):
-        location_to_go = self.primary_object
+        room_to_go = self.primary_object
 
-        not_accessible = not isinstance(location_to_go, Accessible)
+        not_accessible = not isinstance(room_to_go, Accessible)
         if not_accessible:
-            return self.outcome(NOT_ACCESSIBLE, location_to_go)
+            return self.outcome(NOT_ACCESSIBLE, room_to_go)
 
-        already_in_location = location_to_go == self.world.current_location
-        if already_in_location:
-            return self.outcome(ALREADY_IN_LOCATION, location_to_go)
+        already_in_room = room_to_go == self.world.current_room
+        if already_in_room:
+            return self.outcome(ALREADY_IN_ROOM, room_to_go)
 
-        connection_to_current_location = location_to_go.get_connection_to(self.world.current_location)
-        if not connection_to_current_location:
-            return self.outcome(NOT_ACCESSIBLE_FROM_CURRENT_LOCATION, location_to_go)
+        connection_to_current_room = room_to_go.get_connection_to(self.world.current_room)
+        if not connection_to_current_room:
+            return self.outcome(NOT_ACCESSIBLE_FROM_CURRENT_ROOM, room_to_go)
 
-        blocked = connection_to_current_location.is_blocked
+        blocked = connection_to_current_room.is_blocked
         if blocked:
-            return self.outcome(blocked, connection_to_current_location)
+            return self.outcome(blocked, connection_to_current_room)
 
-        outcome = location_to_go.go()
-        return self.outcome(outcome, location_to_go)
+        outcome = room_to_go.go()
+        return self.outcome(outcome, room_to_go)
 
     def exit(self):
-        current_location = self.world.current_location
-        location_to_exit = None
+        current_room = self.world.current_room
+        room_to_exit = None
         specified_exit = None
         for obj in self.objects:
-            if obj == current_location:
-                location_to_exit = obj
-            if isinstance(obj, Location) and obj != current_location:
+            if obj == current_room:
+                room_to_exit = obj
+            if isinstance(obj, Room) and obj != current_room:
                 return self.outcome(NOT_IN_LOCATION, obj)
-            if isinstance(obj, LocationConnection):
+            if isinstance(obj, RoomConnection):
                 specified_exit = obj
 
-        if not location_to_exit:
-            location_to_exit = current_location
+        if not room_to_exit:
+            room_to_exit = current_room
 
-        multiple_exits = len(location_to_exit.connections) > 1 and not specified_exit
+        multiple_exits = len(room_to_exit.connections) > 1 and not specified_exit
         if multiple_exits:
             return self.outcome(UNSPECIFIED_EXIT)
 
-        non_existing_exit = specified_exit and specified_exit not in location_to_exit.connections
+        non_existing_exit = specified_exit and specified_exit not in room_to_exit.connections
         if non_existing_exit:
             return self.outcome(NON_EXISTING_OBJECT, specified_exit)
 
         if not specified_exit:
-            specified_exit = location_to_exit.connections[0]
+            specified_exit = room_to_exit.connections[0]
 
-        new_location = specified_exit.get_connected_location_from(current_location)
-        transformed_command = f"go to {new_location}"
+        new_room = specified_exit.get_connected_room_from(current_room)
+        transformed_command = f"go to {new_room}"
         self.world.parse(transformed_command)
         return self.outcome(COMMAND_TRANSFORMED)

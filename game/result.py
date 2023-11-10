@@ -13,7 +13,8 @@ class Result:
         return f"{self.action.command} => {self.outcome}"
 
     def show(self):
-        print(self.outcome.formatted_description)
+        if self.outcome.description:
+            print(self.outcome.formatted_description)
 
     def is_fail_or_invalid(self):
         return self.outcome.type in (FAIL, INVALID)

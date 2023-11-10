@@ -1,15 +1,22 @@
 from .attributes import *
 
 
-# Define a common parent class for all game objects (locations, items, actions etc.)
+# Define a common parent class for all game objects (rooms, items, actions etc.)
 class GameObject(ABC):
-    def __init__(self, name, description, parent):
+    def __init__(self, name, initial=None, description=None, parent=None):
         self.name = name
+
+        # Descriptions
+        self.initial = initial
         self.description = description
+
+        # First degree relatives
         self.parent = parent
         if parent:
             parent.add_child(self)
         self.children = []
+
+        # Relations to other objects
         self.attached = []
         self.added_to_scope = False
 
@@ -25,12 +32,12 @@ class GameObject(ABC):
         return self.world.hero
 
     @property
-    def current_location(self):
-        return self.world.location
+    def current_room(self):
+        return self.world.room
 
-    @current_location.setter
-    def current_location(self, value):
-        self.world.location = value
+    @current_room.setter
+    def current_room(self, value):
+        self.world.room = value
 
     @property
     def scope(self):
@@ -76,9 +83,6 @@ class GameObject(ABC):
     def __str__(self):
         return self.name
 
-    def describe(self):
-        pass
-
     def add_child(self, obj):
         self.children.append(obj)
         obj.parent = self
@@ -95,6 +99,23 @@ class GameObject(ABC):
     def attach(self, obj):
         self.attached.append(obj)
         obj.attached.append(self)
+
+    def examine(self):
+        self.describe()
+        for child in self.children:
+            child.discover()
+        return EXAMINE_SUCCESS
+
+    def describe(self):
+        self.print_message(self.description)
+
+    def discover(self):
+        if self.initial:
+            self.print_message(self.initial)
+
+    def print_message(self, message):
+        if not self.world.test:
+            print(message)
 
     def update_game_objects_repository(self):
         self.world.game_objects_repository[self.name] = self

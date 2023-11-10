@@ -8,6 +8,7 @@ class Game:
         self.world.populate()
 
     def run(self):
+        self.world.current_room.describe()
         while True:
             print("\nWhat do you want to do?")
             input_command = input("> ")

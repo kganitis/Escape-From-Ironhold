@@ -10,25 +10,27 @@ stop_words = ["the", "a", "an", "and", "in", "on", "to", "with", "for", "as", "a
 def parse(world, input_command, test=False):
     # Tokenizing
     words = [word for word in input_command.strip().lower().split() if word not in stop_words]
-    verb = words[0]  # The first word is the verb
-    args = words[1:] if len(words) > 1 else None  # The rest of the words, if more exist, are arguments
+    # Extract the first word as the verb
+    verb = words[0]
+    words = words[1:] if len(words) > 1 else None
 
-    # Syntax Analysis
-    command = Command(verb, args)
-    if not command.is_valid():
-        action = Action(world, command)
-        outcome = Outcome(INVALID_COMMAND)
-        return Result(action, outcome)
+    command = Command(verb, words)
 
     # Lexical Analysis
-    game_objects = [world.game_objects_repository.get(arg, arg) for arg in command.args]
+    game_objects = [world.game_objects_repository.get(word, word) for word in command.words]
     primary_object = game_objects[0] if len(game_objects) > 0 else None
     secondary_object = game_objects[1] if len(game_objects) > 1 else None
 
-    # Execution
-    action = Action(world, command, primary_object, secondary_object)
-    outcome = action.execute()
-    result = Result(action, outcome)
+    # Syntax Analysis
+    if not command.is_valid():
+        action = Action(world, command)
+        outcome = Outcome(INVALID_COMMAND)
+        result = Result(action, outcome)
+    else:
+        # Execution
+        action = Action(world, command, primary_object, secondary_object)
+        outcome = action.execute()
+        result = Result(action, outcome)
 
     # Print
     if not test:

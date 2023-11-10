@@ -2,15 +2,18 @@ from .game_object import *
 
 
 class Character(GameObject, ABC):
-    def __init__(self, name, description, parent):
-        super().__init__(name, description, parent)
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
 
 
 class Hero(Character):
     def __init__(self, parent):
-        name = "Hero"
-        description = "A brave hero trying to escape from the Ironhold prison."
-        super().__init__(name, description, parent)
+        super().__init__(
+            name="Hero",
+            initial=None,
+            description="You are a brave hero trying to escape from the Ironhold prison",
+            parent=parent
+        )
 
     @property
     def inventory(self):
@@ -23,9 +26,7 @@ class Hero(Character):
     @property
     def scope(self, modifier=None):
         scope = super().scope
-        scope.update(self.current_location.internal_scope)
-        for con in self.current_location.connections:
-            scope.update(con.scope)
+        scope.update(self.current_room.scope)
         for obj in self.world.get_all_game_object_instances():
             if obj.added_to_scope and obj not in scope:
                 scope.add(obj)
