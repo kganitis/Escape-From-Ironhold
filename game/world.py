@@ -55,16 +55,26 @@ class World(GameObject):
         # Cell items
         lockpick = LockPick(
             name='lockpick',
-            initial="You find a rusty iron lockpick.",
-            description="A lockpick that can be used to pick locks.",
+            initial="You find a rusty iron lockpick hidden under the mattress.",
+            description="It's a lockpick that can be used to pick locks.",
             parent=cell
         )
+        lockpick.concealed = True
+
+        mattress = Mattress(
+            name='mattress',
+            initial="You observe a straw mattress on the floor.",
+            description="The straw mattress doesn't seem comfortable but it's better than nothing.",
+            parent=cell
+        )
+
         stone = Stone(
             name='stone',
-            initial="You observe a loose stone in the cell's walls.",
-            description="A stone of the cell's walls.",
+            initial="You observe a loose stone in the cell's stone walls.",
+            description="A stone of the cell's walls. Doesn't seem very useful.",
             parent=cell
         )
+
         barel = Barel(
             name='barel',
             initial="You observe a wooden barel.",
@@ -90,5 +100,5 @@ class World(GameObject):
     def get_all_game_object_instances(self):
         return list(self.world.game_objects_repository.values())
 
-    def get_object_by_name(self, name):
+    def get(self, name):
         return self.game_objects_repository.get(name, name)

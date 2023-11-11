@@ -59,7 +59,7 @@ class Door(RoomConnection, Openable, Lockable):
                 return BLOCKED_OBJECT_LOCKED
 
         self.is_open = True
-        return OPEN_WITH_TOOL_SUCCESS if open_with_tool else OPEN_SUCCESS
+        return OPEN_SUCCESS
 
     def lock(self, locking_tool):
         if self.is_open:

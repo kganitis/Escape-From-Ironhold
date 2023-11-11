@@ -9,21 +9,23 @@ from game.items import *
 
 class TestAction(TestCase):
 
-    def assert_outcome(self, expected_outcome, expected_outcome_objects=None):
-        # Initialization
-        if expected_outcome_objects is None:
-            expected_outcome_objects = []
+    def execute_commands(self):
         commands = list(self.commands) if isinstance(self.commands, tuple) else [self.commands]
         world = World(test=True)
         world.populate()
-        actual_outcome = None
-        actual_outcome_objects = []
+        result = None
+        for cmd in commands:
+            result = world.parse(cmd)
+        return result
+
+    def assert_outcome(self, expected_outcome, expected_outcome_objects=None):
+        if expected_outcome_objects is None:
+            expected_outcome_objects = []
 
         # Get the actual result
-        for cmd in commands:
-            actual_result = world.parse(cmd)
-            actual_outcome = actual_result.outcome
-            actual_outcome_objects = [f"{obj}" for obj in actual_outcome.objects]
+        actual_result = self.execute_commands()
+        actual_outcome = actual_result.outcome
+        actual_outcome_objects = [f"{obj}" for obj in actual_outcome.objects]
 
         # Compare with the expected result
         self.assertEqual(expected_outcome, actual_outcome.outcome)
@@ -36,12 +38,12 @@ class TestOutcome(TestCase):
         world.populate()
         command = Command('open', ['door', 'lockpick'])
 
-        door = world.get_object_by_name('door')
-        lockpick = world.get_object_by_name('lockpick')
-        other = world.get_object_by_name('barel')
-        other2 = world.get_object_by_name('stone')
+        door = world.get('door')
+        lockpick = world.get('lockpick')
+        other = world.get('barel')
+        other2 = world.get('stone')
         action = Action(world, command, door, lockpick)
-        outcome_const = OPEN_WITH_TOOL_SUCCESS
+        outcome_const = OPEN_SUCCESS
 
         # Test door, lockpick
         actual_outcome = action.outcome(outcome_const, door, lockpick).object_names
@@ -274,7 +276,7 @@ class TestOpen(TestAction):
 
     def test_open_locked_with_opening_tool(self):
         self.commands = "take lockpick", "open door lockpick"
-        self.assert_outcome(OPEN_WITH_TOOL_SUCCESS, ['door', 'lockpick'])
+        self.assert_outcome(OPEN_SUCCESS, ['door', 'lockpick'])
 
     def test_already_open(self):
         self.commands = "take lockpick", "open door lockpick", "open door"
@@ -380,8 +382,16 @@ class TestDoor(TestAction):
 
     def test_open_locked_with_tool(self):
         self.commands = "take lockpick", "open door lockpick"
-        self.assert_outcome(OPEN_WITH_TOOL_SUCCESS, ['door', 'lockpick'])
+        self.assert_outcome(OPEN_SUCCESS, ['door', 'lockpick'])
 
     def test_lock_open(self):
         self.commands = "take key", "open door key", "lock door"
         self.assert_outcome(MUST_CLOSE_OBJECT, ['door', 'key'])
+
+
+class TestMattress(TestAction):
+    def test_examine(self):
+        self.commands = "examine mattress"
+        result = self.execute_commands()
+        lockpick = result.action.world.get('lockpick')
+        self.assertFalse(lockpick.concealed)

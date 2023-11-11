@@ -18,8 +18,6 @@ class Outcome:
 
     @property
     def formatted_description(self):
-        if not self.outcome:
-            return None
         formatted_description = self.description.format(
             primary=self.primary_object,
             secondary=self.secondary_object
@@ -46,7 +44,7 @@ INVALID_ITEMS = "Invalid items", INVALID
 INVALID_LOCATION = "Invalid room", INVALID
 
 # scope outcomes
-OUT_OF_SCOPE = "The {primary} is out of scope", FAIL
+OUT_OF_SCOPE = "I don't see any {primary} around", FAIL
 NON_EXISTING_OBJECT = "There isn't any {primary} around", FAIL
 
 # fail generic outcomes
@@ -97,9 +95,9 @@ UNLOCK_SUCCESS = "You unlocked the {primary} successfully using the {secondary}"
 TAKE_SUCCESS = "You took the {primary} successfully", SUCCESS
 DROP_SUCCESS = "You dropped the {primary} successfully", SUCCESS
 OPEN_SUCCESS = "You opened the {primary} successfully", SUCCESS
-OPEN_WITH_TOOL_SUCCESS = "You opened the {primary} successfully using the {secondary}", SUCCESS
 CLOSE_SUCCESS = "You closed the {primary} successfully", SUCCESS
 
 # False because we don't want to print a description. If the command was successful, something else has already been printed.
+NO_MESSAGE_SUCCESS = False, SUCCESS
 EXAMINE_SUCCESS = False, SUCCESS
 ACCESS_ROOM_SUCCESS = False, SUCCESS

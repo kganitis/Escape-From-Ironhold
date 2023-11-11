@@ -4,7 +4,7 @@ from game.outcomes import Outcome, INVALID_COMMAND
 from game.result import Result
 
 
-stop_words = ["the", "a", "an", "and", "in", "on", "to", "with", "for", "as", "at", "from"]
+stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from']
 
 
 def parse(world, input_command, test=False):
@@ -12,18 +12,18 @@ def parse(world, input_command, test=False):
     words = [word for word in input_command.strip().lower().split() if word not in stop_words]
     # Extract the first word as the verb
     verb = words[0]
-    words = words[1:] if len(words) > 1 else None
+    nouns = words[1:] if len(words) > 1 else None
 
-    command = Command(verb, words)
+    command = Command(verb, nouns)
 
     # Check if asked for help
     if command.verb == 'help':
-        show_help(command.words)
+        show_help(command.nouns)
         return
 
     # Lexical Analysis
-    game_objects = [world.get_object_by_name(word) for word in command.words]
-    primary_object = game_objects[0] if len(game_objects) > 0 else None
+    game_objects = [world.get(noun) for noun in command.nouns]
+    primary_object = game_objects[0] if game_objects else None
     secondary_object = game_objects[1] if len(game_objects) > 1 else None
 
     # Syntax Analysis
@@ -51,7 +51,7 @@ def show_help(command=None):
         show_examples_for_verb(verb)
     elif verb:
         show_syntax_for_verb(verb)
-        print("Type 'help {command} {examples}' to get examples for a specific command.")
+        print("Type 'help {command} examples' to get examples for a specific command.")
     else:
         show_available_commands()
         print("Type 'help {command}' to get help for a specific command.")

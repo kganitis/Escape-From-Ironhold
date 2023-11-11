@@ -128,17 +128,17 @@ class Command:
             words = []
         if not isinstance(words, list):
             words = [word for word in words]
-        self.words = words
+        self.nouns = words
 
     def __str__(self):
-        return f"{self.verb} {' '.join(self.words)}"
+        return f"{self.verb} {' '.join(self.nouns)}"
 
     def is_valid(self):
         if self.verb not in get_available_command_verbs():
             return False
 
         quantifier_function, words_count_limitation = _available_commands[self.verb]["rule"]
-        if not quantifier_function(self.words, words_count_limitation):
+        if not quantifier_function(self.nouns, words_count_limitation):
             return False
 
         return True

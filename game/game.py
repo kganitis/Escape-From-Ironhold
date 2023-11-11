@@ -8,7 +8,7 @@ class Game:
         self.world.populate()
 
     def run(self):
-        print("\nWELCOME TO ESCAPE FROM IRONHOLD\n")
+        print("\nWelcome to ESCAPE FROM IRONHOLD\n")
 
         # Print help prompt
         print("\nType 'help' to see a list of available commands.\n\n")

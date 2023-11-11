@@ -46,7 +46,7 @@ class Action:
         return Outcome(outcome, primary, secondary)
 
     def examine(self):
-        if not self.primary_object:
+        if self.primary_object is None:
             self.primary_object = self.world.current_room
         object_to_examine = self.primary_object
 

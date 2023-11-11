@@ -19,6 +19,7 @@ class GameObject(ABC):
         # Relations to other objects
         self.attached = []
         self.added_to_scope = False
+        self.concealed = False
 
     @property
     def world(self):
@@ -103,7 +104,8 @@ class GameObject(ABC):
     def examine(self):
         self.describe()
         for child in self.children:
-            child.discover()
+            if not child.concealed:
+                child.discover()
         return EXAMINE_SUCCESS
 
     def describe(self):

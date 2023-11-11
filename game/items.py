@@ -46,13 +46,30 @@ class Lock(Item, Lockable):
         Lockable.__init__(self)
 
 
+class Mattress(Item):
+    def __init__(self, name, initial, description, parent):
+        super().__init__(name, initial, description, parent)
+
+    def examine(self):
+        super().examine()
+        lockpick = self.world.get('lockpick')
+        lockpick.concealed = False
+        lockpick.discover()
+        return EXAMINE_SUCCESS
+
+
 class Stone(Item, Obtainable):
     def __init__(self, name, initial, description, parent):
         super().__init__(name, initial, description, parent)
 
+    # TODO Implement a wall to put the stone into
+    # def take(self):
+    #     super().take()
+    #     self.print_message("You manage to take the stone out from the wall but you see nothing of interest.")
+    #     return NO_MESSAGE_SUCCESS
+
 
 class Barel(Item, Openable):
-
     def open(self, opening_tool=None):
         pass
 
