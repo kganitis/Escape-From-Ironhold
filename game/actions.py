@@ -11,6 +11,8 @@ class Action:
         self.primary_object = primary_object
         self.secondary_object = secondary_object
         self.objects = [obj for obj in [primary_object, secondary_object] if obj is not None]
+        self.called_object = None
+        self.passed_object = None
 
         # Dynamically get the action execution function matching the command verb
         self.execution_function = getattr(self, command.verb, None)
@@ -26,7 +28,13 @@ class Action:
 
         # Execution
         if self.execution_function and callable(self.execution_function):
-            return self.execution_function()
+            outcome = self.execution_function()
+            after_message = self.called_object and self.called_object.after.get(self.command.verb, None)
+            if after_message:
+                self.called_object.print_message(after_message)
+                outcome.outcome = False, outcome.outcome[1]
+                outcome.description = False
+            return outcome
         else:
             raise ValueError(f"Action not found for verb: {self.command.verb}")
 
@@ -54,6 +62,7 @@ class Action:
         if another_room:
             return self.outcome(CANT_EXAMINE_FROM_CURRENT_ROOM, object_to_examine)
 
+        self.called_object = object_to_examine
         outcome = object_to_examine.examine()
         return self.outcome(outcome, object_to_examine)
 
@@ -68,6 +77,7 @@ class Action:
         if already_obtained:
             return self.outcome(ALREADY_OBTAINED, object_to_take)
 
+        self.called_object = object_to_take
         outcome = object_to_take.take()
         return self.outcome(outcome, object_to_take)
 
@@ -78,6 +88,7 @@ class Action:
         if not_in_possession:
             return self.outcome(NOT_IN_POSSESSION, object_to_drop)
 
+        self.called_object = object_to_drop
         outcome = object_to_drop.drop()
         return self.outcome(outcome, object_to_drop)
 
@@ -93,6 +104,7 @@ class Action:
         if not_held:
             return self.outcome(NOT_HELD, object_to_use)
 
+        self.called_object = object_to_use
         outcome = object_to_use.use(secondary_object)
         return self.outcome(outcome, object_to_use, secondary_object)
 
@@ -141,6 +153,7 @@ class Action:
         elif operation == 'unlock' and not locking_tool.can_unlock:
             return self.outcome(CANT_UNLOCK_WITH_OBJECT, locking_tool)
 
+        self.called_object = lockable_object
         outcome = lockable_object.lock(locking_tool) if operation == 'lock' else lockable_object.unlock(locking_tool)
         return self.outcome(outcome, lockable_object, locking_tool)
 
@@ -162,6 +175,7 @@ class Action:
         if already_open:
             return self.outcome(ALREADY_OPEN, object_to_open)
 
+        self.called_object = object_to_open
         outcome = object_to_open.open(opening_tool)
         return self.outcome(outcome, object_to_open, opening_tool)
 
@@ -176,6 +190,7 @@ class Action:
         if already_closed:
             return self.outcome(ALREADY_CLOSED, object_to_close)
 
+        self.called_object = object_to_close
         outcome = object_to_close.close()
         return self.outcome(outcome, object_to_close)
 
@@ -198,6 +213,7 @@ class Action:
         if blocked:
             return self.outcome(blocked, connection_to_current_room)
 
+        self.called_object = room_to_go
         outcome = room_to_go.go()
         return self.outcome(outcome, room_to_go)
 

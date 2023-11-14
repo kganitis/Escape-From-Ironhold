@@ -59,17 +59,14 @@ class Mattress(Item):
 
 
 class Stone(Item, Obtainable):
-    def __init__(self, name, initial, description, parent):
-        super().__init__(name, initial, description, parent)
-
-    # TODO Implement a wall to put the stone into
-    # def take(self):
-    #     super().take()
-    #     self.print_message("You manage to take the stone out from the wall but you see nothing of interest.")
-    #     return NO_MESSAGE_SUCCESS
+    pass
 
 
-class Barel(Item, Openable):
+class Wall(Item, Container):
+    pass
+
+
+class Barrel(Item, Openable):
     def open(self, opening_tool=None):
         pass
 

@@ -1,7 +1,7 @@
 from .attributes import *
 
 
-# Define a common parent class for all game objects (rooms, items, actions etc.)
+# Define a common parent class for all game objects (rooms, items, characters etc.)
 class GameObject(ABC):
     def __init__(self, name, initial=None, description=None, parent=None):
         self.name = name
@@ -9,6 +9,10 @@ class GameObject(ABC):
         # Descriptions
         self.initial = initial
         self.description = description
+        self.discoverable_children = True
+        # Messages before and after an action takes place for this game object (action: message)
+        self.before = {}
+        self.after = {}
 
         # First degree relatives
         self.parent = parent
@@ -87,7 +91,8 @@ class GameObject(ABC):
     def add_child(self, obj):
         self.children.append(obj)
         obj.parent = self
-        obj.update_game_objects_repository()  # every game object created is added to the repository
+        # Every game object linked to the world object tree is also added to the objects repository
+        obj.update_game_objects_repository()
 
     def remove(self):
         self.parent.children.remove(self)
@@ -103,9 +108,8 @@ class GameObject(ABC):
 
     def examine(self):
         self.describe()
-        for child in self.children:
-            if not child.concealed:
-                child.discover()
+        if self.discoverable_children:
+            self.discover_children()
         return EXAMINE_SUCCESS
 
     def describe(self):
@@ -114,6 +118,11 @@ class GameObject(ABC):
     def discover(self):
         if self.initial:
             self.print_message(self.initial)
+
+    def discover_children(self):
+        for child in self.children:
+            if not child.concealed:
+                child.discover()
 
     def print_message(self, message):
         if not self.world.test:

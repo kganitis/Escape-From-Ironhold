@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Protocol
 
 from .outcomes import *
 
@@ -25,6 +26,19 @@ class Accessible(ABC):
         self.current_room = self
         self.print_message(self.description)
         return ACCESS_ROOM_SUCCESS
+
+
+class Container(ABC):
+    def __init__(self, transparent=False):
+        self.transparent = transparent
+        self.discoverable_children = transparent
+
+    @property
+    def contents(self):
+        return self.children
+
+    def insert(self, item):
+        self.add_child(item)
 
 
 class Lockable(ABC):

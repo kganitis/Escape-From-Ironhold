@@ -40,7 +40,7 @@ class TestOutcome(TestCase):
 
         door = world.get('door')
         lockpick = world.get('lockpick')
-        other = world.get('barel')
+        other = world.get('barrel')
         other2 = world.get('stone')
         action = Action(world, command, door, lockpick)
         outcome_const = OPEN_SUCCESS
@@ -102,8 +102,8 @@ class TestExecute(TestAction):
         self.assert_outcome(INVALID_OBJECTS, ['invalid'])
 
     def test_out_of_scope(self):
-        self.commands = "take barel"
-        self.assert_outcome(OUT_OF_SCOPE, ['barel'])
+        self.commands = "take barrel"
+        self.assert_outcome(OUT_OF_SCOPE, ['barrel'])
 
     def test_command_transform(self):
         self.commands = "take lockpick", "use lockpick lock"
@@ -395,3 +395,9 @@ class TestMattress(TestAction):
         result = self.execute_commands()
         lockpick = result.action.world.get('lockpick')
         self.assertFalse(lockpick.concealed)
+
+
+class TestStone(TestAction):
+    def test_take(self):
+        self.commands = "take stone"
+        self.assert_outcome(NO_MESSAGE_SUCCESS, ['stone'])

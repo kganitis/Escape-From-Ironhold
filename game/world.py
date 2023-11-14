@@ -12,18 +12,18 @@ class World(GameObject):
 
         self.test = test
 
-        # A repository to hold every game object created
-        # It maps the object's name to the actual instance of the game object
+        # A dictionary to hold every game object linked to the object tree
+        # It maps the object's name to the actual instance of the game object for instant access
         self.game_objects_repository = {}
 
         self.room = None
-        self.hero = Hero(parent=None)
+        self.hero = None
 
     def populate(self):
-        # Cell
+        # Initialize room and hero
         cell = Cell(parent=self)
-        cell.add_child(self.hero)
         self.room = cell
+        self.hero = Hero(parent=cell)
 
         # Dungeon
         dungeon = Dungeon(parent=self)
@@ -67,18 +67,28 @@ class World(GameObject):
             description="The straw mattress doesn't seem comfortable but it's better than nothing.",
             parent=cell
         )
+        # mattress.after['examine'] =
+
+        cell_wall = Wall(
+            name='wall',
+            initial="You can feel some cold air entering the cell. Maybe there's a crack somewhere in the walls.",
+            description="The cell walls are made of stone, some are large and heavy, others are very small and barely into place.",
+            parent=cell,
+        )
+        cell_wall.transparent = True
 
         stone = Stone(
             name='stone',
-            initial="You observe a loose stone in the cell's stone walls.",
-            description="A stone of the cell's walls. Doesn't seem very useful.",
-            parent=cell
+            initial="You observe a loose small stone in the cell's stone walls. Maybe it can be removed...",
+            description="A small stone of the cell's walls. Doesn't seem very useful.",
+            parent=cell_wall
         )
+        stone.after['take'] = "You manage to remove the stone from the wall but you see nothing of interest."
 
-        barel = Barel(
-            name='barel',
-            initial="You observe a wooden barel.",
-            description="The barel is  just large enough to fit a person.",
+        barrel = Barrel(
+            name='barrel',
+            initial="You observe a wooden barrel.",
+            description="The barrel is just large enough to fit a person.",
             parent=dungeon
         )
 

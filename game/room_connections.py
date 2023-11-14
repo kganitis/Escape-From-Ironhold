@@ -49,12 +49,10 @@ class Door(RoomConnection, Openable, Lockable):
         return False
 
     def open(self, opening_tool=None):
-        open_with_tool = False
         if self.locked:
             if opening_tool:
                 # Generate a command to unlock the door first, before attempting to open
-                result = self.world.parse(f"unlock {self} {opening_tool}")
-                open_with_tool = result.outcome.outcome == UNLOCK_SUCCESS
+                self.world.parse(f"unlock {self} with {opening_tool}")
             else:
                 return BLOCKED_OBJECT_LOCKED
 
