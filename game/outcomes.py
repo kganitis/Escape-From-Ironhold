@@ -63,7 +63,7 @@ CANT_USE_OBJECT_ON_TARGET = "You can't use the {primary} on the {secondary}", FA
 
 NOT_ACCESSIBLE = "The {primary} is not accessible", FAIL
 ALREADY_IN_ROOM = "Already in {primary}", FAIL
-NOT_ACCESSIBLE_FROM_CURRENT_ROOM = "The {primary} is not accessible from {secondary}", FAIL
+NOT_ACCESSIBLE_FROM_CURRENT_ROOM = "The {primary} is not accessible from the {secondary}", FAIL
 BLOCKED_CONNECTION = "The {primary} is blocked", FAIL
 BLOCKED_OBJECT_LOCKED = "The {primary} is locked and must be unlocked first", FAIL
 BLOCKED_OBJECT_CLOSED = "The {primary} is closed and must be opened first", FAIL
