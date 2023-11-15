@@ -1,8 +1,8 @@
 from nlp.simple_parser import parse
-from .character import *
+from .player import *
 from .items import *
 from .room_connections import *
-from .rooms import *
+from .room import *
 
 
 class World(GameObject):
@@ -20,13 +20,31 @@ class World(GameObject):
         self.hero = None
 
     def populate(self):
-        # Initialize room and hero
-        cell = Cell(parent=self)
+        # Initialize room and player
+        cell = Room(
+            name="cell",
+            initial=None,
+            description="You find yourself in a small, dimly lit prison cell with cold stone walls.\n"
+                        "A narrow slit near the ceiling lets in feeble moonlight, revealing a straw-covered floor.\n"
+                        "Iron bars separate you from the dungeon outside, and the air carries a metallic scent,\n"
+                        "a reminder of the fortress's stern grip.",
+            parent=self
+        )
         self.room = cell
-        self.hero = Hero(parent=cell)
+        self.hero = Player(
+            name="Hero",
+            initial=None,
+            description="You are a brave hero trying to escape from the Ironhold prison",
+            parent=cell
+        )
 
         # Dungeon
-        dungeon = Dungeon(parent=self)
+        dungeon = Room(
+            name="dungeon",
+            initial="You can see a prison dungeon.",
+            description="You find yourself in the prison dungeon.",
+            parent=self
+        )
 
         # Cell door
         cell_door_lock = Lock(
@@ -35,13 +53,15 @@ class World(GameObject):
             description="The lock could be picked with a lockpick, if I had one...",
             parent=None
         )
+
         cell_door_key = Key(
             name='key',
             initial="You observe an old key.",
             description="An old key. I wonder where it fits...",
             parent=cell,
-            lockable_target=cell_door_lock
         )
+        cell_door_key.fits_into = cell_door_lock
+
         cell_door = Door(
             name="door",
             initial="You observe a heavy barred iron cell door.",
@@ -49,7 +69,6 @@ class World(GameObject):
             parent=self,
             lock=cell_door_lock
         )
-        cell_door.add_child(cell_door_lock)
         cell_door.connect_rooms(cell, dungeon)
 
         # Cell items
@@ -85,6 +104,13 @@ class World(GameObject):
         )
         stone.after['take'] = "You manage to remove the stone from the wall but you see nothing of interest."
 
+        dog_tag = DogTag(
+            name='tag',
+            initial="You observe some kind of a dog tag on the ground, near the cell's corner.",
+            description="The text is worn off. Seems it was left here by a soldier...",
+            parent=cell
+        )
+
         barrel = Barrel(
             name='barrel',
             initial="You observe a wooden barrel.",
@@ -93,7 +119,12 @@ class World(GameObject):
         )
 
         # Courtyard
-        courtyard = Courtyard(parent=self)
+        courtyard = Room(
+            name="courtyard",
+            initial="You can see Ironhold prison's courtyard.",
+            description="You find yourself in Ironhold prison's courtyard.",
+            parent=self
+        )
         courtyard.add_to_scope()
 
         cell_window = Window(

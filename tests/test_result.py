@@ -11,6 +11,7 @@ def test_commands(*input_commands):
 
 
 result = test_commands(
+    "take the lockpick",
     "open the door with the lockpick",
     "go to the dungeon"
 )

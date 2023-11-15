@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Protocol
 
 from .outcomes import *
 
@@ -29,11 +28,6 @@ class Accessible(ABC):
 
 
 class Container(ABC):
-    def __init__(self, transparent=False):
-        self.transparent = transparent
-        self.discoverable_children = transparent
-
-    @property
     def contents(self):
         return self.children
 
@@ -42,11 +36,13 @@ class Container(ABC):
 
 
 class Lockable(ABC):
+    _locked = True
+    _key = None
+    can_be_picked = True
+
     def __init__(self, locked=True, key=None, can_be_picked=True):
-        self._locked = locked
+        self.locked = locked
         self.key = key
-        if key:
-            key.lockable_target = self
         self.can_be_picked = can_be_picked
 
     @property
@@ -56,6 +52,16 @@ class Lockable(ABC):
     @locked.setter
     def locked(self, value):
         self._locked = value
+
+    @property
+    def key(self):
+        return self._key
+
+    @key.setter
+    def key(self, value):
+        self._key = value
+        if self.key.fits_into != self:
+            self._key.fits_into = self
 
     def lock(self, locking_tool):
         self.locked = True
@@ -67,8 +73,10 @@ class Lockable(ABC):
 
 
 class Openable(ABC):
-    def __init__(self, _open=False):
-        self._open = _open
+    _open = False
+
+    def __init__(self, open):
+        self._open = open
 
     @property
     def is_open(self):

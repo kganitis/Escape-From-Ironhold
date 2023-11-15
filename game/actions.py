@@ -1,21 +1,27 @@
 from .items import *
-from .rooms import *
+from .room import *
 from .room_connections import *
 
 
 class Action:
     def __init__(self, world, command, primary_object=None, secondary_object=None):
         self.world = world
-        self.player = world.player
         self.command = command
         self.primary_object = primary_object
         self.secondary_object = secondary_object
-        self.objects = [obj for obj in [primary_object, secondary_object] if obj is not None]
         self.called_object = None
         self.passed_object = None
 
         # Dynamically get the action execution function matching the command verb
         self.execution_function = getattr(self, command.verb, None)
+
+    @property
+    def player(self):
+        return self.world.player
+
+    @property
+    def objects(self):
+        return [obj for obj in [self.primary_object, self.secondary_object] if obj is not None]
 
     def execute(self):
         # More syntax analysis
@@ -28,7 +34,13 @@ class Action:
 
         # Execution
         if self.execution_function and callable(self.execution_function):
+            # Print any 'before action' message
+            # TODO print before message
+
+            # Execute the action and get the outcome
             outcome = self.execution_function()
+
+            # Print any 'after action' message
             after_message = self.called_object and self.called_object.after.get(self.command.verb, None)
             if after_message:
                 self.called_object.print_message(after_message)

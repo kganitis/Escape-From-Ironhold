@@ -99,5 +99,6 @@ CLOSE_SUCCESS = "You closed the {primary} successfully", SUCCESS
 
 # False because we don't want to print a description. If the command was successful, something else has already been printed.
 NO_MESSAGE_SUCCESS = False, SUCCESS
+NO_MESSAGE_FAIL = False, FAIL
 EXAMINE_SUCCESS = False, SUCCESS
 ACCESS_ROOM_SUCCESS = False, SUCCESS

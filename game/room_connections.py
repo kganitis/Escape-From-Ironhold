@@ -3,9 +3,7 @@ from .outcomes import *
 
 
 class RoomConnection(GameObject, ABC):
-    def __init__(self, name, initial, description, parent):
-        super().__init__(name, initial, description, parent)
-        self.connected_rooms = []
+    connected_rooms = []
 
     @property
     def scope(self, modifier=None):
@@ -18,6 +16,8 @@ class RoomConnection(GameObject, ABC):
         return BLOCKED_CONNECTION
 
     def connect_rooms(self, *rooms):
+        if not self.connected_rooms:
+            self.connected_rooms = []
         self.connected_rooms.extend(rooms)
         for room in rooms:
             room.add_connection(self)
@@ -29,10 +29,9 @@ class RoomConnection(GameObject, ABC):
 class Door(RoomConnection, Openable, Lockable):
     def __init__(self, name, initial, description, parent, lock):
         super().__init__(name, initial, description, parent)
-        Openable.__init__(self)
-        Lockable.__init__(self)
         self.lock_ = lock
-        self.attach(self.lock_)
+        self.add_child(lock)
+        self.attach(lock)
         self.key = lock.key
         self.can_be_picked = lock.can_be_picked
 
@@ -49,14 +48,16 @@ class Door(RoomConnection, Openable, Lockable):
         return False
 
     def open(self, opening_tool=None):
-        if self.locked:
-            if opening_tool:
-                # Generate a command to unlock the door first, before attempting to open
-                outcome = self.world.parse(f"unlock {self} with {opening_tool}")
-            else:
-                return BLOCKED_OBJECT_LOCKED
+        if self.locked and not opening_tool:
+            return BLOCKED_OBJECT_LOCKED
 
-        # TODO check if it's unlocked
+        if self.locked and opening_tool:
+            # Generate a command to unlock the door first, before attempting to open
+            result = self.world.parse(f"unlock {self} with {opening_tool}")
+
+            if result.outcome.outcome != UNLOCK_SUCCESS:
+                return NO_MESSAGE_FAIL
+
         self.is_open = True
         return OPEN_SUCCESS
 
@@ -70,9 +71,6 @@ class Door(RoomConnection, Openable, Lockable):
 
 
 class Window(RoomConnection):
-    def __init__(self, name, initial, description, parent):
-        super().__init__(name, initial, description, parent)
-
     @property
     def is_blocked(self):
         return False
