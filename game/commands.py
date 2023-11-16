@@ -39,14 +39,14 @@ _available_commands = {
         'description': "Examine the current room (or an object).",
         'syntax': "examine (the {object}?|{room})",
         'examples': ["Examine", "Examine the cell", "Examine the door"],
-        'synonyms': ['search', 'look']
+        'synonyms': ['search', 'look', 'inspect']
     },
     'take': {
         'rule': (noun_count_is_not_zero_and_at_most, 2),
         'description': "Take the specified item.",
         'syntax': "take the {item} (from the {object})",
         'examples': ["Take the lockpick"],
-        'synonyms': ['steal', 'grab', 'acquire']
+        'synonyms': ['steal', 'grab', 'acquire', 'pick']
     },
     'drop': {
         'rule': (noun_count_is_exactly, 1),
@@ -83,40 +83,46 @@ _available_commands = {
         'rule': (noun_count_is_exactly, 1),
         'description': "Close an object.",
         'syntax': "close the {object}",
-        'examples': ["Close the door"]
+        'examples': ["Close the door"],
+        'synonyms': ['shut']
     },
     'wake': {
         'rule': (noun_count_is_exactly, 1),
         'description': "Wake up an animate.",
         'syntax': "wake (up) the {object}",
-        'examples': ["Wake up the guard"]
+        'examples': ["Wake up the guard"],
+        'synonyms': ['awaken']
     },
     'attack': {
         'rule': (noun_count_is_not_zero_and_at_most, 2),
         'description': "Attack another animate (with an object).",
         'syntax': "attack the {animate} (with the {object}.",
         'examples': ["Attack the guard with the lockpick"],
-        'synonyms': ['fight']
+        'synonyms': ['fight', 'assault', 'confront']
     },
     'ask': {
         'rule': (noun_count_is_at_least, 1),
-        'description': "",
-        'syntax': "",
-        'examples': []
+        'description': "Ask an animate something.",
+        'syntax': "ask the {animate} {any}",
+        'examples': ["Ask the guard why I'm here."]
     },
     'tell': {
         'rule': (noun_count_is_at_least, 1),
-        'description': "",
-        'syntax': "",
-        'examples': []
+        'description': "Tell an animate something",
+        'syntax': "tell the {animate} {any}",
+        'examples': ["Tell the guard to set me free."],
+        'synonyms': ['demand', 'order']
     },
     'throw': {
         'rule': (noun_count_is_not_zero_and_at_most, 2),
         'description': "Throw an {object} (at another {object})",
-        'syntax': "throw the {object} (at the {object}",
+        'syntax': "throw the {object} (at the {object})",
         'examples': ["Throw the lockpick", "Throw the stone at the guard"],
-        'synonyms': ['shoot']
+        'synonyms': ['shoot', 'launch']
     },
+    # TODO implement sneak, walk, approach and run in some way
+    # TODO implement wait
+    # TODO implement try
     # '': {
     #     'rule': (),
     #     'description': "",
@@ -193,6 +199,9 @@ class Command:
         return f"{self.__original_verb} {' '.join(self.nouns)}"
 
     def is_valid(self):
+        if self.verb in ('ask', 'tell'):
+            return True
+
         if not self.__synonym and self.__original_verb not in get_available_command_verbs():
             return False
 

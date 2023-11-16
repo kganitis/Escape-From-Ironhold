@@ -25,12 +25,13 @@ class Action:
 
     def execute(self):
         # More syntax analysis
-        invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
-        out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
-        if invalid_objects:
-            return self.outcome(INVALID_OBJECTS, *invalid_objects)
-        if out_of_scope:
-            return self.outcome(OUT_OF_SCOPE, *out_of_scope)
+        if self.command.verb not in ('ask', 'tell'):
+            invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
+            out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
+            if invalid_objects:
+                return self.outcome(INVALID_OBJECTS, *invalid_objects)
+            if out_of_scope:
+                return self.outcome(OUT_OF_SCOPE, *out_of_scope)
 
         # Execution
         if self.execution_function and callable(self.execution_function):
