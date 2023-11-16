@@ -1,4 +1,5 @@
-from .attributes import *
+from abc import ABC
+from .outcomes import *
 
 
 # Define a common parent class for all game objects (rooms, items, characters etc.)
@@ -81,21 +82,27 @@ class GameObject(ABC):
 
     def examine(self):
         self.describe()
-        if self.current_room or self.transparent:
+        if self == self.current_room or self.transparent:
             self.discover_children()
-        return EXAMINE_SUCCESS
+        self.discover_attached()
+        return NO_MESSAGE
 
     def describe(self):
         self.print_message(self.description)
 
     def discover(self):
+        if self.concealed:
+            return
         if self.initial:
             self.print_message(self.initial)
 
     def discover_children(self):
         for child in self.children:
-            if not child.concealed:
-                child.discover()
+            child.discover()
+
+    def discover_attached(self):
+        for attached in self.attached:
+            attached.discover()
 
     def print_message(self, message):
         if not self.world.test:
@@ -113,6 +120,8 @@ class GameObject(ABC):
 
     def remove(self):
         self.parent.children.remove(self)
+        if self.is_attached_to(self.parent):
+            self.parent.remove_attached(self)
         self.parent = None
 
     def move_to(self, new_parent):
@@ -129,6 +138,20 @@ class GameObject(ABC):
     def attach(self, obj):
         self.attached.append(obj)
         obj.attached.append(self)
+
+    def remove_attached(self, obj):
+        self.attached.remove(obj)
+        obj.attached.remove(self)
+
+    def is_attached_to(self, game_object):
+        return game_object in self.attached
+
+    def has_attached(self, game_object):
+        return game_object in self.attached
+
+    @property
+    def owned(self):
+        return set(self.children + self.attached)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Scope Methods

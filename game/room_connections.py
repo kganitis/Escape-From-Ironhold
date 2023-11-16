@@ -1,5 +1,6 @@
 from .game_object import *
 from .outcomes import *
+from .attributes import Openable, Lockable
 
 
 class RoomConnection(GameObject, ABC):
@@ -32,8 +33,14 @@ class Door(RoomConnection, Openable, Lockable):
         self.lock_ = lock
         self.add_child(lock)
         self.attach(lock)
-        self.key = lock.key
-        self.can_be_picked = lock.can_be_picked
+
+    @property
+    def key(self):
+        return self.lock_.key
+
+    @property
+    def can_be_picked(self):
+        return self.lock_.can_be_picked
 
     @property
     def locked(self):
@@ -56,7 +63,7 @@ class Door(RoomConnection, Openable, Lockable):
             result = self.world.parse(f"unlock {self} with {opening_tool}")
 
             if result.outcome.outcome != UNLOCK_SUCCESS:
-                return NO_MESSAGE_FAIL
+                return NO_MESSAGE
 
         self.is_open = True
         return OPEN_SUCCESS

@@ -3,6 +3,7 @@ from .player import *
 from .items import *
 from .room_connections import *
 from .room import *
+from .person import *
 
 
 class World(GameObject):
@@ -53,15 +54,6 @@ class World(GameObject):
             description="The lock could be picked with a lockpick, if I had one...",
             parent=None
         )
-
-        cell_door_key = Key(
-            name='key',
-            initial="You observe an old key.",
-            description="An old key. I wonder where it fits...",
-            parent=cell,
-        )
-        cell_door_key.fits_into = cell_door_lock
-
         cell_door = Door(
             name="door",
             initial="You observe a heavy barred iron cell door.",
@@ -117,6 +109,25 @@ class World(GameObject):
             description="The barrel is just large enough to fit a person.",
             parent=dungeon
         )
+
+        # Guard
+        guard = Guard(
+            name='guard',
+            initial="There's a guard sleeping right next to the cell's barred door.",
+            description="The guard seems to be in deep sleep.",
+            parent=cell
+        )
+        guard.asleep = True
+        guard.add_to_scope()
+
+        cell_door_key = Key(
+            name='key',
+            initial="A key hangs from the guard's belt. Maybe it's within your reach.",
+            description="An old iron key. I wonder where it fits...",
+            parent=guard,
+        )
+        cell_door_key.fits_into = cell_door_lock
+        guard.attach(cell_door_key)
 
         # Courtyard
         courtyard = Room(

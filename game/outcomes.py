@@ -1,16 +1,26 @@
 class Outcome:
     def __init__(self, outcome, primary_object=None, secondary_object=None):
         self.outcome = outcome
-        self.description, self.type = outcome
         self.primary_object = primary_object
         self.secondary_object = secondary_object
-        self.objects = [obj for obj in [primary_object, secondary_object] if obj is not None]
 
     def __str__(self):
         return f"{self.description}, {self.object_names}, {self.type}"
 
     def __eq__(self, other):
         return self.outcome == other.outcome and self.objects == other.objects
+
+    @property
+    def description(self):
+        return self.outcome[0]
+
+    @property
+    def type(self):
+        return self.outcome[1]
+
+    @property
+    def objects(self):
+        return [obj for obj in [self.primary_object, self.secondary_object] if obj is not None]
 
     @property
     def object_names(self):
@@ -30,8 +40,7 @@ SUCCESS = "SUCCESS"  # command executed successfully and the result alters the g
 NEUTRAL = "NEUTRAL"  # command executed successfully but the result does not alter the game world
 FAIL = "FAIL"  # command is valid but failed to be executed
 INVALID = "INVALID"  # invalid command
-TRANSFORMED = "TRANSFORMED"  # the initial command was transformed
-
+TRANSFORMED = "TRANSFORMED"  # the initial command was transformed to a new command to be executed instead
 
 # outcomes (description, type)
 # special
@@ -55,6 +64,7 @@ NOT_OBTAINABLE = "The {primary} cannot be taken", FAIL
 ALREADY_OBTAINED = "The {primary} is already in your possession", FAIL
 NOT_HELD = "You're not holding any {primary}", FAIL
 NOT_IN_POSSESSION = "There isn't any {primary} in your possession", FAIL
+NOT_OWNED_BY_OBJECT = "The {secondary} doesn't have any {primary}", FAIL
 
 NOT_USABLE = "The {primary} is not usable", FAIL
 CANT_USE_OBJECT_ALONE = "You must use the {primary} with something else", FAIL
@@ -89,16 +99,22 @@ ALREADY_CLOSED = "The {primary} is already closed", FAIL
 
 MUST_CLOSE_OBJECT = "The {primary} is open and must be closed first", FAIL
 
+NOT_ANIMATE = "You can't do that to a lifeless object."
+NOT_ASLEEP = "The {primary} isn't sleeping", FAIL
+
+# Neutral outcomes
+NOTHING_HAPPENS = "Nothing happens", NEUTRAL
+NO_MESSAGE = False, NEUTRAL  # False because we don't want to print a description.
+
 # successful generic outcomes
 LOCK_SUCCESS = "You locked the {primary} successfully using the {secondary}", SUCCESS
 UNLOCK_SUCCESS = "You unlocked the {primary} successfully using the {secondary}", SUCCESS
 TAKE_SUCCESS = "You took the {primary} successfully", SUCCESS
+TAKE_FROM_OWNER_SUCCESS = "You took the {primary} from the {secondary} successfully", SUCCESS
 DROP_SUCCESS = "You dropped the {primary} successfully", SUCCESS
 OPEN_SUCCESS = "You opened the {primary} successfully", SUCCESS
 CLOSE_SUCCESS = "You closed the {primary} successfully", SUCCESS
+THROW_AT_TARGET_SUCCESS = "You threw the {secondary} at the {primary} successfully", SUCCESS
 
-# False because we don't want to print a description. If the command was successful, something else has already been printed.
-NO_MESSAGE_SUCCESS = False, SUCCESS
-NO_MESSAGE_FAIL = False, FAIL
-EXAMINE_SUCCESS = False, SUCCESS
-ACCESS_ROOM_SUCCESS = False, SUCCESS
+
+

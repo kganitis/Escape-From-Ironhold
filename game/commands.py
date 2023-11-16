@@ -1,20 +1,19 @@
 # Quantifier functions
-# Check if an arguments list contains certain arguments count
-# Used to ensure that a command is followed by a valid count of arguments
-def words_count_is_at_most(words, quantity):  # useful to represent the '?' quantifier, meaning 0 or 1
-    return len(words) <= quantity
+# Used to ensure that a command is followed by a certain count of nouns
+def noun_count_is_at_most(nouns, quantity):
+    return len(nouns) <= quantity
 
 
-def words_count_is_at_least(words, quantity):  # useful to represent the '+' quantifier, meaning 1 or more
-    return len(words) >= quantity
+def noun_count_is_at_least(nouns, quantity):
+    return len(nouns) >= quantity
 
 
-def words_count_is_not_zero_and_at_most(words, quantity):
-    return len(words) > 0 and len(words) <= quantity
+def noun_count_is_not_zero_and_at_most(nouns, quantity):
+    return len(nouns) > 0 and len(nouns) <= quantity
 
 
-def words_count_is_exactly(words, quantity):  # useful to check if a command must be followed by exactly 0 or 1 argument
-    return len(words) == quantity
+def noun_count_is_exactly(nouns, quantity):
+    return len(nouns) == quantity
 
 
 # Define rules for the required number of arguments for each command.
@@ -22,80 +21,124 @@ def words_count_is_exactly(words, quantity):  # useful to check if a command mus
 # The quantifier checks if the word count follows the quantity limitation.
 # For example, the "examine" command must be followed by 1 word at most.
 _available_commands = {
-    "go": {
-        "rule": (words_count_is_exactly, 1),
-        "description": "Go to the specified room.",
-        "syntax": "go to the {room}",
-        "examples": ["Go to the dungeon"]
+    'go': {
+        'rule': (noun_count_is_exactly, 1),
+        'description': "Go to the specified room.",
+        'syntax': "go to the {room}",
+        'examples': ["Go to the dungeon"],
+        'synonyms': ['access', 'enter']
     },
-    "exit": {
-        "rule": (words_count_is_at_most, 2),
-        "description": "Exit the current room (from a specified exit).",
-        "syntax": "exit the {room}? from the {connection}?",
-        "examples": ["Exit", "Exit the cell", "Exit the dungeon from the window"]
+    'exit': {
+        'rule': (noun_count_is_at_most, 2),
+        'description': "Exit (the current room) (from a specified exit).",
+        'syntax': "exit (the {room}) (from the {connection})",
+        'examples': ["Exit", "Exit the cell", "Exit the dungeon from the window", "Exit from the window"]
     },
-    "examine": {
-        "rule": (words_count_is_at_most, 1),
-        "description": "Examine the current room (or an object).",
-        "syntax": "examine the {object}?|{room}?",
-        "examples": ["Examine", "Examine the cell", "Examine the door"]
+    'examine': {
+        'rule': (noun_count_is_at_most, 1),
+        'description': "Examine the current room (or an object).",
+        'syntax': "examine (the {object}?|{room})",
+        'examples': ["Examine", "Examine the cell", "Examine the door"],
+        'synonyms': ['search', 'look']
     },
-    "take": {
-        "rule": (words_count_is_exactly, 1),
-        "description": "Take the specified item.",
-        "syntax": "take the {item}",
-        "examples": ["Take the lockpick"]
+    'take': {
+        'rule': (noun_count_is_not_zero_and_at_most, 2),
+        'description': "Take the specified item.",
+        'syntax': "take the {item} (from the {object})",
+        'examples': ["Take the lockpick"],
+        'synonyms': ['steal', 'grab', 'acquire']
     },
-    "drop": {
-        "rule": (words_count_is_exactly, 1),
-        "description": "Drop the specified item.",
-        "syntax": "drop the {item}",
-        "examples": ["Drop the lockpick"]
+    'drop': {
+        'rule': (noun_count_is_exactly, 1),
+        'description': "Drop the specified item.",
+        'syntax': "drop the {item}",
+        'examples': ["Drop the lockpick"]
     },
-    "use": {
-        "rule": (words_count_is_not_zero_and_at_most, 2),
-        "description": "Use an object (with/on another object).",
-        "syntax": "use the {object} on/with the {object}?",
-        "examples": ["Use the lockpick", "Use the lockpick on the lock"]
+    'use': {
+        'rule': (noun_count_is_not_zero_and_at_most, 2),
+        'description': "Use an object (with/on another object).",
+        'syntax': "use the {object} (on/with the {object})",
+        'examples': ["Use the lockpick", "Use the lockpick on the lock"]
     },
-    "lock": {
-        "rule": (words_count_is_not_zero_and_at_most, 2),
-        "description": "Lock a lockable object (with a specified item).",
-        "syntax": "lock the {object} with the {item}?",
-        "examples": ["Lock the door", "Lock the door with the key"]
+    'lock': {
+        'rule': (noun_count_is_not_zero_and_at_most, 2),
+        'description': "Lock a lockable object (with a specified item).",
+        'syntax': "lock the {object} (with the {item})",
+        'examples': ["Lock the door", "Lock the door with the key"]
     },
-    "unlock": {
-        "rule": (words_count_is_not_zero_and_at_most, 2),
-        "description": "Unlock an unlockable object (with a specified item).",
-        "syntax": "unlock the {object} with the {item}?",
-        "examples": ["Unlock the lock", "Unlock the lock with the lockpick"]
+    'unlock': {
+        'rule': (noun_count_is_not_zero_and_at_most, 2),
+        'description': "Unlock an unlockable object (with a specified item).",
+        'syntax': "unlock the {object} (with the {item})",
+        'examples': ["Unlock the lock", "Unlock the lock with the lockpick"],
+        'synonyms': ['pick']
     },
-    "open": {
-        "rule": (words_count_is_not_zero_and_at_most, 2),
-        "description": "Open an object (with a specified item).",
-        "syntax": "open the {object} with the {item}?",
-        "examples": ["Open the door", "Open the door with the lockpick"]
+    'open': {
+        'rule': (noun_count_is_not_zero_and_at_most, 2),
+        'description': "Open an object (with a specified item).",
+        'syntax': "open the {object} (with the {item})",
+        'examples': ["Open the door", "Open the door with the lockpick"]
     },
-    "close": {
-        "rule": (words_count_is_exactly, 1),
-        "description": "Close an object.",
-        "syntax": "close the {object}"
+    'close': {
+        'rule': (noun_count_is_exactly, 1),
+        'description': "Close an object.",
+        'syntax': "close the {object}",
+        'examples': ["Close the door"]
     },
-    # "wait": {
-    #     "rule": (words_count_is_exactly, 0),
-    #     "description": "Wait for some hours.",
-    #     "syntax": "wait"
+    'wake': {
+        'rule': (noun_count_is_exactly, 1),
+        'description': "Wake up an animate.",
+        'syntax': "wake (up) the {object}",
+        'examples': ["Wake up the guard"]
+    },
+    'attack': {
+        'rule': (noun_count_is_not_zero_and_at_most, 2),
+        'description': "Attack another animate (with an object).",
+        'syntax': "attack the {animate} (with the {object}.",
+        'examples': ["Attack the guard with the lockpick"],
+        'synonyms': ['fight']
+    },
+    'ask': {
+        'rule': (noun_count_is_at_least, 1),
+        'description': "",
+        'syntax': "",
+        'examples': []
+    },
+    'tell': {
+        'rule': (noun_count_is_at_least, 1),
+        'description': "",
+        'syntax': "",
+        'examples': []
+    },
+    'throw': {
+        'rule': (noun_count_is_not_zero_and_at_most, 2),
+        'description': "Throw an {object} (at another {object})",
+        'syntax': "throw the {object} (at the {object}",
+        'examples': ["Throw the lockpick", "Throw the stone at the guard"],
+        'synonyms': ['shoot']
+    },
+    # '': {
+    #     'rule': (),
+    #     'description': "",
+    #     'syntax': "",
+    #     'examples': [],
+    #     'synonyms': []
     # },
-    # "inventory": {
-    #     "rule": (words_count_is_exactly, 0),
-    #     "description": "Show player's inventory of items.",
-    #     "syntax": "inventory"
+    # 'wait': {
+    #     'rule': (words_count_is_exactly, 0),
+    #     'description': "Wait for some hours.",
+    #     'syntax': "wait"
     # },
-    "help": {
-        "rule": (words_count_is_at_most, 2),
-        "description": "See available commands or get help for a specific command.",
-        "syntax": "help {command}? {examples}?",
-        "examples": ["Help", "Help take", "Help take examples"]
+    # 'inventory': {
+    #     'rule': (words_count_is_exactly, 0),
+    #     'description': "Show player's inventory of items.",
+    #     'syntax': "inventory"
+    # },
+    'help': {
+        'rule': (noun_count_is_at_most, 2),
+        'description': "See available commands or get help for a specific command.",
+        'syntax': "help {command}? {examples}?",
+        'examples': ["Help", "Help take", "Help take examples"]
     }
 }
 
@@ -120,25 +163,41 @@ def show_examples_for_verb(verb):
     print(", ".join([example for example in _available_commands[verb]['examples']]))
 
 
+def synonym_of(verb):
+    for key, value in _available_commands.items():
+        if 'synonyms' in value and verb in value['synonyms']:
+            return key
+    return None
+
+
+stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up']
+
+
 class Command:
     def __init__(self, verb, words=None):
         self.verb = verb
+        self.__original_verb = verb
+        self.__synonym = None
+        if verb not in get_available_command_verbs():
+            self.__synonym = synonym_of(verb)
+            self.verb = self.__synonym or self.verb
+
         # Make sure words is a list
         if words is None:
             words = []
         if not isinstance(words, list):
             words = [word for word in words]
-        self.nouns = words
+        self.nouns = [word for word in words if word not in stop_words]
 
     def __str__(self):
-        return f"{self.verb} {' '.join(self.nouns)}"
+        return f"{self.__original_verb} {' '.join(self.nouns)}"
 
     def is_valid(self):
-        if self.verb not in get_available_command_verbs():
+        if not self.__synonym and self.__original_verb not in get_available_command_verbs():
             return False
 
-        quantifier_function, words_count_limitation = _available_commands[self.verb]["rule"]
-        if not quantifier_function(self.nouns, words_count_limitation):
+        quantifier_function, noun_limit = _available_commands[self.verb]['rule']
+        if not quantifier_function(self.nouns, noun_limit):
             return False
 
         return True

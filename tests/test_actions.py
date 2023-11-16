@@ -5,17 +5,20 @@ from game.world import World
 from game.actions import Action
 from game.commands import Command
 from game.items import *
+from game.person import *
 
 
 class TestAction(TestCase):
+    def setUp(self):
+        self.commands = (None,)
+        self.world = World(test=True)
+        self.world.populate()
 
     def execute_commands(self):
         commands = list(self.commands) if isinstance(self.commands, tuple) else [self.commands]
-        world = World(test=True)
-        world.populate()
         result = None
         for cmd in commands:
-            result = world.parse(cmd)
+            result = self.world.parse(cmd)
         return result
 
     def assert_outcome(self, expected_outcome, expected_outcome_objects=None):
@@ -24,12 +27,14 @@ class TestAction(TestCase):
 
         # Get the actual result
         actual_result = self.execute_commands()
-        actual_outcome = actual_result.outcome
-        actual_outcome_objects = [f"{obj}" for obj in actual_outcome.objects]
+        actual = actual_result.outcome
+
+        # Always assert if the outcome is a tuple
+        self.assertIsInstance(actual.outcome, tuple)
 
         # Compare with the expected result
-        self.assertEqual(expected_outcome, actual_outcome.outcome)
-        self.assertEqual(expected_outcome_objects, actual_outcome_objects)
+        self.assertEqual(expected_outcome, actual.outcome)
+        self.assertEqual(expected_outcome_objects, actual.object_names)
 
 
 class TestOutcome(TestCase):
@@ -113,11 +118,11 @@ class TestExecute(TestAction):
 class TextExamine(TestAction):
     def test_examine(self):
         self.commands = "examine"
-        self.assert_outcome(EXAMINE_SUCCESS, ['cell'])
+        self.assert_outcome(NO_MESSAGE, ['cell'])
 
     def test_examine_current_room(self):
         self.commands = "examine cell"
-        self.assert_outcome(EXAMINE_SUCCESS, ['cell'])
+        self.assert_outcome(NO_MESSAGE, ['cell'])
 
     def test_examine_another_room(self):
         self.commands = "examine dungeon"
@@ -125,7 +130,7 @@ class TextExamine(TestAction):
 
     def test_examine_object(self):
         self.commands = "examine key"
-        self.assert_outcome(EXAMINE_SUCCESS, ['key'])
+        self.assert_outcome(NO_MESSAGE, ['key'])
 
 
 class TestTake(TestAction):
@@ -144,6 +149,14 @@ class TestTake(TestAction):
     def test_already_obtained(self):
         self.commands = "take lockpick", "take lockpick"
         self.assert_outcome(ALREADY_OBTAINED, ['lockpick'])
+
+    def test_take_from_owner(self):
+        self.commands = "take lockpick from cell"
+        self.assert_outcome(TAKE_FROM_OWNER_SUCCESS, ['lockpick', 'cell'])
+
+    def test_take_from_owner_not_owned(self):
+        self.commands = "take lockpick from wall"
+        self.assert_outcome(NOT_OWNED_BY_OBJECT, ['lockpick', 'wall'])
 
 
 class TestDrop(TestAction):
@@ -312,7 +325,7 @@ class TestGo(TestAction):
 
     def test_go(self):
         self.commands = "take lockpick", "open door lockpick", "go dungeon"
-        self.assert_outcome(ACCESS_ROOM_SUCCESS, ['dungeon'])
+        self.assert_outcome(NO_MESSAGE, ['dungeon'])
 
     def test_connection_blocked(self):
         self.commands = "go dungeon"
@@ -355,6 +368,51 @@ class TestExit(TestAction):
     def test_another_room(self):
         self.commands = "exit the dungeon"
         self.assert_outcome(NOT_IN_LOCATION, ['dungeon'])
+
+
+class TestThrow(TestAction):
+    def test_throw(self):
+        self.commands = "take stone", "throw stone"
+        self.assert_outcome(COMMAND_TRANSFORMED, [])
+
+    def test_throw_at_not_animate(self):
+        self.commands = "take stone", "throw stone at door"
+        self.assert_outcome(COMMAND_TRANSFORMED, [])
+
+    def test_throw_not_in_possession(self):
+        self.commands = "throw stone"
+        self.assert_outcome(NOT_IN_POSSESSION, ['stone'])
+
+    def test_throw_at_animate_target(self):
+        self.commands = "take stone", "throw stone at guard"
+        self.execute_commands()
+        self.assertEqual(self.world.get('guard').attitude, -1)
+
+
+class TestGuard(TestAction):
+    def test_throw_multiple(self):
+        self.commands = "take stone", "throw stone at guard"
+        self.execute_commands()
+        self.assertEqual(self.world.get('guard').attitude, -1)
+
+        self.commands = "take lockpick", "throw lockpick at guard"
+        self.execute_commands()
+        self.assertEqual(self.world.get('guard').attitude, -2)
+
+        self.commands = "take tag", "throw tag at guard"
+        self.execute_commands()
+        self.assertEqual(self.world.get('guard').attitude, -3)
+
+    def test_throw_multiple_key_stolen(self):
+        self.commands = "take key", "take stone", "throw stone at guard"
+        self.execute_commands()
+        self.commands = "take lockpick", "throw lockpick at guard"
+        self.execute_commands()
+        self.commands = "take tag", "throw tag at guard"
+        self.execute_commands()
+        self.assertTrue(self.world.get('key') in self.world.player.inventory)
+        self.assertEqual(self.world.get('guard').attitude, -3)
+        self.assertTrue(self.world.get('guard').parent == self.world.get('courtyard'))
 
 
 class TestLockingTool(TestAction):
@@ -400,4 +458,4 @@ class TestMattress(TestAction):
 class TestStone(TestAction):
     def test_take(self):
         self.commands = "take stone"
-        self.assert_outcome(NO_MESSAGE_SUCCESS, ['stone'])
+        self.assert_outcome(NO_MESSAGE, ['stone'])

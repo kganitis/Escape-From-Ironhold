@@ -18,6 +18,18 @@ class Game:
 
         # Start the game loop
         while True:
+            # Input
             print("\nWhat do you want to do?")
             input_command = input("> ")
+
+            # Parse
             self.world.parse(input_command)
+
+            # End game check
+            dead_flag = self.world.player.dead_flag
+            if dead_flag == 1:
+                print("\n. . . GAME OVER . . .")
+                break
+            elif dead_flag == 2:
+                print("\n! ! ! YOU WIN ! ! !")
+                break

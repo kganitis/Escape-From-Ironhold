@@ -1,4 +1,5 @@
 from .game_object import *
+from .attributes import *
 
 
 class Room(GameObject, Accessible, ABC):
@@ -33,7 +34,7 @@ class Room(GameObject, Accessible, ABC):
         return self.room_connections.get(room)
 
     def examine(self):
-        super().examine()
+        self.discover_children()
         for con in self.connections:
             con.discover()
-        return EXAMINE_SUCCESS
+        return NO_MESSAGE

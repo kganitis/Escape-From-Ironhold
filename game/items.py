@@ -1,6 +1,7 @@
 # items. module
 from .game_object import *
 from .outcomes import *
+from .attributes import Usable, Obtainable, Container, Lockable, Openable
 
 
 class LockingTool(GameObject, Usable, ABC):
@@ -44,7 +45,7 @@ class Mattress(GameObject):
         lockpick = self.world.get('lockpick')
         lockpick.concealed = False
         lockpick.discover()
-        return EXAMINE_SUCCESS
+        return NO_MESSAGE
 
 
 class Lock(GameObject, Lockable): pass

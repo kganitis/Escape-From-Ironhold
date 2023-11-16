@@ -44,8 +44,7 @@ class Action:
             after_message = self.called_object and self.called_object.after.get(self.command.verb, None)
             if after_message:
                 self.called_object.print_message(after_message)
-                outcome.outcome = False, outcome.outcome[1]
-                outcome.description = False
+                outcome.outcome = NO_MESSAGE
             return outcome
         else:
             raise ValueError(f"Action not found for verb: {self.command.verb}")
@@ -80,6 +79,7 @@ class Action:
 
     def take(self):
         object_to_take = self.primary_object
+        current_owner = self.secondary_object
 
         not_obtainable = not isinstance(object_to_take, Obtainable)
         if not_obtainable:
@@ -90,8 +90,8 @@ class Action:
             return self.outcome(ALREADY_OBTAINED, object_to_take)
 
         self.called_object = object_to_take
-        outcome = object_to_take.take()
-        return self.outcome(outcome, object_to_take)
+        outcome = object_to_take.take(current_owner)
+        return self.outcome(outcome, object_to_take, current_owner)
 
     def drop(self):
         object_to_drop = self.primary_object
@@ -259,3 +259,73 @@ class Action:
         transformed_command = f"go to {new_room}"
         self.world.parse(transformed_command)
         return self.outcome(COMMAND_TRANSFORMED)
+
+    def wake(self):
+        object_to_wake = self.primary_object
+
+        not_animate = not isinstance(object_to_wake, Animate)
+        if not_animate:
+            return self.outcome(NOT_ANIMATE, object_to_wake)
+
+        not_asleep = not object_to_wake.asleep
+        if not_asleep:
+            return self.outcome(NOT_ASLEEP, object_to_wake)
+
+        self.called_object = object_to_wake
+        outcome = object_to_wake.wake()
+        return self.outcome(outcome, object_to_wake)
+
+    def attack(self):
+        object_to_attack = self.primary_object
+
+        not_animate = not isinstance(object_to_attack, Animate)
+        if not_animate:
+            return self.outcome(NOT_ANIMATE, object_to_attack)
+
+        self.called_object = object_to_attack
+        outcome = object_to_attack.attack()
+        return self.outcome(outcome, object_to_attack)
+
+    def ask(self):
+        object_to_ask = self.primary_object
+
+        not_animate = not isinstance(object_to_ask, Animate)
+        if not_animate:
+            return self.outcome(NOT_ANIMATE, object_to_ask)
+
+        self.called_object = object_to_ask
+        outcome = object_to_ask.ask()
+        return self.outcome(outcome, object_to_ask)
+
+    def tell(self):
+        object_to_tell = self.primary_object
+
+        not_animate = not isinstance(object_to_tell, Animate)
+        if not_animate:
+            return self.outcome(NOT_ANIMATE, object_to_tell)
+
+        self.called_object = object_to_tell
+        outcome = object_to_tell.tell()
+        return self.outcome(outcome, object_to_tell)
+
+    def throw(self):
+        object_to_throw = self.primary_object
+        target_object = self.secondary_object
+
+        not_in_possession = object_to_throw not in self.player.inventory and object_to_throw not in self.player.held
+        if not_in_possession:
+            return self.outcome(NOT_IN_POSSESSION, object_to_throw)
+
+        not_animate = not isinstance(target_object, Animate)
+
+        if not target_object or not_animate:
+            transformed_command = f"drop {object_to_throw}"
+            self.world.parse(transformed_command)
+            return self.outcome(COMMAND_TRANSFORMED)
+
+        # Swap primary and secondary, since the command now concerns the target
+        self.primary_object = target_object
+        self.secondary_object = object_to_throw
+        self.called_object = target_object
+        outcome = target_object.throw(object_to_throw)
+        return self.outcome(outcome, target_object, object_to_throw)
