@@ -4,7 +4,7 @@ from game.outcomes import Outcome, INVALID_COMMAND, SUCCESS, NEUTRAL
 from game.result import Result
 
 
-stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up']
+stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'try', 'attempt']
 
 
 def parse(world, input_command, test=False):

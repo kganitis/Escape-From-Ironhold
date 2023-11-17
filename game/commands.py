@@ -121,7 +121,7 @@ _available_commands = {
         'synonyms': ['shoot', 'launch']
     },
     # TODO implement sneak, walk, approach and run in some way
-    # TODO implement try
+
     # '': {
     #     'rule': (),
     #     'description': "",
