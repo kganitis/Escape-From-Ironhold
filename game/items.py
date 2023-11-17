@@ -4,7 +4,7 @@ from .outcomes import *
 from .attributes import Usable, Obtainable, Container, Lockable, Openable
 
 
-class LockingTool(GameObject, Usable, ABC):
+class LockingTool(Usable, ABC):
     can_unlock = True
     can_lock = True
 
@@ -48,8 +48,8 @@ class Mattress(GameObject):
         return NO_MESSAGE
 
 
-class Lock(GameObject, Lockable): pass
-class Stone(GameObject, Obtainable): pass
-class DogTag(GameObject, Obtainable): pass
-class Wall(GameObject, Container): pass
-class Barrel(GameObject, Openable): pass
+class Lock(Lockable): pass
+class Stone(Obtainable): pass
+class DogTag(Obtainable): pass
+class Wall(Container): pass
+class Barrel(Openable): pass

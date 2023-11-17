@@ -44,7 +44,7 @@ class Action:
             # Print any 'after action' message
             after_message = self.called_object and self.called_object.after.get(self.command.verb, None)
             if after_message:
-                self.called_object.print_message(after_message)
+                self.called_object.message(after_message)
                 outcome.outcome = NO_MESSAGE
             return outcome
         else:
@@ -64,6 +64,9 @@ class Action:
             secondary = objects[0] if primary != objects[0] else objects[1]
 
         return Outcome(outcome, primary, secondary)
+
+    def wait(self):
+        return self.outcome(WAIT)
 
     def examine(self):
         if self.primary_object is None:

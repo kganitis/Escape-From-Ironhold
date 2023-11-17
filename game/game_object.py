@@ -88,13 +88,13 @@ class GameObject(ABC):
         return NO_MESSAGE
 
     def describe(self):
-        self.print_message(self.description)
+        self.message(self.description)
 
     def discover(self):
         if self.concealed:
             return
         if self.initial:
-            self.print_message(self.initial)
+            self.message(self.initial)
 
     def discover_children(self):
         for child in self.children:
@@ -104,7 +104,7 @@ class GameObject(ABC):
         for attached in self.attached:
             attached.discover()
 
-    def print_message(self, message):
+    def message(self, message):
         if not self.world.test:
             print(message)
 
@@ -116,7 +116,7 @@ class GameObject(ABC):
         self.children.append(obj)
         obj.parent = self
         # Every game object linked to the world object tree is also added to the objects repository
-        obj.update_game_objects_repository()
+        obj.update_object_map()
 
     def remove(self):
         self.parent.children.remove(self)
@@ -128,8 +128,8 @@ class GameObject(ABC):
         self.remove()
         new_parent.add_child(self)
 
-    def update_game_objects_repository(self):
-        self.world.game_objects_repository[self.name] = self
+    def update_object_map(self):
+        self.world.object_map[self.name] = self
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Relations Methods
@@ -178,3 +178,12 @@ class GameObject(ABC):
 
     def remove_from_scope(self):
         self.added_to_scope = False
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Other Methods
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def on_move_end(self):
+        return
+
+    def on_turn_end(self):
+        return

@@ -1,8 +1,7 @@
-from .game_object import *
 from .attributes import *
 
 
-class Room(GameObject, Accessible, ABC):
+class Room(Accessible, ABC):
     def __init__(self, name, initial, description, parent):
         super().__init__(name, initial, description, parent)
         self.room_connections = {}  # All the room connections to this room (room: connection)

@@ -4,13 +4,13 @@ from .outcomes import *
 from .game_object import GameObject
 
 
-class Usable(ABC):
+class Usable(GameObject, ABC):
     @abstractmethod
     def use(self, secondary_object=None):
         pass
 
 
-class Obtainable(ABC):
+class Obtainable(GameObject, ABC):
     def take(self, owner):
         if owner and self not in owner.owned:
             return NOT_OWNED_BY_OBJECT
@@ -22,15 +22,15 @@ class Obtainable(ABC):
         return DROP_SUCCESS
 
 
-class Accessible(ABC):
+class Accessible(GameObject, ABC):
     def go(self):
         self.player.move_to(self)
         self.current_room = self
-        self.print_message(self.description)
+        self.message(self.description)
         return NO_MESSAGE
 
 
-class Container(ABC):
+class Container(GameObject, ABC):
     def contents(self):
         return self.children
 
@@ -38,15 +38,10 @@ class Container(ABC):
         self.add_child(item)
 
 
-class Lockable(ABC):
+class Lockable(GameObject, ABC):
     __locked: bool = True
     __key: GameObject = None
     __can_be_picked: bool = True
-
-    def __init__(self, locked: bool = True, key: GameObject = None, can_be_picked: bool = True):
-        self.locked = locked
-        self.key = key
-        self.can_be_picked = can_be_picked
 
     @property
     def locked(self):
@@ -83,11 +78,8 @@ class Lockable(ABC):
         return UNLOCK_SUCCESS
 
 
-class Openable(ABC):
+class Openable(GameObject, ABC):
     __open: bool = False
-
-    def __init__(self, open: bool):
-        self.__open = open
 
     @property
     def is_open(self):
@@ -106,13 +98,9 @@ class Openable(ABC):
         return CLOSE_SUCCESS
 
 
-class Animate(ABC):
+class Animate(GameObject, ABC):
     attitude: int = 0
     asleep: bool = False
-
-    def __init__(self, attitude: int = 0, asleep: bool = False):
-        self.attitude = attitude
-        self.asleep = asleep
 
     @abstractmethod
     def attack(self):
@@ -131,5 +119,5 @@ class Animate(ABC):
         pass
 
     def throw(self, thrown_object):
-        thrown_object.move_to(target_object.parent)
+        thrown_object.move_to(self.parent)
         return THROW_AT_TARGET_SUCCESS

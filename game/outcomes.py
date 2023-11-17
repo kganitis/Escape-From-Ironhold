@@ -105,6 +105,7 @@ NOT_ASLEEP = "The {primary} isn't sleeping", FAIL
 # Neutral outcomes
 NOTHING_HAPPENS = "Nothing happens", NEUTRAL
 NO_MESSAGE = False, NEUTRAL  # False because we don't want to print a description.
+WAIT = "You choose to wait for something to happen.", NEUTRAL
 
 # successful generic outcomes
 LOCK_SUCCESS = "You locked the {primary} successfully using the {secondary}", SUCCESS

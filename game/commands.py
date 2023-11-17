@@ -121,7 +121,6 @@ _available_commands = {
         'synonyms': ['shoot', 'launch']
     },
     # TODO implement sneak, walk, approach and run in some way
-    # TODO implement wait
     # TODO implement try
     # '': {
     #     'rule': (),
@@ -130,11 +129,12 @@ _available_commands = {
     #     'examples': [],
     #     'synonyms': []
     # },
-    # 'wait': {
-    #     'rule': (words_count_is_exactly, 0),
-    #     'description': "Wait for some hours.",
-    #     'syntax': "wait"
-    # },
+    'wait': {
+        'rule': (noun_count_is_at_least, 0),
+        'description': "Do nothing this turn.",
+        'syntax': "wait",
+        'examples': ["Wait"]
+    },
     # 'inventory': {
     #     'rule': (words_count_is_exactly, 0),
     #     'description': "Show player's inventory of items.",

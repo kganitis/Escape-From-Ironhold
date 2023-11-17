@@ -15,10 +15,14 @@ class World(GameObject):
 
         # A dictionary to hold every game object linked to the object tree
         # It maps the object's name to the actual instance of the game object for instant access
-        self.game_objects_repository = {}
+        self.object_map = {}
 
+        # Variables to hold current room and player
         self.room = None
         self.hero = None
+
+        self.MOVES_PER_TURN = 5
+        self.current_move = 1
 
     def populate(self):
         # Initialize room and player
@@ -150,7 +154,24 @@ class World(GameObject):
         return parse(self, command, self.test)
 
     def get_all_game_object_instances(self):
-        return list(self.world.game_objects_repository.values())
+        return list(self.world.object_map.values())
 
     def get(self, name):
-        return self.game_objects_repository.get(name, name)
+        return self.object_map.get(name, name)
+
+    def on_move_end(self):
+        for obj in self.get_all_game_object_instances():
+            obj.on_move_end()
+        self.current_move += 1
+        if self.current_move > self.MOVES_PER_TURN:
+            self.current_move = 1
+            self.on_turn_end()
+
+    def on_turn_end(self):
+        for obj in self.get_all_game_object_instances():
+            obj.on_turn_end()
+
+    @property
+    def is_last_move_of_turn(self):
+        return self.current_move == self.MOVES_PER_TURN
+

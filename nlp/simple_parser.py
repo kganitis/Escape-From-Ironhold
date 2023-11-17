@@ -1,6 +1,6 @@
 from game.actions import Action
 from game.commands import *
-from game.outcomes import Outcome, INVALID_COMMAND
+from game.outcomes import Outcome, INVALID_COMMAND, SUCCESS, NEUTRAL
 from game.result import Result
 
 
@@ -31,20 +31,22 @@ def parse(world, input_command, test=False):
     primary_object = game_objects[0] if game_objects else None
     secondary_object = game_objects[1] if len(game_objects) > 1 else None
 
-    # Syntax Analysis
-    if not command.is_valid():
-        action = Action(world, command)
-        outcome = Outcome(INVALID_COMMAND)
-        result = Result(action, outcome)
-    else:
-        # Execution
-        action = Action(world, command, primary_object, secondary_object)
+    # Execution
+    action = Action(world, command, primary_object, secondary_object)
+    if command.is_valid():
         outcome = action.execute()
-        result = Result(action, outcome)
+    else:
+        outcome = Outcome(INVALID_COMMAND)
+    result = Result(action, outcome)
 
     # Print
     if not test:
         result.show()
+
+    # Move end
+    if outcome.type in (SUCCESS, NEUTRAL):
+        world.on_move_end()
+
     return result
 
 
