@@ -1,7 +1,7 @@
-from game.actions import Action
-from game.commands import *
-from game.outcomes import Outcome, INVALID_COMMAND, SUCCESS, NEUTRAL
-from game.result import Result
+from actions import Action
+from commands import *
+from outcomes import Outcome, INVALID_COMMAND, SUCCESS, NEUTRAL
+from result import Result
 
 
 stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'try', 'attempt']

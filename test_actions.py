@@ -1,11 +1,10 @@
 from unittest import TestCase
 
-from game.outcomes import *
-from game.world import World
-from game.actions import Action
-from game.commands import Command
-from game.items import *
-from game.person import *
+from world import World
+from actions import Action
+from commands import Command
+from items import *
+from guard import *
 
 
 class TestAction(TestCase):
@@ -51,52 +50,52 @@ class TestOutcome(TestCase):
         outcome_const = OPEN_SUCCESS
 
         # Test door, lockpick
-        actual_outcome = action.outcome(outcome_const, door, lockpick).object_names
+        actual_outcome = action.create_outcome(outcome_const, door, lockpick).object_names
         expected_outcome = Outcome(outcome_const, door, lockpick).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test lockpick, door
-        actual_outcome = action.outcome(outcome_const, lockpick, door).object_names
+        actual_outcome = action.create_outcome(outcome_const, lockpick, door).object_names
         expected_outcome = Outcome(outcome_const, door, lockpick).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test door
-        actual_outcome = action.outcome(outcome_const, door).object_names
+        actual_outcome = action.create_outcome(outcome_const, door).object_names
         expected_outcome = Outcome(outcome_const, door).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test lockpick
-        actual_outcome = action.outcome(outcome_const, lockpick).object_names
+        actual_outcome = action.create_outcome(outcome_const, lockpick).object_names
         expected_outcome = Outcome(outcome_const, lockpick).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test other
-        actual_outcome = action.outcome(outcome_const, other).object_names
+        actual_outcome = action.create_outcome(outcome_const, other).object_names
         expected_outcome = Outcome(outcome_const, other).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test door, other
-        actual_outcome = action.outcome(outcome_const, door, other).object_names
+        actual_outcome = action.create_outcome(outcome_const, door, other).object_names
         expected_outcome = Outcome(outcome_const, door, other).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test other, door
-        actual_outcome = action.outcome(outcome_const, other, door).object_names
+        actual_outcome = action.create_outcome(outcome_const, other, door).object_names
         expected_outcome = Outcome(outcome_const, door, other).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test lockpick, other
-        actual_outcome = action.outcome(outcome_const, lockpick, other).object_names
+        actual_outcome = action.create_outcome(outcome_const, lockpick, other).object_names
         expected_outcome = Outcome(outcome_const, lockpick, other).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test other, lockpick
-        actual_outcome = action.outcome(outcome_const, other, lockpick).object_names
+        actual_outcome = action.create_outcome(outcome_const, other, lockpick).object_names
         expected_outcome = Outcome(outcome_const, other, lockpick).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 
         # Test other, other2
-        actual_outcome = action.outcome(outcome_const, other, other2).object_names
+        actual_outcome = action.create_outcome(outcome_const, other, other2).object_names
         expected_outcome = Outcome(outcome_const, other, other2).object_names
         self.assertEqual(expected_outcome, actual_outcome)
 

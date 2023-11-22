@@ -1,8 +1,8 @@
 import copy
 import csv
 
-from game.outcomes import INVALID, FAIL
-from game.world import World
+from outcomes import INVALID, FAIL
+from world import World
 
 
 def test_sample_commands():

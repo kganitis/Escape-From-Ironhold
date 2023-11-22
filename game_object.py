@@ -1,5 +1,5 @@
 from abc import ABC
-from .outcomes import *
+from outcomes import *
 
 
 # Define a common parent class for all game objects (rooms, items, characters etc.)
@@ -8,8 +8,8 @@ class GameObject(ABC):
         self.name = name
 
         # Descriptions
-        self.initial = initial
-        self.description = description
+        self._initial = initial
+        self._description = description
         # Messages before and after an action takes place for this game object (action: message)
         self.before = {}
         self.after = {}
@@ -22,6 +22,7 @@ class GameObject(ABC):
 
         # Relations
         self.attached = []
+        self.discovered = False
         self.added_to_scope = False
         self.transparent = False
         self.concealed = False
@@ -67,6 +68,25 @@ class GameObject(ABC):
         return scope
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Description Properties
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    @property
+    def initial(self):
+        return self._initial
+
+    @initial.setter
+    def initial(self, value):
+        self._initial = value
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        self._description = value
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Object Tree Properties
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     @property
@@ -76,10 +96,13 @@ class GameObject(ABC):
         else:
             return []
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Descriptions Methods
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    @property
+    def owned(self):
+        return set(self.children + self.attached)
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Description Methods
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def examine(self):
         self.describe()
         if self == self.current_room or self.transparent:
@@ -111,7 +134,6 @@ class GameObject(ABC):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Object Tree Methods
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
     def add_child(self, obj):
         self.children.append(obj)
         obj.parent = self
@@ -134,7 +156,6 @@ class GameObject(ABC):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Relations Methods
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
     def attach(self, obj):
         self.attached.append(obj)
         obj.attached.append(self)
@@ -149,14 +170,9 @@ class GameObject(ABC):
     def has_attached(self, game_object):
         return game_object in self.attached
 
-    @property
-    def owned(self):
-        return set(self.children + self.attached)
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Scope Methods
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
     def __update_scope(self, scope, modifier=None):
         if self in scope:
             return

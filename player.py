@@ -1,4 +1,4 @@
-from .game_object import *
+from game_object import *
 
 
 class Player(GameObject):

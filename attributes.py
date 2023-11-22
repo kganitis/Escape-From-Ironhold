@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-
-from .outcomes import *
-from .game_object import GameObject
+from outcomes import *
+from game_object import GameObject
 
 
 class Usable(GameObject, ABC):

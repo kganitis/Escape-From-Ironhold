@@ -1,6 +1,6 @@
-from .game_object import *
-from .outcomes import *
-from .attributes import Openable, Lockable
+from game_object import *
+from outcomes import *
+from attributes import Openable, Lockable
 
 
 class RoomConnection(GameObject, ABC):

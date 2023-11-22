@@ -1,9 +1,10 @@
-from .attributes import *
+from attributes import *
 
 
 class Room(Accessible, ABC):
-    def __init__(self, name, initial, description, parent):
+    def __init__(self, name, initial, description, parent, visited=False):
         super().__init__(name, initial, description, parent)
+        self.visited = visited
         self.room_connections = {}  # All the room connections to this room (room: connection)
 
     def add_connection(self, room_connection):

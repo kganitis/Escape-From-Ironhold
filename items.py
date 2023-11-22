@@ -1,7 +1,7 @@
 # items. module
-from .game_object import *
-from .outcomes import *
-from .attributes import Usable, Obtainable, Container, Lockable, Openable
+from game_object import *
+from outcomes import *
+from attributes import Usable, Obtainable, Container, Lockable, Openable
 
 
 class LockingTool(Usable, ABC):

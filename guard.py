@@ -1,8 +1,8 @@
 import random
 from random import choices
 
-from .attributes import Animate
-from .outcomes import SUCCESS, NEUTRAL, NO_MESSAGE
+from attributes import Animate
+from outcomes import SUCCESS, NEUTRAL, NO_MESSAGE
 
 
 class Guard(Animate):
@@ -31,13 +31,12 @@ class Guard(Animate):
     current_location = NEAR_CELL
 
     def on_move_end(self):
-        # When the guard is located NEAR_CELL, we want him to be child of cell if player is also in the cell
-        # (move_to alters the object tree and moves the object to another parent)
-        if self.current_location == self.NEAR_CELL:
-            if self.world.current_room == self.world.get('cell'):
-                self.move_to(self.world.get('cell'))
-            else:
-                self.move_to(self.world.get('dungeon'))
+        # When the guard is located NEAR_CELL and the player is also in the cell,
+        # we want the guard to be child of cell in order for the player to be able to interact with him
+        if self.current_location == self.NEAR_CELL and self.world.current_room == self.world.get('cell'):
+            self.move_to(self.world.get('cell'))
+        else:
+            self.move_to(self.world.get('dungeon'))
 
         # Put self randomly into sleep if near exit, cell, or back of dungeon
         chance_to_sleep = 0.5

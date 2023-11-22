@@ -1,4 +1,4 @@
-from .world import World
+from world import World
 
 
 class Game:

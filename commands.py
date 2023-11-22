@@ -121,7 +121,6 @@ _available_commands = {
         'synonyms': ['shoot', 'launch']
     },
     # TODO implement sneak, walk, approach and run in some way
-
     # '': {
     #     'rule': (),
     #     'description': "",
@@ -132,7 +131,7 @@ _available_commands = {
     'wait': {
         'rule': (noun_count_is_at_least, 0),
         'description': "Do nothing this turn.",
-        'syntax': "wait",
+        'syntax': "wait {any}",
         'examples': ["Wait"]
     },
     # 'inventory': {

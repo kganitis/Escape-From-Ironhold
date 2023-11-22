@@ -1,9 +1,9 @@
-from nlp.simple_parser import parse
-from .player import *
-from .items import *
-from .room_connections import *
-from .room import *
-from .person import *
+from simple_parser import parse
+from guard import *
+from items import *
+from player import *
+from room import *
+from room_connections import *
 
 
 class World(GameObject):
@@ -21,6 +21,7 @@ class World(GameObject):
         self.room = None
         self.hero = None
 
+        # Moves and turns
         self.MOVES_PER_TURN = 5
         self.current_move = 1
 
@@ -28,11 +29,11 @@ class World(GameObject):
         # Initialize room and player
         cell = Room(
             name="cell",
-            initial=None,
-            description="You find yourself in a small, dimly lit prison cell with cold stone walls.\n"
-                        "A narrow slit near the ceiling lets in feeble moonlight, revealing a straw-covered floor.\n"
-                        "Iron bars separate you from the dungeon outside, and the air carries a metallic scent,\n"
-                        "a reminder of the fortress's stern grip.",
+            initial="You find yourself in a small, dimly lit prison cell with cold stone walls.\n"
+                    "A narrow slit near the ceiling lets in feeble moonlight, revealing a straw-covered floor.\n"
+                    "Iron bars separate you from the dungeon outside, and the air carries a metallic scent,\n"
+                    "a reminder of the fortress's stern grip.",
+            description="",
             parent=self
         )
         self.room = cell
@@ -174,4 +175,3 @@ class World(GameObject):
     @property
     def is_last_move_of_turn(self):
         return self.current_move == self.MOVES_PER_TURN
-
