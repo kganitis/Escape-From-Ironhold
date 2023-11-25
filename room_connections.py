@@ -28,8 +28,8 @@ class RoomConnection(GameObject, ABC):
 
 
 class Door(RoomConnection, Openable, Lockable):
-    def __init__(self, name, initial, description, parent, lock):
-        super().__init__(name, initial, description, parent)
+    def __init__(self, name, long, parent, lock):
+        super().__init__(name, long, None, None, parent)
         self.lock_ = lock
         self.add_child(lock)
         self.attach(lock)
@@ -53,6 +53,27 @@ class Door(RoomConnection, Openable, Lockable):
         if not self.is_open:
             return BLOCKED_OBJECT_CLOSED
         return False
+
+    @property
+    def initial(self):
+        if self.locked:
+            return "A heavy barred iron cell door separates you from the prison dungeon."
+        if not self.locked and not self.is_open:
+            return "A heavy barred iron cell door separates you from the prison dungeon. It's been unlocked."
+        if self.is_open:
+            return "The heavy barred iron cell door that separated you from the prison dungeon is open."
+
+    @property
+    def description(self):
+        if self.locked:
+            return "It's a heavy barred iron cell door, which separates you from the prison dungeon.\n" \
+                   "You can see some things behind the iron bars, " \
+                   "but you're unable to distinguish anything clearly in the darkness."
+        if not self.locked and not self.is_open:
+            return "It's a heavy barred iron cell door, which separates you from the prison dungeon.\n" \
+                   "It has been unlocked."
+        if self.is_open:
+            return "The heavy barred iron cell door that separated you from the prison dungeon is now open."
 
     def open(self, opening_tool=None):
         if self.locked and not opening_tool:
@@ -78,6 +99,7 @@ class Door(RoomConnection, Openable, Lockable):
 
 
 class Window(RoomConnection):
+    # TODO implement a second door instead, that leads to the courtyard
     @property
     def is_blocked(self):
         return False

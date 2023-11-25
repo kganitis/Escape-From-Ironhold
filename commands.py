@@ -120,7 +120,8 @@ _available_commands = {
         'examples': ["Throw the lockpick", "Throw the stone at the guard"],
         'synonyms': ['shoot', 'launch']
     },
-    # TODO implement sneak, walk, approach and run in some way
+    # TODO implement sneak, approach, walk and run in some way
+    #  also implement hide
     # '': {
     #     'rule': (),
     #     'description': "",
@@ -175,13 +176,14 @@ def synonym_of(verb):
     return None
 
 
-stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up']
+stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'try', 'attempt']
 
 
 class Command:
     def __init__(self, verb, words=None):
+        # Determine the main verb
         self.verb = verb
-        self.__original_verb = verb
+        self.__input_verb = verb
         self.__synonym = None
         if verb not in get_available_command_verbs():
             self.__synonym = synonym_of(verb)
@@ -195,13 +197,13 @@ class Command:
         self.nouns = [word for word in words if word not in stop_words]
 
     def __str__(self):
-        return f"{self.__original_verb} {' '.join(self.nouns)}"
+        return f"{self.__input_verb} {' '.join(self.nouns)}"
 
     def is_valid(self):
         if self.verb in ('ask', 'tell'):
             return True
 
-        if not self.__synonym and self.__original_verb not in get_available_command_verbs():
+        if not self.__synonym and self.__input_verb not in get_available_command_verbs():
             return False
 
         quantifier_function, noun_limit = _available_commands[self.verb]['rule']

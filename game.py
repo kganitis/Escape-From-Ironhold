@@ -14,7 +14,7 @@ class Game:
         print("\nType 'help' to see a list of available commands.\n\n")
 
         # First describe the initial room
-        self.world.current_room.describe()
+        self.world.current_room.discover()
 
         # Start the game loop
         while True:
@@ -26,10 +26,10 @@ class Game:
             self.world.parse(input_command)
 
             # End game check
-            dead_flag = self.world.player.dead_flag
-            if dead_flag == 1:
+            dead = self.world.player.dead
+            if dead == 1:
                 print("\n. . . GAME OVER . . .")
                 break
-            elif dead_flag == 2:
+            elif dead == 2:
                 print("\n! ! ! YOU WIN ! ! !")
                 break

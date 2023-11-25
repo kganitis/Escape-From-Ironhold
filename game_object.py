@@ -4,15 +4,13 @@ from outcomes import *
 
 # Define a common parent class for all game objects (rooms, items, characters etc.)
 class GameObject(ABC):
-    def __init__(self, name, initial=None, description=None, parent=None):
+    def __init__(self, name, long, initial=None, description=None, parent=None):
         self.name = name
+        self.long = long
 
         # Descriptions
         self._initial = initial
         self._description = description
-        # Messages before and after an action takes place for this game object (action: message)
-        self.before = {}
-        self.after = {}
 
         # Object Tree
         self.parent = parent
@@ -72,7 +70,9 @@ class GameObject(ABC):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     @property
     def initial(self):
-        return self._initial
+        if self._initial:
+            return self._initial
+        return f"{self.article(self.long)} {self.long}."
 
     @initial.setter
     def initial(self, value):
@@ -93,8 +93,7 @@ class GameObject(ABC):
     def siblings(self):
         if self.parent:
             return [child for child in self.parent.children if child != self]
-        else:
-            return []
+        return []
 
     @property
     def owned(self):
@@ -116,8 +115,8 @@ class GameObject(ABC):
     def discover(self):
         if self.concealed:
             return
-        if self.initial:
-            self.message(self.initial)
+        self.message(f"- {self.initial}")
+        self.discovered = True
 
     def discover_children(self):
         for child in self.children:
@@ -129,7 +128,15 @@ class GameObject(ABC):
 
     def message(self, message):
         if not self.world.test:
+            if message.strip()[-1] not in ".!":
+                message = message + '.'
             print(message)
+
+    def article(self, word):
+        first_word = word.split()[0] if ' ' in word else word
+        if first_word and first_word[0].lower() in 'aeiou':
+            return 'An'
+        return 'A'
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Object Tree Methods
@@ -137,7 +144,7 @@ class GameObject(ABC):
     def add_child(self, obj):
         self.children.append(obj)
         obj.parent = self
-        # Every game object linked to the world object tree is also added to the objects repository
+        # Every game object linked to the world object tree is also added to the object map
         obj.update_object_map()
 
     def remove(self):
@@ -153,19 +160,20 @@ class GameObject(ABC):
     def update_object_map(self):
         self.world.object_map[self.name] = self
 
+    def get(self, name):
+        return self.world.get(name)
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Relations Methods
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def attach(self, obj):
         self.attached.append(obj)
-        obj.attached.append(self)
 
     def remove_attached(self, obj):
         self.attached.remove(obj)
-        obj.attached.remove(self)
 
     def is_attached_to(self, game_object):
-        return game_object in self.attached
+        return self in game_object.attached
 
     def has_attached(self, game_object):
         return game_object in self.attached

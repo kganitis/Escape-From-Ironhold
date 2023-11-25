@@ -2,8 +2,8 @@ from attributes import *
 
 
 class Room(Accessible, ABC):
-    def __init__(self, name, initial, description, parent, visited=False):
-        super().__init__(name, initial, description, parent)
+    def __init__(self, name, long, initial, description, parent, visited=False):
+        super().__init__(name, long, initial, description, parent)
         self.visited = visited
         self.room_connections = {}  # All the room connections to this room (room: connection)
 
@@ -33,8 +33,13 @@ class Room(Accessible, ABC):
     def get_connection_to(self, room):
         return self.room_connections.get(room)
 
+    def discover(self):
+        self.message(self.initial)
+        self.discovered = True
+
     def examine(self):
-        self.discover_children()
+        self.describe()
         for con in self.connections:
             con.discover()
+        self.discover_children()
         return NO_MESSAGE

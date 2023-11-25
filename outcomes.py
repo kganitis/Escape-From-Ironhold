@@ -35,28 +35,25 @@ class Outcome:
         return formatted_description
 
 
-# outcome types
+# Outcome types
 SUCCESS = "SUCCESS"  # command executed successfully and the result alters the game world
 NEUTRAL = "NEUTRAL"  # command executed successfully but the result does not alter the game world
 FAIL = "FAIL"  # command is valid but failed to be executed
 INVALID = "INVALID"  # invalid command
-TRANSFORMED = "TRANSFORMED"  # the initial command was transformed to a new command to be executed instead
+TRANSFORMED = "TRANSFORMED"  # the initial command was transformed to a new command to be executed in its place instead
 
-# outcomes (description, type)
-# special
-COMMAND_TRANSFORMED = "", TRANSFORMED
+# Special outcomes
+COMMAND_TRANSFORMED = False, TRANSFORMED
 
-# invalid outcome
-INVALID_COMMAND = "Invalid command", INVALID
-INVALID_OBJECTS = "Invalid objects", INVALID
-INVALID_ITEMS = "Invalid items", INVALID
-INVALID_LOCATION = "Invalid room", INVALID
+# Invalid outcomes
+INVALID_COMMAND = "You can't do that.", INVALID
+INVALID_OBJECTS = "I don't understand what you're talking about.", INVALID
 
-# scope outcomes
+# Scope outcomes
 OUT_OF_SCOPE = "I don't see any {primary} around", FAIL
 NON_EXISTING_OBJECT = "There isn't any {primary} around", FAIL
 
-# fail generic outcomes
+# Fail outcomes
 NOT_EXAMINABLE = "The {primary} cannot be examined", FAIL
 CANT_EXAMINE_FROM_CURRENT_ROOM = "You can't examine the {primary} from here", FAIL
 
@@ -99,7 +96,7 @@ ALREADY_CLOSED = "The {primary} is already closed", FAIL
 
 MUST_CLOSE_OBJECT = "The {primary} is open and must be closed first", FAIL
 
-NOT_ANIMATE = "You can't do that to a lifeless object."
+NOT_ANIMATE = "You can't do that to a lifeless object.", FAIL
 NOT_ASLEEP = "The {primary} isn't sleeping", FAIL
 
 # Neutral outcomes
@@ -107,15 +104,14 @@ NOTHING_HAPPENS = "Nothing happens", NEUTRAL
 NO_MESSAGE = False, NEUTRAL  # False because we don't want to print a description.
 WAIT = "You choose to wait for something to happen.", NEUTRAL
 
-# successful generic outcomes
-LOCK_SUCCESS = "You locked the {primary} successfully using the {secondary}", SUCCESS
-UNLOCK_SUCCESS = "You unlocked the {primary} successfully using the {secondary}", SUCCESS
-TAKE_SUCCESS = "You took the {primary} successfully", SUCCESS
-TAKE_FROM_OWNER_SUCCESS = "You took the {primary} from the {secondary} successfully", SUCCESS
-DROP_SUCCESS = "You dropped the {primary} successfully", SUCCESS
-OPEN_SUCCESS = "You opened the {primary} successfully", SUCCESS
-CLOSE_SUCCESS = "You closed the {primary} successfully", SUCCESS
-THROW_AT_TARGET_SUCCESS = "You threw the {secondary} at the {primary} successfully", SUCCESS
-
-
-
+# Successful outcomes
+ACCESS_SUCCESS = "You accessed the {primary}.", SUCCESS
+LOCK_SUCCESS = "You locked the {primary} using the {secondary}", SUCCESS
+UNLOCK_SUCCESS = "You unlocked the {primary} using the {secondary}", SUCCESS
+TAKE_SUCCESS = "You took the {primary}.", SUCCESS
+TAKE_FROM_OWNER_SUCCESS = "You took the {primary} from the {secondary}.", SUCCESS
+DROP_SUCCESS = "You dropped the {primary}.", SUCCESS
+OPEN_SUCCESS = "You opened the {primary}.", SUCCESS
+CLOSE_SUCCESS = "You closed the {primary}.", SUCCESS
+THROW_SUCCESS = "You threw the {primary} at the {secondary}.", SUCCESS
+THROW_AT_TARGET_SUCCESS = "You threw the {secondary} at the {primary}.", SUCCESS

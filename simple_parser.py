@@ -1,13 +1,15 @@
 from actions import Action
 from commands import *
-from outcomes import Outcome, INVALID_COMMAND, SUCCESS, NEUTRAL
+from outcomes import Outcome, INVALID_COMMAND, FAIL, TRANSFORMED
 from result import Result
 
 
-stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'try', 'attempt']
+stop_words = ['the', 'a', 'an', 'and',
+              'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up',
+              'try', 'attempt']
 
 
-def parse(world, input_command, test=False):
+def parse(world, input_command, silent=False):
     # Tokenizing
     words = [word for word in input_command.strip().lower().split() if word not in stop_words]
 
@@ -33,18 +35,21 @@ def parse(world, input_command, test=False):
 
     # Execution
     action = Action(world, command, primary_object, secondary_object)
-    if command.is_valid():
+    if command.is_valid():  # Syntax analysis here
         outcome = action.execute()
     else:
         outcome = Outcome(INVALID_COMMAND)
     result = Result(action, outcome)
 
     # Print
-    if not test:
+    if not silent:
         result.show()
 
-    # Move end
-    if outcome.type in (SUCCESS, NEUTRAL):
+    # Move end - advance time
+    actions_not_advancing_time = ['examine']
+    outcomes_not_advancing_time = [INVALID_COMMAND, FAIL, TRANSFORMED]
+    if verb not in actions_not_advancing_time \
+            and outcome.type not in outcomes_not_advancing_time:
         world.on_move_end()
 
     return result

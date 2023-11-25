@@ -9,7 +9,6 @@ class Action:
         self.command = command
         self.primary_object = primary_object
         self.secondary_object = secondary_object
-        self.called_object = None
 
         # Dynamically get the action execution function matching the command verb
         self.execution_function = getattr(self, command.verb, None)
@@ -24,29 +23,20 @@ class Action:
 
     def execute(self):
         # More syntax analysis
-        if self.command.verb not in ('ask', 'tell'):
-            invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
-            if invalid_objects:
-                return self.create_outcome(INVALID_OBJECTS, *invalid_objects)
+        if self.command.verb in ('ask', 'tell'):
+            return
 
-            out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
-            if out_of_scope:
-                return self.create_outcome(OUT_OF_SCOPE, *out_of_scope)
+        invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
+        if invalid_objects:
+            return self.create_outcome(INVALID_OBJECTS, *invalid_objects)
+
+        out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
+        if out_of_scope:
+            return self.create_outcome(OUT_OF_SCOPE, *out_of_scope)
 
         # Execution
         if self.execution_function and callable(self.execution_function):
-            # Print any 'before action' message
-            # TODO print before message
-
-            # Execute the action and get the outcome
             outcome = self.execution_function()
-
-            # Print any 'after action' message
-            after_message = self.called_object and self.called_object.after.get(self.command.verb, None)
-            if after_message:
-                self.called_object.message(after_message)
-                outcome.outcome = NO_MESSAGE
-
             return outcome
         else:
             raise ValueError(f"Action not found for verb: {self.command.verb}")
@@ -79,7 +69,6 @@ class Action:
         if another_room:
             return self.create_outcome(CANT_EXAMINE_FROM_CURRENT_ROOM, object_to_examine)
 
-        self.called_object = object_to_examine
         outcome = object_to_examine.examine()
         return self.create_outcome(outcome, object_to_examine)
 
@@ -95,7 +84,10 @@ class Action:
         if already_obtained:
             return self.create_outcome(ALREADY_OBTAINED, object_to_take)
 
-        self.called_object = object_to_take
+        not_owned_by_current_owner = current_owner and object_to_take not in current_owner.owned
+        if not_owned_by_current_owner:
+            return self.create_outcome(NOT_OWNED_BY_OBJECT, object_to_take, current_owner)
+
         outcome = object_to_take.take(current_owner)
         return self.create_outcome(outcome, object_to_take, current_owner)
 
@@ -106,7 +98,6 @@ class Action:
         if not_in_possession:
             return self.create_outcome(NOT_IN_POSSESSION, object_to_drop)
 
-        self.called_object = object_to_drop
         outcome = object_to_drop.drop()
         return self.create_outcome(outcome, object_to_drop)
 
@@ -122,7 +113,6 @@ class Action:
         if not_held:
             return self.create_outcome(NOT_HELD, object_to_use)
 
-        self.called_object = object_to_use
         outcome = object_to_use.use(secondary_object)
         return self.create_outcome(outcome, object_to_use, secondary_object)
 
@@ -171,7 +161,6 @@ class Action:
         elif operation == 'unlock' and not locking_tool.can_unlock:
             return self.create_outcome(CANT_UNLOCK_WITH_OBJECT, locking_tool)
 
-        self.called_object = lockable_object
         outcome = lockable_object.lock(locking_tool) if operation == 'lock' else lockable_object.unlock(locking_tool)
         return self.create_outcome(outcome, lockable_object, locking_tool)
 
@@ -193,7 +182,6 @@ class Action:
         if already_open:
             return self.create_outcome(ALREADY_OPEN, object_to_open)
 
-        self.called_object = object_to_open
         outcome = object_to_open.open(opening_tool)
         return self.create_outcome(outcome, object_to_open, opening_tool)
 
@@ -208,7 +196,6 @@ class Action:
         if already_closed:
             return self.create_outcome(ALREADY_CLOSED, object_to_close)
 
-        self.called_object = object_to_close
         outcome = object_to_close.close()
         return self.create_outcome(outcome, object_to_close)
 
@@ -231,7 +218,6 @@ class Action:
         if blocked:
             return self.create_outcome(blocked, connection_to_current_room)
 
-        self.called_object = room_to_go
         outcome = room_to_go.go()
         return self.create_outcome(outcome, room_to_go)
 
@@ -277,20 +263,23 @@ class Action:
         if not_asleep:
             return self.create_outcome(NOT_ASLEEP, object_to_wake)
 
-        self.called_object = object_to_wake
         outcome = object_to_wake.wake()
         return self.create_outcome(outcome, object_to_wake)
 
     def attack(self):
         object_to_attack = self.primary_object
+        weapon = self.secondary_object
 
         not_animate = not isinstance(object_to_attack, Animate)
         if not_animate:
             return self.create_outcome(NOT_ANIMATE, object_to_attack)
 
-        self.called_object = object_to_attack
-        outcome = object_to_attack.attack()
-        return self.create_outcome(outcome, object_to_attack)
+        not_in_possession = weapon and weapon not in self.player.owned
+        if not_in_possession:
+            return self.create_outcome(NOT_IN_POSSESSION, weapon)
+
+        outcome = object_to_attack.attack(weapon)
+        return self.create_outcome(outcome, object_to_attack, weapon)
 
     def ask(self):
         object_to_ask = self.primary_object
@@ -299,7 +288,6 @@ class Action:
         if not_animate:
             return self.create_outcome(NOT_ANIMATE, object_to_ask)
 
-        self.called_object = object_to_ask
         outcome = object_to_ask.ask()
         return self.create_outcome(outcome, object_to_ask)
 
@@ -310,7 +298,6 @@ class Action:
         if not_animate:
             return self.create_outcome(NOT_ANIMATE, object_to_tell)
 
-        self.called_object = object_to_tell
         outcome = object_to_tell.tell()
         return self.create_outcome(outcome, object_to_tell)
 
@@ -318,20 +305,23 @@ class Action:
         object_to_throw = self.primary_object
         target_object = self.secondary_object
 
-        not_in_possession = object_to_throw not in self.player.inventory and object_to_throw not in self.player.held
+        not_in_possession = object_to_throw not in self.player.owned
         if not_in_possession:
             return self.create_outcome(NOT_IN_POSSESSION, object_to_throw)
 
-        not_animate = not isinstance(target_object, Animate)
-
-        if not target_object or not_animate:
+        # "throw {object}" - without a target - is essentially "drop {object}"
+        if not target_object:
             transformed_command = f"drop {object_to_throw}"
             self.world.parse(transformed_command)
             return self.create_outcome(COMMAND_TRANSFORMED)
 
+        target_non_animate = not isinstance(target_object, Animate)
+        if target_non_animate:
+            outcome = object_to_throw.throw(target_object)
+            return self.create_outcome(outcome, object_to_throw, target_object)
+
         # Swap primary and secondary, since the command now concerns the target
         self.primary_object = target_object
         self.secondary_object = object_to_throw
-        self.called_object = target_object
         outcome = target_object.throw(object_to_throw)
         return self.create_outcome(outcome, target_object, object_to_throw)

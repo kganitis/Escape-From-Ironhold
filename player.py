@@ -2,7 +2,7 @@ from game_object import *
 
 
 class Player(GameObject):
-    dead_flag = 0
+    dead = 0
 
     @property
     def inventory(self):

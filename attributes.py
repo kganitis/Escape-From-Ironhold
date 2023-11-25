@@ -11,8 +11,6 @@ class Usable(GameObject, ABC):
 
 class Obtainable(GameObject, ABC):
     def take(self, owner):
-        if owner and self not in owner.owned:
-            return NOT_OWNED_BY_OBJECT
         self.move_to(self.player)
         return TAKE_FROM_OWNER_SUCCESS if owner else TAKE_SUCCESS
 
@@ -20,13 +18,22 @@ class Obtainable(GameObject, ABC):
         self.move_to(self.player.parent)
         return DROP_SUCCESS
 
+    def throw(self, target):
+        if target.parent == self.world:
+            self.move_to(self.current_room)
+        else:
+            self.move_to(target.parent)
+        return THROW_SUCCESS
+
 
 class Accessible(GameObject, ABC):
     def go(self):
         self.player.move_to(self)
         self.current_room = self
-        self.message(self.description)
-        return NO_MESSAGE
+        if not self.discovered:
+            self.discover()
+            return NO_MESSAGE
+        return ACCESS_SUCCESS
 
 
 class Container(GameObject, ABC):
@@ -102,7 +109,7 @@ class Animate(GameObject, ABC):
     asleep: bool = False
 
     @abstractmethod
-    def attack(self):
+    def attack(self, weapon):
         pass
 
     @abstractmethod

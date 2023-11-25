@@ -9,7 +9,8 @@ from room_connections import *
 class World(GameObject):
     def __init__(self, test=False):
         name = "Ironhold"
-        super().__init__(name)
+        long = "Ironhold fortress"
+        super().__init__(name, long)
 
         self.test = test
 
@@ -29,40 +30,49 @@ class World(GameObject):
         # Initialize room and player
         cell = Room(
             name="cell",
-            initial="You find yourself in a small, dimly lit prison cell with cold stone walls.\n"
+            long="Ironhold prison cell",
+            initial="As you slowly regain consciousness, you find yourself in a small, dimly lit prison cell with cold stone walls.\n"
+                    "Your head throbs with pain, and the memories of your surroundings begin to piece together.\n"
+                    "You are John Silver, a soldier wrongly accused and now locked away in the prison of Ironhold fortress.",
+            description="You are in a small, dimly lit prison cell with cold stone walls.\n"
                     "A narrow slit near the ceiling lets in feeble moonlight, revealing a straw-covered floor.\n"
                     "Iron bars separate you from the dungeon outside, and the air carries a metallic scent,\n"
                     "a reminder of the fortress's stern grip.",
-            description="",
             parent=self
         )
         self.room = cell
         self.hero = Player(
-            name="Hero",
-            initial=None,
-            description="You are a brave hero trying to escape from the Ironhold prison",
+            name="John Silver",
+            long="John Silver",
+            description="You are John Silver, a soldier wrongly accused and now locked away in the prison of Ironhold fortress.",
             parent=cell
         )
+        self.hero.concealed = True
 
         # Dungeon
         dungeon = Room(
             name="dungeon",
-            initial="You can see a prison dungeon.",
-            description="You find yourself in the prison dungeon.",
+            long="prison dungeon",
+            initial="Stepping out of your cramped cell, you enter the heart of the prison dungeon.\n"
+                    "The corridor, hewn from ancient stone, stretches in both directions.\n"
+                    "Distant torches flicker, casting dancing shadows on the cold, damp walls.\n"
+                    "The air is thick with the musty scent of forgotten secrets.",
+            description="You stand in the prison dungeon, surrounded by the echoes of countless stories etched into the very stone.\n"
+                        "The corridor, dimly lit by flickering torches, reveals a maze of cells, each a silent witness to the passage of time.\n"
+                        "The distant sound of dripping water adds a haunting melody to the quiet symphony of captivity.",
             parent=self
         )
 
         # Cell door
         cell_door_lock = Lock(
             name='lock',
-            initial="You observe a simple lock.",
-            description="The lock could be picked with a lockpick, if I had one...",
+            long="simple iron lock",
+            initial="It has a simple iron lock.",
             parent=None
         )
         cell_door = Door(
             name="door",
-            initial="You observe a heavy barred iron cell door.",
-            description="A heavy barred iron cell door.",
+            long="heavy barred iron cell door",
             parent=self,
             lock=cell_door_lock
         )
@@ -71,45 +81,45 @@ class World(GameObject):
         # Cell items
         lockpick = LockPick(
             name='lockpick',
-            initial="You find a rusty iron lockpick hidden under the mattress.",
+            long="rusty iron lockpick",
             description="It's a lockpick that can be used to pick locks.",
             parent=cell
         )
         lockpick.concealed = True
 
-        mattress = Mattress(
-            name='mattress',
-            initial="You observe a straw mattress on the floor.",
-            description="The straw mattress doesn't seem comfortable but it's better than nothing.",
-            parent=cell
-        )
-        # mattress.after['examine'] =
-
         cell_wall = Wall(
             name='wall',
+            long="cell walls",
             initial="You can feel some cold air entering the cell. Maybe there's a crack somewhere in the walls.",
             description="The cell walls are made of stone, some are large and heavy, others are very small and barely into place.",
             parent=cell,
         )
         cell_wall.transparent = True
 
+        mattress = Mattress(
+            name='mattress',
+            long="straw mattress",
+            initial="A straw mattress on the floor for the prisoners to sleep.",
+            description="The straw mattress doesn't seem comfortable but it's better than nothing.",
+            parent=cell
+        )
+
         stone = Stone(
             name='stone',
-            initial="You observe a loose small stone in the cell's stone walls. Maybe it can be removed...",
-            description="A small stone of the cell's walls. Doesn't seem very useful.",
+            long="small stone",
             parent=cell_wall
         )
-        stone.after['take'] = "You manage to remove the stone from the wall but you see nothing of interest."
 
         dog_tag = DogTag(
             name='tag',
-            initial="You observe some kind of a dog tag on the ground, near the cell's corner.",
-            description="The text is worn off. Seems it was left here by a soldier...",
+            long="metallic dog tag",
+            description="The text is worn off. Seems it was left behind by a veteran...",
             parent=cell
         )
 
         barrel = Barrel(
             name='barrel',
+            long="large wooden barrel",
             initial="You observe a wooden barrel.",
             description="The barrel is just large enough to fit a person.",
             parent=dungeon
@@ -118,8 +128,7 @@ class World(GameObject):
         # Guard
         guard = Guard(
             name='guard',
-            initial="There's a guard sleeping right next to the cell's barred door.",
-            description="The guard seems to be in deep sleep.",
+            long="guard",
             parent=cell
         )
         guard.asleep = True
@@ -127,7 +136,7 @@ class World(GameObject):
 
         cell_door_key = Key(
             name='key',
-            initial="A key hangs from the guard's belt. Maybe it's within your reach.",
+            long="old iron key",
             description="An old iron key. I wonder where it fits...",
             parent=guard,
         )
@@ -137,16 +146,18 @@ class World(GameObject):
         # Courtyard
         courtyard = Room(
             name="courtyard",
-            initial="You can see Ironhold prison's courtyard.",
-            description="You find yourself in Ironhold prison's courtyard.",
+            long="Ironhold prison courtyard",
+            initial="You find yourself in the Ironhold prison's courtyard.",
+            description="You find yourself in the Ironhold prison's courtyard.",
             parent=self
         )
         courtyard.add_to_scope()
 
         cell_window = Window(
             name='window',
+            long="dungeon window",
             initial="You observe an open window in the dungeon's wall.",
-            description="The window leads to the prison's courtyard.",
+            description="The window seems to lead to the prison's courtyard.",
             parent=self
         )
         cell_window.connect_rooms(dungeon, courtyard)
@@ -171,7 +182,3 @@ class World(GameObject):
     def on_turn_end(self):
         for obj in self.get_all_game_object_instances():
             obj.on_turn_end()
-
-    @property
-    def is_last_move_of_turn(self):
-        return self.current_move == self.MOVES_PER_TURN
