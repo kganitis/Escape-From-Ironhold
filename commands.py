@@ -18,15 +18,22 @@ def noun_count_is_exactly(nouns, quantity):
 
 # Define rules for the required number of arguments for each command.
 # The key is the command's verb, and the value is a rule (quantifier, quantity).
-# The quantifier checks if the word count follows the quantity limitation.
-# For example, the "examine" command must be followed by 1 word at most.
+# The quantifier checks if the noun count follows the quantity limitation.
+# For example, the "examine" command must be followed by 1 noun at most.
 _available_commands = {
     'go': {
         'rule': (noun_count_is_exactly, 1),
         'description': "Go to the specified room.",
         'syntax': "go to the {room}",
         'examples': ["Go to the dungeon"],
-        'synonyms': ['access', 'enter']
+        'synonyms': ['access']
+    },
+    'enter': {
+        'rule': (noun_count_is_exactly, 1),
+        'description': "Enter inside an object.",
+        'syntax': "Enter (in/into) the {object}",
+        'examples': ["Enter into the barrel"],
+        'synonyms': ['hide']
     },
     'exit': {
         'rule': (noun_count_is_at_most, 2),
@@ -121,7 +128,6 @@ _available_commands = {
         'synonyms': ['shoot', 'launch']
     },
     # TODO implement sneak, approach, walk and run in some way
-    #  also implement hide
     # '': {
     #     'rule': (),
     #     'description': "",
@@ -176,7 +182,7 @@ def synonym_of(verb):
     return None
 
 
-stop_words = ['the', 'a', 'an', 'and', 'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'try', 'attempt']
+stop_words = ['the', 'a', 'an', 'and', 'in', 'into', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'try', 'attempt']
 
 
 class Command:

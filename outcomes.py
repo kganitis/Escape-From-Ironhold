@@ -75,6 +75,11 @@ BLOCKED_CONNECTION = "The {primary} is blocked", FAIL
 BLOCKED_OBJECT_LOCKED = "The {primary} is locked and must be unlocked first", FAIL
 BLOCKED_OBJECT_CLOSED = "The {primary} is closed and must be opened first", FAIL
 
+NOT_ENTERABLE = "The {primary} is not an object you can enter into.", FAIL
+ALREADY_ENTERED = "Already entered into the {primary}.", FAIL
+NOT_IN_OBJECT = "You're not into a {primary}.", FAIL
+MUST_EXIT_ENTERABLE_FIRST = "You must exit from the {primary} first.", FAIL
+
 NOT_IN_LOCATION = "You're not in the {primary} at the moment", FAIL
 UNSPECIFIED_EXIT = "There are multiple exits from the {primary}. You must specify one", FAIL
 
@@ -106,6 +111,8 @@ WAIT = "You choose to wait for something to happen.", NEUTRAL
 
 # Successful outcomes
 ACCESS_SUCCESS = "You accessed the {primary}.", SUCCESS
+ENTER_SUCCESS = "You entered into the {primary}.", SUCCESS
+EXIT_SUCCESS = "You got out of the {primary}.", SUCCESS
 LOCK_SUCCESS = "You locked the {primary} using the {secondary}", SUCCESS
 UNLOCK_SUCCESS = "You unlocked the {primary} using the {secondary}", SUCCESS
 TAKE_SUCCESS = "You took the {primary}.", SUCCESS

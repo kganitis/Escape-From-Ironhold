@@ -120,7 +120,6 @@ class World(GameObject):
         barrel = Barrel(
             name='barrel',
             long="large wooden barrel",
-            initial="You observe a wooden barrel.",
             description="The barrel is just large enough to fit a person.",
             parent=dungeon
         )
@@ -156,7 +155,7 @@ class World(GameObject):
         cell_window = Window(
             name='window',
             long="dungeon window",
-            initial="You observe an open window in the dungeon's wall.",
+            initial="You observe an open window in the dungeon's walls.",
             description="The window seems to lead to the prison's courtyard.",
             parent=self
         )
@@ -182,3 +181,5 @@ class World(GameObject):
     def on_turn_end(self):
         for obj in self.get_all_game_object_instances():
             obj.on_turn_end()
+
+

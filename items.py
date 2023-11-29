@@ -3,7 +3,7 @@ from random import random
 
 from game_object import *
 from outcomes import *
-from attributes import Usable, Obtainable, Container, Lockable, Openable
+from attributes import Usable, Obtainable, Container, Lockable, Openable, Enterable
 
 
 class LockingTool(Usable, ABC):
@@ -58,7 +58,7 @@ class Key(LockingTool, Obtainable):
         guard = self.get('guard')
         if self.parent == guard:
             in_reach = ""
-            if self.current_room == self.get('cell') and guard.current_location == guard.NEAR_CELL:
+            if self.current_room == self.get('cell') and guard.guard_location == guard.NEAR_CELL:
                 in_reach = "Maybe it's within your reach."
             return f"A key hangs from the guard's belt. {in_reach}"
         return super().initial
@@ -117,8 +117,24 @@ class Lock(Lockable):
     @property
     def description(self):
         if self.locked:
-            return "The lock could be picked with a lockpick, if I had one..."
-        return "The lock has been unlocked."
+            return f"The {self.long} could be picked with a lockpick, if I had one..."
+        return f"The {self.long} has been unlocked."
+
+    def unlock(self, unlocking_tool):
+        guard = self.get('guard')
+        chance_to_get_caught = 0.8 * (not guard.asleep)
+        successful_unlock = random() > chance_to_get_caught
+
+        if guard.guard_location != guard.NEAR_CELL or successful_unlock:
+            return super().unlock(unlocking_tool)
+
+        wakes_up = " wakes up and" if guard.asleep else ""
+        guard.asleep = False
+        self.player.dead = True
+        return f"The {guard}{wakes_up} catches you while attempting to unlock the door.\n" \
+               f"He storms into your cell, swiftly drawing his sword.\n" \
+               f"and in a cruel twist, he severs your hand,\n" \
+               f"leaving you to bleed slowly to death.", SUCCESS
 
 
 class DogTag(Obtainable):
@@ -133,6 +149,9 @@ class Wall(Container):
     pass
 
 
-class Barrel(Openable):
-    # TODO hide in or behind the barrel
-    pass
+class Barrel(Enterable, Container):
+    def examine(self):
+        if self.player in self.contents:
+            self.message("You can't see a thing in here. Maybe you could wait to hear something...")
+            return NO_MESSAGE
+        return super().examine()

@@ -62,7 +62,7 @@ class Action:
 
     def examine(self):
         if self.primary_object is None:
-            self.primary_object = self.world.current_room
+            self.primary_object = self.player.parent
         object_to_examine = self.primary_object
 
         another_room = isinstance(object_to_examine, Room) and object_to_examine != self.world.current_room
@@ -221,7 +221,38 @@ class Action:
         outcome = room_to_go.go()
         return self.create_outcome(outcome, room_to_go)
 
+    def enter(self):
+        object_to_enter = self.primary_object
+
+        not_enterable = not isinstance(object_to_enter, Enterable)
+        if not_enterable:
+            return self.create_outcome(NOT_ENTERABLE, object_to_enter)
+
+        already_entered = self.player.parent == object_to_enter
+        if already_entered:
+            return self.create_outcome(ALREADY_ENTERED, object_to_enter)
+
+        outcome = object_to_enter.enter()
+        return self.create_outcome(outcome, object_to_enter)
+
     def exit(self):
+        if isinstance(self.player.parent, Enterable):
+            return self._exit_from_enterable()
+        return self._exit_from_room()
+
+    def _exit_from_enterable(self):
+        if self.primary_object is None:
+            self.primary_object = self.player.parent
+        object_to_exit = self.primary_object
+
+        attempt_to_exit_room_while_in_enterable = self.world.current_room in self.objects
+        if attempt_to_exit_room_while_in_enterable:
+            return self.create_outcome(MUST_EXIT_ENTERABLE_FIRST, self.player.parent)
+
+        outcome = object_to_exit.exit()
+        return self.create_outcome(outcome, object_to_exit)
+
+    def _exit_from_room(self):
         current_room = self.world.current_room
         room_to_exit = None
         specified_exit = None
@@ -230,6 +261,8 @@ class Action:
                 room_to_exit = obj
             if isinstance(obj, Room) and obj != current_room:
                 return self.create_outcome(NOT_IN_LOCATION, obj)
+            if isinstance(obj, Enterable):
+                return self.create_outcome(NOT_IN_OBJECT, obj)
             if isinstance(obj, RoomConnection):
                 specified_exit = obj
 

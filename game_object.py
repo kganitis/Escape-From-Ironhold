@@ -211,3 +211,7 @@ class GameObject(ABC):
 
     def on_turn_end(self):
         return
+
+    @property
+    def is_last_move_of_turn(self):
+        return self.world.current_move == self.world.MOVES_PER_TURN

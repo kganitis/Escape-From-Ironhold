@@ -37,11 +37,22 @@ class Accessible(GameObject, ABC):
 
 
 class Container(GameObject, ABC):
+    @property
     def contents(self):
         return self.children
 
     def insert(self, item):
         self.add_child(item)
+
+
+class Enterable(GameObject, ABC):
+    def enter(self):
+        self.player.move_to(self)
+        return ENTER_SUCCESS
+
+    def exit(self):
+        self.player.move_to(self.parent)
+        return EXIT_SUCCESS
 
 
 class Lockable(GameObject, ABC):

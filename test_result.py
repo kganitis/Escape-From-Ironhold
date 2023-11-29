@@ -12,9 +12,9 @@ def test_commands(*input_commands):
 
 def main():
     result = test_commands(
-        "take the lockpick",
-        "open the door with the lockpick",
-        "go to the dungeon"
+        "take lockpick",
+        "open door with lockpick",
+        "exit"
     )
 
     # Get the verb and the objects
