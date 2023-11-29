@@ -2,10 +2,11 @@ from attributes import *
 
 
 class Room(Accessible, ABC):
-    def __init__(self, name, long, initial, description, parent, visited=False):
+    def __init__(self, name, long, initial, description, parent, visited=False, winning_room=False):
         super().__init__(name, long, initial, description, parent)
         self.visited = visited
         self.room_connections = {}  # All the room connections to this room (room: connection)
+        self.winning_room = winning_room
 
     def add_connection(self, room_connection):
         other_room = next((room for room in room_connection.connected_rooms if room != self), None)
@@ -43,3 +44,9 @@ class Room(Accessible, ABC):
             con.discover()
         self.discover_children()
         return NO_MESSAGE
+
+    def go(self):
+        outcome = super().go()
+        if self.winning_room:
+            self.player.dead = 2
+        return outcome

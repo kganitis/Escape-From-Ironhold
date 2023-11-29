@@ -123,6 +123,10 @@ class Guard(Animate):
         cell = self.get('cell')
         dungeon = self.get('dungeon')
 
+        # win condition
+        if self.current_room == self.get('courtyard'):
+            return
+
         if self.guard_location == self.NEAR_CELL:
             if self.current_room == cell:
                 self.move_to(cell)
@@ -153,10 +157,8 @@ class Guard(Animate):
         if self.guard_location == self.PATROLLING and not self.is_last_move_of_turn:
             self.message(f"You can hear the {self}'s footsteps going back and forth in the dungeon corridor.")
         elif self.asleep:
-            if self.discovered:
-                self.message(f"You can hear the {self} snoring.")
-            else:
-                self.message(f"You can hear someone snoring.")
+            guard_or_someone = f"the {self}" if self.discovered else "someone"
+            self.message(f"You can hear {guard_or_someone} snoring.")
 
         # self.print_status()
 
@@ -172,6 +174,10 @@ class Guard(Animate):
     def on_turn_end(self):
         # return
         if self.searching_for_player:
+            return
+
+        # win condition
+        if self.current_room == self.get('courtyard'):
             return
 
         location_probabilities = {

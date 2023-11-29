@@ -9,7 +9,7 @@ stop_words = ['the', 'a', 'an', 'and',
               'try', 'attempt']
 
 
-def parse(world, input_command, silent=False):
+def parse(world, input_command, silent=False, advance_time=True):
     # Tokenizing
     words = [word for word in input_command.strip().lower().split() if word not in stop_words]
 
@@ -49,7 +49,8 @@ def parse(world, input_command, silent=False):
     actions_not_advancing_time = ['examine']
     outcomes_not_advancing_time = [INVALID_COMMAND, FAIL, TRANSFORMED]
     if verb not in actions_not_advancing_time \
-            and outcome.type not in outcomes_not_advancing_time:
+            and outcome.type not in outcomes_not_advancing_time\
+            and advance_time:
         world.on_move_end()
 
     return result

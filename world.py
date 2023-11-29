@@ -64,14 +64,14 @@ class World(GameObject):
         )
 
         # Cell door
-        cell_door_lock = Lock(
-            name='lock',
-            long="simple iron lock",
+        cell_door_lock = CellLock(
+            name='lock',  # TODO change this after parser integration
+            long="simple iron cell lock",  # TODO check names like this for naming conflicts during parsing
             initial="It has a simple iron lock.",
             parent=None
         )
-        cell_door = Door(
-            name="door",
+        cell_door = CellDoor(
+            name='door',
             long="heavy barred iron cell door",
             parent=self,
             lock=cell_door_lock
@@ -89,7 +89,7 @@ class World(GameObject):
 
         cell_wall = Wall(
             name='wall',
-            long="cell walls",
+            long="cell wall walls",
             initial="You can feel some cold air entering the cell. Maybe there's a crack somewhere in the walls.",
             description="The cell walls are made of stone, some are large and heavy, others are very small and barely into place.",
             parent=cell,
@@ -133,36 +133,44 @@ class World(GameObject):
         guard.asleep = True
         guard.add_to_scope()
 
-        cell_door_key = Key(
-            name='key',
-            long="old iron key",
-            description="An old iron key. I wonder where it fits...",
+        keys = Keys(
+            name='keys',
+            long="old keys pair",
+            description="A pair of old keys. I wonder where they fit...",
             parent=guard,
         )
-        cell_door_key.fits_into = cell_door_lock
-        guard.attach(cell_door_key)
+        guard.attach(keys)
+        # keys.fits_into = cell_door_lock
 
         # Courtyard
         courtyard = Room(
             name="courtyard",
             long="Ironhold prison courtyard",
-            initial="You find yourself in the Ironhold prison's courtyard.",
-            description="You find yourself in the Ironhold prison's courtyard.",
-            parent=self
+            initial="You find yourself in the Ironhold prison's courtyard, taking a taste of freedom.\n"
+                    "The world is yours to explore. Good luck!",
+            description="",
+            parent=self,
+            winning_room=True
         )
         courtyard.add_to_scope()
 
-        cell_window = Window(
-            name='window',
-            long="dungeon window",
-            initial="You observe an open window in the dungeon's walls.",
-            description="The window seems to lead to the prison's courtyard.",
-            parent=self
+        # Dungeon door
+        dungeon_door_lock = DungeonLock(
+            name='lock2',  # TODO change this after parser integration
+            long="silver dungeon lock",
+            initial="It has a silver lock.",
+            parent=None
         )
-        cell_window.connect_rooms(dungeon, courtyard)
+        dungeon_door = DungeonDoor(
+            name='door2',
+            long='heavy wooden dungeon door',
+            parent=self,
+            lock=dungeon_door_lock
+        )
+        dungeon_door.connect_rooms(dungeon, courtyard)
 
-    def parse(self, command):
-        return parse(self, command, self.test)
+    def parse(self, command, advance_time=True):
+        return parse(self, command, self.test, advance_time)
 
     def get_all_game_object_instances(self):
         return list(self.world.object_map.values())

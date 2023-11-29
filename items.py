@@ -40,7 +40,6 @@ class LockPick(LockingTool, Obtainable):
 
 
 class Key(LockingTool, Obtainable):
-    # TODO separate keys for cell door and courtyard door
     _fits_into: Lockable
 
     @property
@@ -53,14 +52,16 @@ class Key(LockingTool, Obtainable):
         if target.key != self:
             target.key = self
 
+
+class Keys(Obtainable):
     @property
     def initial(self):
         guard = self.get('guard')
         if self.parent == guard:
             in_reach = ""
             if self.current_room == self.get('cell') and guard.guard_location == guard.NEAR_CELL:
-                in_reach = "Maybe it's within your reach."
-            return f"A key hangs from the guard's belt. {in_reach}"
+                in_reach = "Maybe they're within your reach."
+            return f"A pair of old keys hangs from the guard's belt. {in_reach}"
         return super().initial
 
     def take(self, owner):
@@ -72,7 +73,25 @@ class Key(LockingTool, Obtainable):
         successful_steal = random() < chance_to_steal
 
         if successful_steal:
-            super().take(owner)
+            # Separate the pair into two distinct keys, one for each door
+            self.remove()
+
+            cell_key = Key(
+                name='key',  # TODO change this after parser integration
+                long='old iron cell key',
+                description='An old iron key. I wonder where it fits...',
+                parent=self.player
+            )
+            cell_key.fits_into = self.get('lock')  # TODO change this after parser integration
+
+            dungeon_key = Key(
+                name='key2',  # TODO change this after parser integration
+                long='old silver dungeon key',
+                description='An old silver key. I wonder where it fits...',
+                parent=self.player
+            )
+            dungeon_key.fits_into = self.get('lock2')  # TODO change this after parser integration
+
             return f"You reach and with a quick move you grab the {self} out the guard's belt, without him noticing.", SUCCESS
 
         wakes_up = " wakes up and" if guard.asleep else ""
@@ -120,6 +139,8 @@ class Lock(Lockable):
             return f"The {self.long} could be picked with a lockpick, if I had one..."
         return f"The {self.long} has been unlocked."
 
+
+class CellLock(Lock):
     def unlock(self, unlocking_tool):
         guard = self.get('guard')
         chance_to_get_caught = 0.8 * (not guard.asleep)
@@ -133,6 +154,24 @@ class Lock(Lockable):
         self.player.dead = True
         return f"The {guard}{wakes_up} catches you while attempting to unlock the door.\n" \
                f"He storms into your cell, swiftly drawing his sword.\n" \
+               f"and in a cruel twist, he severs your hand,\n" \
+               f"leaving you to bleed slowly to death.", SUCCESS
+
+
+class DungeonLock(Lock):
+    def unlock(self, unlocking_tool):
+        guard = self.get('guard')
+        chance_to_get_caught = 0.8 * (not guard.asleep)
+        successful_unlock = random() > chance_to_get_caught
+
+        if guard.guard_location == guard.NOT_IN_DUNGEON or successful_unlock:
+            return super().unlock(unlocking_tool)
+
+        wakes_up = " wakes up and" if guard.asleep else ""
+        guard.asleep = False
+        self.player.dead = True
+        return f"The {guard}{wakes_up} catches you while attempting to unlock the door.\n" \
+               f"He rushes to your location, swiftly drawing his sword.\n" \
                f"and in a cruel twist, he severs your hand,\n" \
                f"leaving you to bleed slowly to death.", SUCCESS
 

@@ -271,7 +271,7 @@ class Action:
 
         multiple_exits = len(room_to_exit.connections) > 1 and not specified_exit
         if multiple_exits:
-            return self.create_outcome(UNSPECIFIED_EXIT)
+            return self.create_outcome(UNSPECIFIED_EXIT, room_to_exit)
 
         non_existing_exit = specified_exit and specified_exit not in room_to_exit.connections
         if non_existing_exit:
