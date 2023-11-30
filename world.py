@@ -22,6 +22,9 @@ class World(GameObject):
         self.room = None
         self.hero = None
 
+        # Hold last primary used if needed for future referal
+        self.last_primary = None
+
         # Moves and turns
         self.MOVES_PER_TURN = 5
         self.current_move = 1

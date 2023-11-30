@@ -3,7 +3,7 @@ from random import random
 
 from game_object import *
 from outcomes import *
-from attributes import Usable, Obtainable, Container, Lockable, Openable, Enterable
+from attributes import Usable, Obtainable, Container, Lockable, Enterable
 
 
 class LockingTool(Usable, ABC):

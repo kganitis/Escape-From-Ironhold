@@ -4,12 +4,7 @@ from attributes import Animate
 from outcomes import SUCCESS, NEUTRAL, NO_MESSAGE, FAIL
 
 
-# TODO Refactor this monster class
 class Guard(Animate):
-    # TODO (Ideas)
-    #   - Throw an object to distract him (difficult!!! need scenery?)
-    #   - Very slim chance to steal the sword
-    #       - What happens if you throw the sword at him or attack him with the sword
 
     NOT_IN_DUNGEON = "NOT_IN_DUNGEON"
     NEAR_EXIT = "NEAR_EXIT"

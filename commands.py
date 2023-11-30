@@ -108,13 +108,13 @@ _available_commands = {
         'synonyms': ['fight', 'assault', 'confront']
     },
     'ask': {
-        'rule': (noun_count_is_at_least, 1),
+        'rule': (noun_count_is_at_least, 0),
         'description': "Ask an animate something.",
         'syntax': "ask the {animate} {any}",
         'examples': ["Ask the guard why I'm here."]
     },
     'tell': {
-        'rule': (noun_count_is_at_least, 1),
+        'rule': (noun_count_is_at_least, 0),
         'description': "Tell an animate something",
         'syntax': "tell the {animate} {any}",
         'examples': ["Tell the guard to set me free."],

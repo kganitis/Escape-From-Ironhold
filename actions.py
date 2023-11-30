@@ -22,17 +22,18 @@ class Action:
         return [obj for obj in [self.primary_object, self.secondary_object] if obj is not None]
 
     def execute(self):
-        # More syntax analysis
-        if self.command.verb in ('ask', 'tell'):
-            return
+        if self.command.verb not in ('ask', 'tell'):
+            # Retrieve the last primary if a personal pronoun is used
+            if self.primary_object in ('him', 'her', 'it', 'them'):
+                self.primary_object = self.world.last_primary
 
-        invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
-        if invalid_objects:
-            return self.create_outcome(INVALID_OBJECTS, *invalid_objects)
+            invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
+            if invalid_objects:
+                return self.create_outcome(INVALID_OBJECTS, *invalid_objects)
 
-        out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
-        if out_of_scope:
-            return self.create_outcome(OUT_OF_SCOPE, *out_of_scope)
+            out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
+            if out_of_scope:
+                return self.create_outcome(OUT_OF_SCOPE, *out_of_scope)
 
         # Execution
         if self.execution_function and callable(self.execution_function):
@@ -54,10 +55,12 @@ class Action:
         else:
             secondary = objects[0] if primary != objects[0] else objects[1]
 
+        # Hold the primary for future referal
+        self.world.last_primary = self.primary_object
+
         return Outcome(outcome, primary, secondary)
 
     def wait(self):
-        # TODO implement wait for a number of moves or turns
         return self.create_outcome(WAIT)
 
     def examine(self):
@@ -315,6 +318,7 @@ class Action:
         return self.create_outcome(outcome, object_to_attack, weapon)
 
     def ask(self):
+        self.primary_object = self.world.get('guard')
         object_to_ask = self.primary_object
 
         not_animate = not isinstance(object_to_ask, Animate)
@@ -325,6 +329,7 @@ class Action:
         return self.create_outcome(outcome, object_to_ask)
 
     def tell(self):
+        self.primary_object = self.world.get('guard')
         object_to_tell = self.primary_object
 
         not_animate = not isinstance(object_to_tell, Animate)
