@@ -71,7 +71,7 @@ class World(GameObject):
             name='lock',  # TODO change this after parser integration
             long="simple iron cell lock",  # TODO check names like this for naming conflicts during parsing
             initial="It has a simple iron lock.",
-            parent=None
+            parent=self
         )
         cell_door = CellDoor(
             name='door',
@@ -145,6 +145,15 @@ class World(GameObject):
         guard.attach(keys)
         # keys.fits_into = cell_door_lock
 
+        cell_key = Key(
+            name='key',  # TODO change this after parser integration
+            long='old iron key',
+            description='An old iron key. I wonder where it fits... Maybe into an iron lock.',
+            parent=guard
+        )
+        cell_key.fits_into = cell_door_lock
+        cell_key.concealed = True
+
         # Courtyard
         courtyard = Room(
             name="courtyard",
@@ -171,6 +180,15 @@ class World(GameObject):
             lock=dungeon_door_lock
         )
         dungeon_door.connect_rooms(dungeon, courtyard)
+
+        dungeon_key = Key(
+            name='key2',  # TODO change this after parser integration
+            long='old silver key',
+            description='An old silver key. I wonder where it fits... Maybe into a silver lock.',
+            parent=guard
+        )
+        dungeon_key.fits_into = dungeon_door_lock
+        dungeon_key.concealed = True
 
     def parse(self, command, advance_time=True):
         return parse(self, command, self.test, advance_time)

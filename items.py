@@ -74,25 +74,18 @@ class Keys(Obtainable):
 
         if successful_steal:
             # Separate the pair into two distinct keys, one for each door
+            cell_key = self.get('key')
+            cell_key.concealed = False
+            cell_key.move_to(self.player)
+
+            dungeon_key = self.get('key2')
+            dungeon_key.concealed = False
+            dungeon_key.move_to(self.player)
+
             self.remove()
-
-            cell_key = Key(
-                name='key',  # TODO change this after parser integration
-                long='old iron cell key',
-                description='An old iron key. I wonder where it fits...',
-                parent=self.player
-            )
-            cell_key.fits_into = self.get('lock')  # TODO change this after parser integration
-
-            dungeon_key = Key(
-                name='key2',  # TODO change this after parser integration
-                long='old silver dungeon key',
-                description='An old silver key. I wonder where it fits...',
-                parent=self.player
-            )
-            dungeon_key.fits_into = self.get('lock2')  # TODO change this after parser integration
-
-            return f"You reach and with a quick move you grab the {self} out the guard's belt, without him noticing.", SUCCESS
+            return f"You reach and with a quick move you grab the {self} out the guard's belt, without him noticing.\n" \
+                   f"Looking at them closely, you can distinguish them clearly:\n" \
+                   f"{cell_key.initial[:-1]} and {dungeon_key.initial.lower()} ", SUCCESS
 
         wakes_up = " wakes up and" if guard.asleep else ""
         guard.asleep = False

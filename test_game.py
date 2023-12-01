@@ -7,40 +7,31 @@ from world import World
 
 def test_sample_commands():
     return [
-        "nonsense",
-        "use nonsense",
         "take lockpick",
-        "take key",
-        "drop lockpick"
+        "take keys",
+        "take stone",
+        'take tag'
         "drop key",
-        "use lockpick lock",
+        "drop key2"
         "use lockpick door",
-        "use key door",
-        "use key lock",
-        "lock lock",
-        "lock lock lockpick",
-        "lock lock key",
-        "lock door"
-        "lock door lockpick",
-        "lock door key",
-        "unlock lock",
-        "unlock lock lockpick",
-        "unlock lock key",
-        "unlock door",
-        "unlock door lockpick",
-        "unlock door key",
-        "open door",
-        "open door lockpick",
+        "use lockpick door2"
         "open door key",
+        "open door2 key2"
         "close door",
         "go dungeon",
         "go courtyard",
         "go cell",
         "exit",
         "exit cell",
-        "exit from door",
-        "exit cell from door",
-        "exit dungeon"
+        "enter barrel",
+        "exit barrel",
+        "attack guard",
+        "throw stone at guard",
+        "throw lockpick at guard",
+        "throw tag at guard"
+        "ask guard",
+        "tell guard",
+        "wake up guard"
     ]
 
 
@@ -103,11 +94,11 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
 
 def main():
-    max_depth = 4
+    max_depth = 6
     possible_commands = test_sample_commands()
     generate_results(possible_commands, max_depth, "all_results")
-    generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)
-    generate_results(possible_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)
+    # generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)
+    # generate_results(possible_commands, max_depth, "successful_results", filter_invalid=True, filter_failed=True)
 
 
 if __name__ == "__main__":

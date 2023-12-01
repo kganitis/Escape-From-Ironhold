@@ -51,8 +51,8 @@ class Guard(Animate):
                 f"cell door open: {cell_door.is_open}"
             )
 
-        player_detected = random() < chance_of_detection[self.guard_location] * (not player_in_barrel or self.searching_for_player)
-        cell_door_open_detected = random() < chance_of_detection[self.guard_location] * cell_door.is_open * (not self.searching_for_player)
+        player_detected = random() < (chance_of_detection[self.guard_location] * (not player_in_barrel or self.searching_for_player))
+        cell_door_open_detected = random() < (chance_of_detection[self.guard_location] * cell_door.is_open * (not self.searching_for_player))
         if self.current_room == dungeon:
             if not (player_detected or cell_door_open_detected):
                 return False
@@ -324,7 +324,7 @@ class Guard(Animate):
             self.describe()
             return NO_MESSAGE
 
-        both_in_cell = self.guard_location = self.NEAR_CELL and self.current_room == self.get('cell')
+        both_in_cell = self.guard_location == self.NEAR_CELL and self.current_room == self.get('cell')
         if both_in_cell and not self.get('door').is_open:
             return f"You can't attack the {self} from your cell with the door closed.", FAIL
 
@@ -353,7 +353,7 @@ class Guard(Animate):
         if attack_outcome == 'SENT_BACK_TO_CELL':
             drags_you_into_cell = ", then drags you into your cell." if self.current_room == self.get('dungeon') else ""
             locks_you_or_kills_you = f"\"You're lucky to be alive\", he says as he locks your cell."
-            if self.get('key') not in self.owned:
+            if self.get('keys') not in self.owned:
                 self.player.dead = True
                 locks_you_or_kills_you = f"\"Damn it, I must have dropped the key somewhere.\n" \
                                          f"I can't leave you here alone and unlocked.\n" \
@@ -364,7 +364,7 @@ class Guard(Animate):
             self.guard_location = self.NEAR_CELL
             self.get('cell').go()
             self.get('door').close()
-            self.get('door').lock()
+            self.get('door').lock(self.get('key'))
             return f"Your attack nearly missed the {self}{waked_him} and now he's furious.\n" \
                    f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n" \
                    f"He hits you with his fist and you drop on the ground{drags_you_into_cell}\n" \
@@ -430,7 +430,7 @@ class Guard(Animate):
             return f"The {self} reacts to the {thrown_object} you threw at him{wake_up_message} with a warning:\n" \
                    f"\"This is your last warning, filthy person. Try this again, and you'll regret it.\"", SUCCESS
 
-        if self.attitude <= -3 and self.get('key').is_attached_to(self):
+        if self.attitude <= -3 and self.get('keys').is_attached_to(self):
             self.player.dead = True
             wake_up_message = "and fully waked him up" if woken_up else ""
             return f"The {thrown_object} you threw at the {self} {wake_up_message} was the final straw.\n" \

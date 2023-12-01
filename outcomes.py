@@ -54,7 +54,6 @@ OUT_OF_SCOPE = "I don't see any {primary} around", FAIL
 NON_EXISTING_OBJECT = "There isn't any {primary} around", FAIL
 
 # Fail outcomes
-NOT_EXAMINABLE = "The {primary} cannot be examined", FAIL
 CANT_EXAMINE_FROM_CURRENT_ROOM = "You can't examine the {primary} from here", FAIL
 
 NOT_OBTAINABLE = "The {primary} cannot be taken", FAIL
@@ -92,6 +91,7 @@ MISSING_LOCKING_TOOL = "You need something that can lock", FAIL
 MISSING_UNLOCKING_TOOL = "You need something that can unlock", FAIL
 CANT_LOCK_WITH_OBJECT = "The {primary} can't be used for locking", FAIL
 CANT_UNLOCK_WITH_OBJECT = "The {primary} can't be used for unlocking", FAIL
+NOT_FITTING_KEY = "The {secondary} doesn't fit in the {primary}.", FAIL
 
 NOT_OPENABLE = "The {primary} can't be opened", FAIL
 ALREADY_OPEN = "The {primary} is already open", FAIL

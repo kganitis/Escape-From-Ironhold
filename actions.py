@@ -159,6 +159,10 @@ class Action:
             if not locking_tool_in_inventory:
                 return self.create_outcome(NOT_IN_POSSESSION, locking_tool)
 
+            not_fitting_key = isinstance(locking_tool, Key) and lockable_object.key != locking_tool
+            if not_fitting_key:
+                return self.create_outcome(NOT_FITTING_KEY, lockable_object, locking_tool)
+
         if operation == 'lock' and not locking_tool.can_lock:
             return self.create_outcome(CANT_LOCK_WITH_OBJECT, locking_tool)
         elif operation == 'unlock' and not locking_tool.can_unlock:
@@ -204,18 +208,19 @@ class Action:
 
     def go(self):
         room_to_go = self.primary_object
+        current_room = self.world.current_room
 
         not_accessible = not isinstance(room_to_go, Accessible)
         if not_accessible:
             return self.create_outcome(NOT_ACCESSIBLE, room_to_go)
 
-        already_in_room = room_to_go == self.world.current_room
+        already_in_room = room_to_go ==  current_room
         if already_in_room:
             return self.create_outcome(ALREADY_IN_ROOM, room_to_go)
 
-        connection_to_current_room = room_to_go.get_connection_to(self.world.current_room)
+        connection_to_current_room = room_to_go.get_connection_to(current_room)
         if not connection_to_current_room:
-            return self.create_outcome(NOT_ACCESSIBLE_FROM_CURRENT_ROOM, room_to_go)
+            return self.create_outcome(NOT_ACCESSIBLE_FROM_CURRENT_ROOM, room_to_go, current_room)
 
         blocked = connection_to_current_room.is_blocked
         if blocked:
@@ -271,6 +276,7 @@ class Action:
 
         if not room_to_exit:
             room_to_exit = current_room
+            self.primary_object = room_to_exit
 
         multiple_exits = len(room_to_exit.connections) > 1 and not specified_exit
         if multiple_exits:

@@ -148,7 +148,8 @@ class GameObject(ABC):
         obj.update_object_map()
 
     def remove(self):
-        self.parent.children.remove(self)
+        if self.parent:
+            self.parent.children.remove(self)
         if self.is_attached_to(self.parent):
             self.parent.remove_attached(self)
         self.parent = None
