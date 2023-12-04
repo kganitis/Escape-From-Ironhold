@@ -53,7 +53,7 @@ _available_commands = {
         'description': "Take the specified item.",
         'syntax': "take the {item} (from the {object})",
         'examples': ["Take the lockpick"],
-        'synonyms': ['steal', 'grab', 'acquire', 'pick']
+        'synonyms': ['steal', 'grab', 'acquire', 'pick', 'obtain']
     },
     'drop': {
         'rule': (noun_count_is_exactly, 1),
@@ -189,7 +189,7 @@ class Command:
     def __init__(self, verb, words=None):
         # Determine the main verb
         self.verb = verb
-        self.__input_verb = verb
+        self.input_verb = verb
         self.__synonym = None
         if verb not in get_available_command_verbs():
             self.__synonym = synonym_of(verb)
@@ -203,13 +203,13 @@ class Command:
         self.nouns = [word for word in words if word not in stop_words]
 
     def __str__(self):
-        return f"{self.__input_verb} {' '.join(self.nouns)}"
+        return f"{self.input_verb} {' '.join(self.nouns)}"
 
     def is_valid(self):
         if self.verb in ('ask', 'tell'):
             return True
 
-        if not self.__synonym and self.__input_verb not in get_available_command_verbs():
+        if not self.__synonym and self.input_verb not in get_available_command_verbs():
             return False
 
         quantifier_function, noun_limit = _available_commands[self.verb]['rule']

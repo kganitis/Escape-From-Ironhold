@@ -1,11 +1,10 @@
 from random import random, choices
 
 from attributes import Animate
-from outcomes import SUCCESS, NEUTRAL, NO_MESSAGE, FAIL
+from outcomes import NO_MESSAGE
 
 
 class Guard(Animate):
-
     NOT_IN_DUNGEON = "NOT_IN_DUNGEON"
     NEAR_EXIT = "NEAR_EXIT"
     PATROLLING = "PATROLLING"
@@ -18,6 +17,7 @@ class Guard(Animate):
     stunned = False
 
     def check_player_detected(self):
+        return False
         """
         If the player is in the dungeon, he is always considered to be NEAR_CELL.
         There will be a chance of detection if both are in the dungeon, but not in the same spot.
@@ -51,8 +51,10 @@ class Guard(Animate):
                 f"cell door open: {cell_door.is_open}"
             )
 
-        player_detected = random() < (chance_of_detection[self.guard_location] * (not player_in_barrel or self.searching_for_player))
-        cell_door_open_detected = random() < (chance_of_detection[self.guard_location] * cell_door.is_open * (not self.searching_for_player))
+        player_detected = random() < (
+                    chance_of_detection[self.guard_location] * (not player_in_barrel or self.searching_for_player))
+        cell_door_open_detected = random() < (
+                    chance_of_detection[self.guard_location] * cell_door.is_open * (not self.searching_for_player))
         if self.current_room == dungeon:
             if not (player_detected or cell_door_open_detected):
                 return False
@@ -326,7 +328,8 @@ class Guard(Animate):
 
         both_in_cell = self.guard_location == self.NEAR_CELL and self.current_room == self.get('cell')
         if both_in_cell and not self.get('door').is_open:
-            return f"You can't attack the {self} from your cell with the door closed.", FAIL
+            self.message(f"You can't attack the {self} from your cell with the door closed.")
+            return NO_MESSAGE
 
         sleep_modifier = 0.1 if self.asleep else 0
         attack_outcome_probabilities = {
@@ -348,7 +351,8 @@ class Guard(Animate):
         if attack_outcome == 'SUCCESS':
             self.stunned += 5
             self.attitude -= 3
-            return f"Your attack managed to land a hit to the {self}, stunning him {stun_duration}.", SUCCESS
+            self.message(f"Your attack managed to land a hit to the {self}, stunning him {stun_duration}.")
+            return NO_MESSAGE
 
         if attack_outcome == 'SENT_BACK_TO_CELL':
             drags_you_into_cell = ", then drags you into your cell." if self.current_room == self.get('dungeon') else ""
@@ -365,16 +369,18 @@ class Guard(Animate):
             self.get('cell').go()
             self.get('door').close()
             self.get('door').lock(self.get('key'))
-            return f"Your attack nearly missed the {self}{waked_him} and now he's furious.\n" \
-                   f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n" \
-                   f"He hits you with his fist and you drop on the ground{drags_you_into_cell}\n" \
-                   f"{locks_you_or_kills_you}", SUCCESS
+            self.message(f"Your attack nearly missed the {self}{waked_him} and now he's furious.\n"
+                         f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n"
+                         f"He hits you with his fist and you drop on the ground{drags_you_into_cell}\n"
+                         f"{locks_you_or_kills_you}")
+            return NO_MESSAGE
 
         if attack_outcome == 'DEATH':
             self.player.dead = True
-            return f"Your attack manages to land a hit to the {self}, surprising him, but he recovers quickly.\n" \
-                   f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n" \
-                   f"He draws his sword and, in a sudden move, he stabs you in the chest, leaving you to bleed slowly to death.", SUCCESS
+            self.message(f"Your attack manages to land a hit to the {self}, surprising him, but he recovers quickly.\n"
+                         f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n"
+                         f"He draws his sword and, in a sudden move, he stabs you in the chest, leaving you to bleed slowly to death.")
+            return NO_MESSAGE
 
     def wake(self):
         if not self.in_scope or self.stunned:
@@ -382,19 +388,23 @@ class Guard(Animate):
             return NO_MESSAGE
 
         self.asleep = False
-        return f"The {self} startles awake, quickly composing himself as if he was never sleeping.", SUCCESS
+        self.message(f"The {self} startles awake, quickly composing himself as if he was never sleeping.")
+        return NO_MESSAGE
 
     def ask(self):
         if not self.in_scope or self.asleep or self.stunned:
             self.describe()
             return NO_MESSAGE
-        return f"The {self} pointedly ignores your attempts at conversation. It seems he's not in the mood for chatting.", NEUTRAL
+        self.message(
+            f"The {self} pointedly ignores your attempts at conversation. It seems he's not in the mood for chatting.")
+        return NO_MESSAGE
 
     def tell(self):
         if not self.in_scope or self.asleep or self.stunned:
             self.describe()
             return NO_MESSAGE
-        return "He dismissively waves off whatever you're saying. It's clear he has no interest in your words.", NEUTRAL
+        self.message("He dismissively waves off whatever you're saying. It's clear he has no interest in your words.")
+        return NO_MESSAGE
 
     def throw(self, thrown_object):
         if not self.in_scope:
@@ -409,39 +419,46 @@ class Guard(Animate):
         if random() < chance_to_stun:
             self.stunned += 5
             self.attitude -= 2
-            return f"Your throw managed to land a critical hit to the {self}, stunning him for a while.", SUCCESS
+            self.message(f"Your throw managed to land a critical hit to the {self}, stunning him for a while.")
+            return NO_MESSAGE
 
         both_in_dungeon = self.guard_location != self.NOT_IN_DUNGEON and self.current_room == self.get('dungeon')
         if both_in_dungeon:
             self.player.dead = True
             wake_up_message = f" wakes him up and" if woken_up else ""
-            return f"The {thrown_object} you throw at the {self}{wake_up_message} notifies him of your presence.\n" \
-                   f"He rushes to your location, swiftly drawing his sword.\n" \
-                   f"\"How did you get you out of your cell, dirty mouse? Are you going somewhere?\"\n" \
-                   f"In a cruel twist, he severs your hand, leaving you to bleed slowly to death.", SUCCESS
+            self.message(
+                f"The {thrown_object} you throw at the {self}{wake_up_message} notifies him of your presence.\n"
+                f"He rushes to your location, swiftly drawing his sword.\n"
+                f"\"How did you get you out of your cell, dirty mouse? Are you going somewhere?\"\n"
+                f"In a cruel twist, he severs your hand, leaving you to bleed slowly to death.")
+            return NO_MESSAGE
 
         if self.attitude == -1:
             wake_up_message = "and it startles him awake" if woken_up else ""
-            return f"You throw the {thrown_object} at the {self} {wake_up_message}, but he remains unfazed.\n" \
-                   "\"Sit down, little scum. You're not getting anywhere,\" he sneers.", SUCCESS
+            self.message(f"You throw the {thrown_object} at the {self} {wake_up_message}, but he remains unfazed.\n"
+                         "\"Sit down, little scum. You're not getting anywhere,\" he sneers.")
+            return NO_MESSAGE
 
         if self.attitude == -2:
             wake_up_message = ", catching him off guard," if woken_up else ""
-            return f"The {self} reacts to the {thrown_object} you threw at him{wake_up_message} with a warning:\n" \
-                   f"\"This is your last warning, filthy person. Try this again, and you'll regret it.\"", SUCCESS
+            self.message(f"The {self} reacts to the {thrown_object} you threw at him{wake_up_message} with a warning:\n"
+                         f"\"This is your last warning, filthy person. Try this again, and you'll regret it.\"")
+            return NO_MESSAGE
 
         if self.attitude <= -3 and self.get('keys').is_attached_to(self):
             self.player.dead = True
             wake_up_message = "and fully waked him up" if woken_up else ""
-            return f"The {thrown_object} you threw at the {self} {wake_up_message} was the final straw.\n" \
-                   f"He storms into your cell, swiftly drawing his sword.\n" \
-                   f"In a cruel twist, he severs your hand, leaving you to bleed slowly to death.", SUCCESS
+            self.message(f"The {thrown_object} you threw at the {self} {wake_up_message} was the final straw.\n"
+                         f"He storms into your cell, swiftly drawing his sword.\n"
+                         f"In a cruel twist, he severs your hand, leaving you to bleed slowly to death.")
+            return NO_MESSAGE
 
         wake_up_message = " and fully waked him up" if woken_up else ""
         self.move_to(self.get('courtyard'))
         self.guard_location = self.NOT_IN_DUNGEON
         self.searching_for_key = 10
-        return f"The {thrown_object} you threw at the {self}{wake_up_message} was the final straw.\n" \
-               f"He attempts to enter your cell, but realization dawns on his face.\n" \
-               f"\"Damn it, I must have dropped the key at the toilets!\"\n" \
-               f"He hastily exits the prison dungeon to search for the key, leaving you with an opportunity...", SUCCESS
+        self.message(f"The {thrown_object} you threw at the {self}{wake_up_message} was the final straw.\n"
+                     f"He attempts to enter your cell, but realization dawns on his face.\n"
+                     f"\"Damn it, I must have dropped the key at the toilets!\"\n"
+                     f"He hastily exits the prison dungeon to search for the key, leaving you with an opportunity...")
+        return NO_MESSAGE

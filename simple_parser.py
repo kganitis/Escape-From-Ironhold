@@ -1,7 +1,8 @@
 from actions import Action
 from commands import *
-from outcomes import Outcome, INVALID_COMMAND, FAIL, TRANSFORMED
+from outcomes import Outcome, INVALID_COMMAND, NEUTRAL, FAIL, TRANSFORMED
 from result import Result
+from chatbot import process
 
 
 stop_words = ['the', 'a', 'an', 'and',
@@ -47,7 +48,7 @@ def parse(world, input_command, silent=False, advance_time=True):
 
     # Move end - advance time
     actions_not_advancing_time = ['examine']
-    outcomes_not_advancing_time = [INVALID_COMMAND, FAIL, TRANSFORMED]
+    outcomes_not_advancing_time = [INVALID_COMMAND, NEUTRAL, FAIL, TRANSFORMED]
     if verb not in actions_not_advancing_time \
             and outcome.type not in outcomes_not_advancing_time\
             and advance_time:

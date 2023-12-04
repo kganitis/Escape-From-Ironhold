@@ -363,10 +363,6 @@ class TestExit(TestAction):
         self.commands = "take key", "unlock door", "exit the cell from the door"
         self.assertOutcome(COMMAND_TRANSFORMED)
 
-    def test_multiple_exits(self):
-        self.commands = "take lockpick", "open door lockpick", "go dungeon", "exit dungeon"
-        self.assertOutcome(UNSPECIFIED_EXIT, [])
-
     def test_another_room(self):
         self.commands = "exit the dungeon"
         self.assertOutcome(NOT_IN_LOCATION, ['dungeon'])

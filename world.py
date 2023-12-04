@@ -7,12 +7,12 @@ from room_connections import *
 
 
 class World(GameObject):
-    def __init__(self, test=False):
+    def __init__(self, silent=False):
         name = "Ironhold"
         long = "Ironhold fortress"
         super().__init__(name, long)
 
-        self.test = test
+        self.silent = silent
 
         # A dictionary to hold every game object linked to the object tree
         # It maps the object's name to the actual instance of the game object for instant access
@@ -79,7 +79,6 @@ class World(GameObject):
             parent=self,
             lock=cell_door_lock
         )
-        cell_door.connect_rooms(cell, dungeon)
 
         # Cell items
         lockpick = LockPick(
@@ -180,6 +179,9 @@ class World(GameObject):
             lock=dungeon_door_lock
         )
         dungeon_door.connect_rooms(dungeon, courtyard)
+        # connect the cell to the dungeon only after the courtyard is connected to the dungeon,
+        # so that the courtyard is the default exit
+        cell_door.connect_rooms(cell, dungeon)
 
         dungeon_key = Key(
             name='key2',  # TODO change this after parser integration
@@ -191,7 +193,7 @@ class World(GameObject):
         dungeon_key.concealed = True
 
     def parse(self, command, advance_time=True):
-        return parse(self, command, self.test, advance_time)
+        return parse(self, command, self.silent, advance_time)
 
     def get_all_game_object_instances(self):
         return list(self.world.object_map.values())

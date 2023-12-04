@@ -58,7 +58,7 @@ class Action:
         # Hold the primary for future referal
         self.world.last_primary = self.primary_object
 
-        return Outcome(outcome, primary, secondary)
+        return Outcome(outcome, self.command.input_verb, primary, secondary)
 
     def wait(self):
         return self.create_outcome(WAIT)
@@ -112,9 +112,9 @@ class Action:
         if not_usable:
             return self.create_outcome(NOT_USABLE, object_to_use)
 
-        not_held = object_to_use not in self.player.held
-        if not_held:
-            return self.create_outcome(NOT_HELD, object_to_use)
+        not_in_possession = object_to_use not in self.player.owned
+        if not_in_possession:
+            return self.create_outcome(NOT_IN_POSSESSION, object_to_use)
 
         outcome = object_to_use.use(secondary_object)
         return self.create_outcome(outcome, object_to_use, secondary_object)
@@ -278,13 +278,9 @@ class Action:
             room_to_exit = current_room
             self.primary_object = room_to_exit
 
-        multiple_exits = len(room_to_exit.connections) > 1 and not specified_exit
-        if multiple_exits:
-            return self.create_outcome(UNSPECIFIED_EXIT, room_to_exit)
-
         non_existing_exit = specified_exit and specified_exit not in room_to_exit.connections
         if non_existing_exit:
-            return self.create_outcome(NON_EXISTING_OBJECT, specified_exit)
+            return self.create_outcome(OUT_OF_SCOPE, specified_exit)
 
         if not specified_exit:
             specified_exit = room_to_exit.connections[0]

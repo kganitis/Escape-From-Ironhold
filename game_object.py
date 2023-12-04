@@ -127,9 +127,7 @@ class GameObject(ABC):
             attached.discover()
 
     def message(self, message):
-        if not self.world.test:
-            if message.strip()[-1] not in ".!":
-                message = message + '.'
+        if not self.world.silent:
             print(message)
 
     def article(self, word):

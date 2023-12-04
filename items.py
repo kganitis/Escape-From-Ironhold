@@ -82,17 +82,23 @@ class Keys(Obtainable):
             dungeon_key.concealed = False
             dungeon_key.move_to(self.player)
 
-            self.remove()
-            return f"You reach and with a quick move you grab the {self} out the guard's belt, without him noticing.\n" \
-                   f"Looking at them closely, you can distinguish them clearly:\n" \
-                   f"{cell_key.initial[:-1]} and {dungeon_key.initial.lower()} ", SUCCESS
+            self.move_to(self.world)
+            self.message(
+                f"You reach and with a quick move you grab the {self} out the guard's belt, without him noticing.\n"
+                f"Looking at them closely, you can distinguish them clearly:\n"
+                f"{cell_key.initial[:-1]} and {dungeon_key.initial.lower()} "
+            )
+            return NO_MESSAGE
 
         wakes_up = " wakes up and" if guard.asleep else ""
         guard.asleep = False
         self.player.dead = True
-        return f"The {guard}{wakes_up} catches you while reaching your hand to grab the {self}.\n" \
-               f"He draws his sword and in a cruel twist, he severs your hand, " \
-               f"leaving you to bleed slowly to death.", SUCCESS
+        self.message(
+            f"The {guard}{wakes_up} catches you while reaching your hand to grab the {self}.\n"
+            f"He draws his sword and in a cruel twist, he severs your hand, "
+            f"leaving you to bleed slowly to death."
+        )
+        return NO_MESSAGE
 
 
 class Mattress(GameObject):
@@ -121,7 +127,8 @@ class Stone(Obtainable):
     def take(self, owner):
         if self.get('wall') in (owner, self.parent):
             super().take(owner)
-            return "You manage to remove the stone from the wall but you see nothing of interest.", SUCCESS
+            self.message("You manage to remove the stone from the wall but you see nothing of interest.")
+            return NO_MESSAGE
         return super().take(owner)
 
 

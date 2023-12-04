@@ -1,4 +1,5 @@
 from world import World
+from chatbot import process
 
 
 class Game:
