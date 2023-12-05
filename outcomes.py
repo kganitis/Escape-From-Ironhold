@@ -76,6 +76,10 @@ INVALID_OBJECTS = [
     "I didn't get that. Can you try using different words?",
 ], INVALID
 
+AMBIGUOUS_OBJECTS = {
+    "I don't understand which object do you mean."
+}
+
 # Scope outcomes
 OUT_OF_SCOPE = [
     "I don't see any {primary} around to {verb}.",

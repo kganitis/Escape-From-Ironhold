@@ -201,7 +201,7 @@ class World(GameObject):
     def get_game_object_lexicon(self):
         game_object_dict = {}
         for obj in self.get_all_game_object_instances():
-            game_object_dict[obj] = {'long': obj.long, 'score': 0}
+            game_object_dict[obj] = {'long': obj.long.split(), 'score': 0}
         return game_object_dict
 
     def get(self, name):

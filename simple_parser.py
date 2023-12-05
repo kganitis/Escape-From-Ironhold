@@ -2,7 +2,6 @@ from actions import Action
 from commands import *
 from outcomes import Outcome, INVALID_COMMAND, NEUTRAL, FAIL, TRANSFORMED
 from result import Result
-from chatbot import process
 
 
 stop_words = ['the', 'a', 'an', 'and',

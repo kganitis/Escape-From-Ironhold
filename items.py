@@ -144,7 +144,7 @@ class CellLock(Lock):
     def unlock(self, unlocking_tool):
         guard = self.get('guard')
         chance_to_get_caught = 0.8 * (not guard.asleep)
-        successful_unlock = random() > chance_to_get_caught
+        successful_unlock = random.random() > chance_to_get_caught
 
         if guard.guard_location != guard.NEAR_CELL or successful_unlock:
             return super().unlock(unlocking_tool)
@@ -162,7 +162,7 @@ class DungeonLock(Lock):
     def unlock(self, unlocking_tool):
         guard = self.get('guard')
         chance_to_get_caught = 0.8 * (not guard.asleep)
-        successful_unlock = random() > chance_to_get_caught
+        successful_unlock = random.random() > chance_to_get_caught
 
         if guard.guard_location == guard.NOT_IN_DUNGEON or successful_unlock:
             return super().unlock(unlocking_tool)
