@@ -72,7 +72,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
     with open(path + file_name + "_tree.csv", 'w', newline='') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['command', 'outcome', 'type', ''] * max_depth)
-        world = World(test=True)
+        world = World(silent=True)
         world.populate()
         explore(world, [], [], 0)
 

@@ -61,6 +61,7 @@ class Action:
         return Outcome(outcome, self.command.input_verb, primary, secondary)
 
     def wait(self):
+        # TODO make it jump to end of turn
         return self.create_outcome(WAIT)
 
     def examine(self):

@@ -1,8 +1,8 @@
-import random as rand
+import random
 
 
 class Outcome:
-    def __init__(self, outcome, verb, primary_object=None, secondary_object=None):
+    def __init__(self, outcome, verb=None, primary_object=None, secondary_object=None):
         self.outcome = outcome
         self.verb = verb
         self.primary_object = primary_object
@@ -20,7 +20,7 @@ class Outcome:
         if not desc:
             return False
         if not isinstance(desc, str):
-            desc = desc[rand.randint(0, len(desc)-1)]
+            desc = desc[random.randint(0, len(desc)-1)]
         return desc
 
     @property
@@ -58,20 +58,18 @@ COMMAND_TRANSFORMED = False, TRANSFORMED
 
 # Invalid outcomes
 INVALID_COMMAND = [
-    "That doesn't make sense. Try again.",
-    "Huh? I'm not following you.",
+    "That doesn't make sense.",
     "That's not possible.",
     "Can't do that.",
-    "Nope, not an option.",
+    "Nope, that's not an option.",
     "Try something else.",
-    "Invalid command.",
-    "That action doesn't work.",
+    "That doesn't work.",
     "Sorry, that won't work.",
     "Not a valid choice."
 ], INVALID
 
 INVALID_OBJECTS = [
-    "I've only understood you as far as "
+    "I've only understood you as far as wanting to {verb}."
     "Hmm, that's not ringing any bells. Give me more context.",
     "I don't understand what you are referring to.",
     "I'm not familiar with that. Could you clarify?",
@@ -88,8 +86,8 @@ OUT_OF_SCOPE = [
 # Examine
 CANT_EXAMINE_FROM_CURRENT_ROOM = [
     "Are you sure you're in the {primary}?",
-    "This isn't the {primary}. You're in a different area altogether.",
-    "You're in a different room. This isn't the {primary}."
+    "This isn't the {primary}. You're in a different place altogether.",
+    "You're in a different place. This isn't the {primary}."
 ], FAIL
 
 # Take
@@ -102,16 +100,14 @@ NOT_OBTAINABLE = [
 ALREADY_OBTAINED = [
     "You already have the {primary}.",
     "You possess the {primary} already.",
-    "The {primary} is already in your hands.",
-    "You're already holding the {primary}.",
-    "You've already got your hands on the {primary}.",
+    "The {primary} is already in your possession.",
     "The {primary} is already part of your inventory."
 ], FAIL
 
 NOT_OWNED_BY_OBJECT = [
     "The {secondary} doesn't have any {primary}.",
     "You search the {secondary} but find no {primary}.",
-    "No {primary} in the {secondary}.",
+    "No {primary} foung in the {secondary}.",
     "You check the {secondary}, but there's no sign of {primary}."
 ], FAIL
 
@@ -120,7 +116,7 @@ NOT_IN_POSSESSION = [
     "You don't have any {primary} with you.",
     "No {primary} can be found in your possession.",
     "The {primary} is nowhere to be seen in your belongings.",
-    "You're currently lacking the {primary} in your inventory."
+    "You're currently lacking any {primary} in your inventory."
 ], FAIL
 
 # Use
@@ -129,28 +125,26 @@ NOT_USABLE = [
     "The {primary} isn't something you can use.",
     "Trying to use the {primary} leads to nothing.",
     "No luck with the {primary} – it's not usable in this context.",
-    "Using the {primary} isn't an option here."
+    "Using the {primary} isn't possible in this context."
 ], FAIL
 
 CANT_USE_OBJECT_ALONE = [
     "You must use the {primary} with something else.",
     "Using the {primary} alone won't do much.",
-    "Hmm, try combining the {primary} with another item.",
+    "Hmm, try combining the {primary} with another object.",
     "To make progress, consider using the {primary} differently.",
-    "Using the {primary} in isolation won't achieve your goal.",
-    "Explore other options by combining the {primary} with something.",
-    "It seems the {primary} needs a partner for this task.",
-    "Think about how the {primary} can interact with other objects.",
-    "Using the {primary} like that won't yield results. Try something else.",
-    "You might need to pair the {primary} with another object."
+    "Using the {primary} in isolation won't achieve anything.",
+    "Explore other options by using the {primary} along with something.",
+    "Think about how the {primary} can be used with other objects.",
+    "Using the {primary} like that won't yield results. Try including something else in addition.",
+    "You might need to use the {primary} with another object."
 ], FAIL
 
 MUST_USE_OBJECT_ALONE = [
     "You must use the {primary} alone.",
-    "Simplicity is the key. Use {primary} alone.",
+    "Simplicity is the key. Use the {primary} alone.",
     "Just the {primary} will do for this task.",
     "Stick to using the {primary} by itself.",
-    "Sometimes, it's best to use just the {primary}.",
     "Don't overcomplicate it. Try the {primary} alone."
 ], FAIL
 
@@ -168,13 +162,13 @@ CANT_USE_OBJECT_ON_TARGET = [
 NOT_ACCESSIBLE = [
     "The {primary} is not something you can {verb}.",
     "You're unable to interact with the {primary} this way.",
-    "You can't do that with the {primary} at the moment."
+    "You can't do that with the {primary}."
 ], FAIL
 
 ALREADY_IN_ROOM = [
     "No need, you're already in the {primary}.",
     "You're already located in the {primary}.",
-    "You're inside the {primary} already."
+    "You're in the {primary} already."
 ], FAIL
 
 NOT_ACCESSIBLE_FROM_CURRENT_ROOM = [
@@ -184,14 +178,13 @@ NOT_ACCESSIBLE_FROM_CURRENT_ROOM = [
     "No way to get to the {primary} from the {secondary}.",
     "The {secondary} doesn't provide access to the {primary}.",
     "You're unable to reach the {primary} through the {secondary}.",
-    "The {primary} remains out of reach from the {secondary}.",
     "No access to the {primary} is available via the {secondary}."
 ], FAIL
 
 BLOCKED_CONNECTION = [
     "The {primary} is blocked.",
-    "Access to the {primary} is blocked.",
-    "The path to the {primary} is blocked."
+    "The access through the {primary} is blocked.",
+    "The path through the {primary} is blocked."
 ], FAIL
 
 BLOCKED_OBJECT_LOCKED = [

@@ -1,5 +1,5 @@
 # items. module
-from random import random
+# from random import random
 
 from game_object import *
 from outcomes import *
@@ -70,7 +70,7 @@ class Keys(Obtainable):
             return super().take(owner)
 
         chance_to_steal = 0.1 + 0.8 * guard.asleep
-        successful_steal = random() < chance_to_steal
+        successful_steal = random.random() < chance_to_steal
 
         if successful_steal:
             # Separate the pair into two distinct keys, one for each door
