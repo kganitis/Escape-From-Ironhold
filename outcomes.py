@@ -41,7 +41,8 @@ class Outcome:
             primary=self.primary_object,
             secondary=self.secondary_object,
             verb=self.verb,
-            room=self.primary_object.current_room if self.primary_object else None
+            room=self.primary_object.current_room if self.primary_object else None,
+            article=self.primary_object.article().lower()
         )
         return formatted_description
 
@@ -86,9 +87,9 @@ AMBIGUOUS_OBJECTS = [
 
 # Scope outcomes
 OUT_OF_SCOPE = [
-    "I don't see any {primary} around to {verb}.",
-    "There doesn't seem to be a {primary} in sight to {verb}.",
-    "You scan the {room}, but there's no sign of a {primary} to {verb}."
+    "I don't see such {article} {primary} around to {verb}.",
+    "There doesn't seem to be such {article} {primary} in sight to {verb}.",
+    "You scan the {room}, but there's no sign of such {article} {primary} to {verb}."
 ], FAIL
 
 # Examine
@@ -187,12 +188,6 @@ NOT_ACCESSIBLE_FROM_CURRENT_ROOM = [
     "The {secondary} doesn't provide access to the {primary}.",
     "You're unable to reach the {primary} through the {secondary}.",
     "No access to the {primary} is available via the {secondary}."
-], FAIL
-
-BLOCKED_CONNECTION = [
-    "The {primary} is blocked.",
-    "The access through the {primary} is blocked.",
-    "The path through the {primary} is blocked."
 ], FAIL
 
 BLOCKED_OBJECT_LOCKED = [

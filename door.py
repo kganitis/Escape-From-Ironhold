@@ -1,20 +1,20 @@
-from game_object import *
 from outcomes import *
 from attributes import Openable, Lockable
 
 
-class RoomConnection(GameObject, ABC):
-    connected_rooms = []
+class Door(Openable, Lockable):
+    def __init__(self, name, long, parent, lock):
+        super().__init__(name, long, None, None, parent)
+        self.connected_rooms = []
+        self.lock_ = lock
+        self.add_child(lock)
+        self.attach(lock)
 
     @property
     def scope(self, modifier=None):
         scope = super().scope
         scope.update(self.connected_rooms)
         return scope
-
-    @property
-    def is_blocked(self):
-        return BLOCKED_CONNECTION
 
     def connect_rooms(self, *rooms):
         if not self.connected_rooms:
@@ -25,14 +25,6 @@ class RoomConnection(GameObject, ABC):
 
     def get_connected_room_from(self, coming_room):
         return next((room for room in self.connected_rooms if room != coming_room), None)
-
-
-class Door(RoomConnection, Openable, Lockable):
-    def __init__(self, name, long, parent, lock):
-        super().__init__(name, long, None, None, parent)
-        self.lock_ = lock
-        self.add_child(lock)
-        self.attach(lock)
 
     @property
     def key(self):

@@ -1,6 +1,6 @@
 from items import *
 from room import *
-from room_connections import *
+from door import *
 
 
 class Action:
@@ -272,7 +272,7 @@ class Action:
                 return self.create_outcome(NOT_IN_LOCATION, obj)
             if isinstance(obj, Enterable):
                 return self.create_outcome(NOT_IN_OBJECT, obj)
-            if isinstance(obj, RoomConnection):
+            if isinstance(obj, Door):
                 specified_exit = obj
 
         if not room_to_exit:

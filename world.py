@@ -3,7 +3,7 @@ from guard import *
 from items import *
 from player import *
 from room import *
-from room_connections import *
+from door import *
 
 
 class World(GameObject):
@@ -167,13 +167,13 @@ class World(GameObject):
 
         # Dungeon door
         dungeon_door_lock = DungeonLock(
-            name='lock2',  # TODO change this after parser integration
+            name='lock',  # TODO change this after parser integration
             long="silver dungeon lock",
             initial="It has a silver lock.",
             parent=None
         )
         dungeon_door = DungeonDoor(
-            name='door2',
+            name='door',
             long='heavy wooden dungeon door',
             parent=self,
             lock=dungeon_door_lock
@@ -184,7 +184,7 @@ class World(GameObject):
         cell_door.connect_rooms(cell, dungeon)
 
         dungeon_key = Key(
-            name='key2',  # TODO change this after parser integration
+            name='key',
             long='old silver key',
             description='An old silver key. I wonder where it fits... Maybe into a silver lock.',
             parent=guard

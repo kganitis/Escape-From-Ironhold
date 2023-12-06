@@ -1,8 +1,14 @@
-stop_words = ['the', 'a', 'an', 'and']
+stop_words = ['the', 'a', 'an', 'and',
+              'this', 'that', 'these', 'those',
+              'my', 'your', 'his', 'her', 'its', 'our', 'their'
+              'one']
 
-prepositions = ['in', 'at', 'on', 'up', 'to', 'of', 'from', 'with']
+prepositions = ['in', 'at', 'on', 'up', 'to', 'off',
+                'of', 'from', 'with', 'out', 'away',
+                'into', 'onto',
+                'using']
 
-available_verbs = {
+verbs = {
     "go": {
         "synonyms": ["access", "move", "walk", "travel",
                      "proceed", "navigate"]
@@ -12,12 +18,10 @@ available_verbs = {
                      "retreat", "escape", "flee"]
     },
     "examine": {
-        "synonyms": ["search", "look", "investigate", "inspect",
-                     "analyze", "survey"]
+        "synonyms": ["search", "look", "investigate", "inspect", "analyze", "survey"]
     },
     "take": {
-        "synonyms": ["steal", "grab", "acquire", "pick",
-                     "collect", "seize"]
+        "synonyms": ["steal", "grab", "acquire", "collect", "obtain", "fetch", "retrieve"]
     },
     "drop": {
         "synonyms": ["release", "discard", "let", "abandon"]
@@ -32,7 +36,7 @@ available_verbs = {
         "synonyms": ["seal"]
     },
     "unlock": {
-        "synonyms": ["pick"]
+        "synonyms": []
     },
     "open": {
         "synonyms": ["unseal"]
@@ -60,5 +64,7 @@ available_verbs = {
     },
     "help": {
         "synonyms": []
-    }
+    },
+    "get": {"synonyms": []},
+    "pick": {"synonyms": []},
 }

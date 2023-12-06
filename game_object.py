@@ -130,7 +130,9 @@ class GameObject(ABC):
         if not self.world.silent:
             print(message)
 
-    def article(self, word):
+    def article(self, word=None):
+        if not word:
+            word = self.name
         first_word = word.split()[0] if ' ' in word else word
         if first_word and first_word[0].lower() in 'aeiou':
             return 'An'

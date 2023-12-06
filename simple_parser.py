@@ -15,7 +15,7 @@ def parse(world, input_command, silent=False, advance_time=True):
 
     if not words:
         print("You choose to remain silent.")
-        return Result(None, None)
+        return
 
     # Extract the first word as the verb
     verb = words[0]
