@@ -68,8 +68,8 @@ class World(GameObject):
 
         # Cell door
         cell_door_lock = CellLock(
-            name='lock',  # TODO change this after parser integration
-            long="simple iron cell lock",  # TODO check names like this for naming conflicts during parsing
+            name='lock',
+            long="simple iron cell lock",
             initial="It has a simple iron lock.",
             parent=self
         )
@@ -145,7 +145,7 @@ class World(GameObject):
         # keys.fits_into = cell_door_lock
 
         cell_key = Key(
-            name='key',  # TODO change this after parser integration
+            name='key',
             long='old iron key',
             description='An old iron key. I wonder where it fits... Maybe into an iron lock.',
             parent=guard
@@ -167,7 +167,7 @@ class World(GameObject):
 
         # Dungeon door
         dungeon_door_lock = DungeonLock(
-            name='lock',  # TODO change this after parser integration
+            name='lock',
             long="silver dungeon lock",
             initial="It has a silver lock.",
             parent=None
@@ -179,6 +179,7 @@ class World(GameObject):
             lock=dungeon_door_lock
         )
         dungeon_door.connect_rooms(dungeon, courtyard)
+
         # connect the cell to the dungeon only after the courtyard is connected to the dungeon,
         # so that the courtyard is the default exit
         cell_door.connect_rooms(cell, dungeon)

@@ -53,6 +53,8 @@ def parse(world, input_command, silent=False, advance_time=True):
             and advance_time:
         world.on_move_end()
 
+    return result
+
 
 def show_help(command=None):
     verb = command[0] if command and command[0] in get_available_command_verbs() else None

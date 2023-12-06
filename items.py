@@ -78,7 +78,7 @@ class Keys(Obtainable):
             cell_key.concealed = False
             cell_key.move_to(self.player)
 
-            dungeon_key = self.get('key2')
+            dungeon_key = self.get('key')
             dungeon_key.concealed = False
             dungeon_key.move_to(self.player)
 

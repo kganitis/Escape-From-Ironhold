@@ -152,7 +152,7 @@ class GameObject(ABC):
             self.parent.children.remove(self)
         if self.is_attached_to(self.parent):
             self.parent.remove_attached(self)
-        self.parent = None
+        self.parent = self.world
 
     def move_to(self, new_parent):
         self.remove()
