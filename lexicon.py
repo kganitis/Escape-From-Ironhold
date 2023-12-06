@@ -1,18 +1,6 @@
-from world import World
-
 stop_words = ['the', 'a', 'an', 'and']
 
 prepositions = ['in', 'at', 'on', 'up', 'to', 'of', 'from', 'with']
-
-w = World()
-w.populate()
-
-game_objects_list = w.get_all_game_object_instances()
-
-game_objects_dict = {}
-
-for obj in game_objects_list:
-    game_objects_dict[obj] = {"long": obj.long, "score": 0}
 
 available_verbs = {
     "go": {

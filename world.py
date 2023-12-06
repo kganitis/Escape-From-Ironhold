@@ -198,11 +198,11 @@ class World(GameObject):
     def get_all_game_object_instances(self):
         return list(self.world.object_map.values())
 
-    def get_game_object_lexicon(self):
-        game_object_dict = {}
+    def get_game_objects_dict(self):
+        game_objects_dict = {}
         for obj in self.get_all_game_object_instances():
-            game_object_dict[obj] = {'long': obj.long.split(), 'score': 0}
-        return game_object_dict
+            game_objects_dict[obj] = {'long': obj.long.split(), 'score': 0}
+        return game_objects_dict
 
     def get(self, name):
         return self.object_map.get(name, name)

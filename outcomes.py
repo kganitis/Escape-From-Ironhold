@@ -68,6 +68,10 @@ INVALID_COMMAND = [
     "Not a valid choice."
 ], INVALID
 
+INVALID_VERB = [
+    "Sorry, I don't know the verb you used."
+], INVALID
+
 INVALID_OBJECTS = [
     "I've only understood you as far as wanting to {verb}."
     "Hmm, that's not ringing any bells. Give me more context.",
@@ -76,9 +80,9 @@ INVALID_OBJECTS = [
     "I didn't get that. Can you try using different words?",
 ], INVALID
 
-AMBIGUOUS_OBJECTS = {
+AMBIGUOUS_OBJECTS = [
     "I don't understand which object do you mean."
-}
+], INVALID
 
 # Scope outcomes
 OUT_OF_SCOPE = [
