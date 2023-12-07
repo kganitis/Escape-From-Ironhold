@@ -5,66 +5,65 @@ stop_words = ['the', 'a', 'an', 'and',
 
 prepositions = ['in', 'at', 'on', 'up', 'to', 'off',
                 'of', 'from', 'with', 'out', 'away',
-                'into', 'onto',
+                'into', 'onto', 'through', 'by',
                 'using']
 
 verbs = {
-    "go": {
-        "synonyms": ["access", "move", "walk", "travel",
-                     "proceed", "navigate"]
+    'go': {
+        'synonyms': ['access', 'move', 'walk', 'travel', 'proceed', 'navigate', 'pass']
     },
-    "exit": {
-        "synonyms": ["depart", "leave", "withdraw", "evacuate",
-                     "retreat", "escape", "flee"]
+    'exit': {
+        'synonyms': ['depart', 'withdraw', 'evacuate', 'retreat', 'escape', 'flee']
     },
-    "examine": {
-        "synonyms": ["search", "look", "investigate", "inspect", "analyze", "survey"]
+    'take': {
+        'synonyms': ['steal', 'grab', 'acquire', 'collect', 'obtain', 'fetch', 'retrieve']
     },
-    "take": {
-        "synonyms": ["steal", "grab", "acquire", "collect", "obtain", "fetch", "retrieve"]
+    'drop': {
+        'synonyms': ['release', 'discard', 'let', 'abandon']
     },
-    "drop": {
-        "synonyms": ["release", "discard", "let", "abandon"]
+    'enter': {
+        'synonyms': ['hide']
     },
-    "enter": {
-        "synonyms": ["hide"]
+    'use': {
+        'synonyms': ['utilize', 'apply', 'operate']
     },
-    "use": {
-        "synonyms": ["utilize", "apply", "operate"]
+    'examine': {
+        'synonyms': ['search', 'look', 'investigate', 'inspect', 'analyze', 'survey']
     },
-    "lock": {
-        "synonyms": ["seal"]
+    'lock': {
+        'synonyms': ['seal']
     },
-    "unlock": {
-        "synonyms": []
+    'unlock': {
+        'synonyms': []
     },
-    "open": {
-        "synonyms": ["unseal"]
+    'open': {
+        'synonyms': ['unseal']
     },
-    "close": {
-        "synonyms": ["shut"]
+    'close': {
+        'synonyms': ['shut']
     },
-    "wake": {
-        "synonyms": ["awaken"]
+    'wake': {
+        'synonyms': ['awaken']
     },
-    "attack": {
-        "synonyms": ["assault", "strike", "fight", "confront"]
+    'attack': {
+        'synonyms': ['assault', 'strike', 'fight', 'confront']
     },
-    "ask": {
-        "synonyms": ["inquire"]
+    'ask': {
+        'synonyms': ['inquire']
     },
-    "tell": {
-        "synonyms": ["order", "demand"]
+    'tell': {
+        'synonyms': ['order', 'demand']
     },
-    "throw": {
-        "synonyms": ["shoot", "launch"]
+    'throw': {
+        'synonyms': ['shoot', 'launch']
     },
-    "wait": {
-        "synonyms": ["stand"]
+    'wait': {
+        'synonyms': ['stand']
     },
-    "help": {
-        "synonyms": []
+    'help': {
+        'synonyms': []
     },
-    "get": {"synonyms": []},
-    "pick": {"synonyms": []},
+    'get': {'synonyms': []},
+    'pick': {'synonyms': []},
+    'leave': {'synonyms': []},
 }

@@ -21,7 +21,7 @@ class Door(Openable, Lockable):
             self.connected_rooms = []
         self.connected_rooms.extend(rooms)
         for room in rooms:
-            room.add_connection(self)
+            room.add_door(self)
 
     def get_connected_room_from(self, coming_room):
         return next((room for room in self.connected_rooms if room != coming_room), None)

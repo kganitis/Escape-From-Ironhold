@@ -182,7 +182,10 @@ def synonym_of(verb):
     return None
 
 
-stop_words = ['the', 'a', 'an', 'and', 'in', 'into', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'try', 'attempt']
+stop_words = ['the', 'a', 'an', 'and',
+              'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'about',
+              'using', 'through',
+              'try', 'attempt']
 
 
 class Command:

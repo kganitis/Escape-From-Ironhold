@@ -209,29 +209,53 @@ class Action:
 
     def go(self):
         room_to_go = self.primary_object
+        door_to_use = self.secondary_object
         current_room = self.world.current_room
+
+        is_enterable = isinstance(room_to_go, Enterable)
+        if is_enterable:
+            transformed_command = f"enter {room_to_go}"
+            self.world.parse(transformed_command)
+            return self.create_outcome(COMMAND_TRANSFORMED)
 
         not_accessible = not isinstance(room_to_go, Accessible)
         if not_accessible:
-            return self.create_outcome(NOT_ACCESSIBLE, room_to_go)
+            if door_to_use and isinstance(door_to_use, Accessible) and isinstance(room_to_go, Door):
+                room_to_go = self.secondary_object
+                door_to_use = self.primary_object
+                self.primary_object = room_to_go
+                self.secondary_object = door_to_use
+            else:
+                return self.create_outcome(NOT_ACCESSIBLE, room_to_go)
 
-        already_in_room = room_to_go ==  current_room
+        already_in_room = room_to_go == current_room
         if already_in_room:
             return self.create_outcome(ALREADY_IN_ROOM, room_to_go)
 
-        connection_to_current_room = room_to_go.get_connection_to(current_room)
-        if not connection_to_current_room:
+        door_to_current_room = room_to_go.get_door_to(current_room)
+        if not door_to_current_room:
             return self.create_outcome(NOT_ACCESSIBLE_FROM_CURRENT_ROOM, room_to_go, current_room)
 
-        blocked = connection_to_current_room.is_blocked
+        # TODO Test this
+        wrong_door = door_to_use and door_to_use != door_to_current_room
+        if wrong_door:
+            return self.create_outcome(WRONG_DOOR, room_to_go, door_to_use)
+
+        blocked = door_to_current_room.is_blocked
         if blocked:
-            return self.create_outcome(blocked, connection_to_current_room)
+            return self.create_outcome(blocked, door_to_current_room)
 
         outcome = room_to_go.go()
         return self.create_outcome(outcome, room_to_go)
 
     def enter(self):
         object_to_enter = self.primary_object
+
+        is_room = isinstance(object_to_enter, Room)
+        if is_room:
+            transformed_command = f"go {object_to_enter}"
+            self.world.parse(transformed_command)
+            return self.create_outcome(COMMAND_TRANSFORMED)
 
         not_enterable = not isinstance(object_to_enter, Enterable)
         if not_enterable:
@@ -279,15 +303,22 @@ class Action:
             room_to_exit = current_room
             self.primary_object = room_to_exit
 
-        non_existing_exit = specified_exit and specified_exit not in room_to_exit.connections
+        non_existing_exit = specified_exit and specified_exit not in room_to_exit.doors
         if non_existing_exit:
             return self.create_outcome(OUT_OF_SCOPE, specified_exit)
 
         if not specified_exit:
-            specified_exit = room_to_exit.connections[0]
+            specified_exit = room_to_exit.doors[0]
 
         new_room = specified_exit.get_connected_room_from(current_room)
         transformed_command = f"go to {new_room}"
+        self.world.parse(transformed_command)
+        return self.create_outcome(COMMAND_TRANSFORMED)
+
+    def leave(self):
+        object_to_leave = self.primary_object
+        verb = 'exit' if isinstance(object_to_leave, Room) else 'drop'
+        transformed_command = f"{verb} {object_to_leave}"
         self.world.parse(transformed_command)
         return self.create_outcome(COMMAND_TRANSFORMED)
 

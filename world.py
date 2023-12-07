@@ -31,6 +31,7 @@ class World(GameObject):
 
     def populate(self):
         # Initialize room and player
+        # TODO check names to be unique
         cell = Room(
             name="cell",
             long="Ironhold prison cell",

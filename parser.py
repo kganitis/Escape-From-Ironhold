@@ -244,5 +244,6 @@ parser.parse()
 # TODO Finally:
 #  Define special syntax rules for 'ask' and 'tell' ("ask/tell {anything}")
 #  Support personal pronouns ('him', 'her', 'it')
+#  Parse verb until a verb is found
 #  Ambiguity resolution
 #  Generate multiple actions from one command ("unlock the door with lockpick, then open it and exit the cell")

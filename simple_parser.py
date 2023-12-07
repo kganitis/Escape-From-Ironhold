@@ -6,6 +6,7 @@ from result import Result
 
 stop_words = ['the', 'a', 'an', 'and',
               'in', 'on', 'to', 'with', 'for', 'as', 'at', 'from', 'up', 'about',
+              'using', 'through',
               'try', 'attempt']
 
 

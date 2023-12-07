@@ -190,6 +190,15 @@ NOT_ACCESSIBLE_FROM_CURRENT_ROOM = [
     "No access to the {primary} is available via the {secondary}."
 ], FAIL
 
+WRONG_DOOR = [
+    "The {secondary} doesn't take you to the {primary}.",
+    "You find that the {secondary} is not the path to the {primary}.",
+    "The {secondary} takes you elsewhere, not to the {primary}.",
+    "It seems the {secondary} and the {primary} are not connected.",
+    "Unfortunately, the {secondary} doesn't lead to the {primary}.",
+    "You quickly realize that the {secondary} isn't the way to the {primary}.",
+]
+
 BLOCKED_OBJECT_LOCKED = [
     "The {primary} is locked and must be unlocked first.",
     "You can't proceed with the locked {primary}. Unlock it first.",
@@ -422,15 +431,13 @@ WAIT = [
 
 # Successful outcomes
 ACCESS_SUCCESS = [
-    "You {verb} the {primary}.",
     "You find yourself in the {primary}.",
     "You are now in the {primary}."
 ], SUCCESS
 
 ENTER_SUCCESS = [
-    "You enter into the {primary}.",
-    "You're now inside the {primary}.",
-    "You hide into the {primary}"
+    "You {verb} into the {primary}.",
+    "You're now inside the {primary}."
 ], SUCCESS
 
 EXIT_SUCCESS = [
