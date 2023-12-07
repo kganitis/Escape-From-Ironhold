@@ -14,13 +14,17 @@ def is_main_verb(word):
 
 def synonym_of(verb):
     for key, value in verbs.items():
-        if verb in value["synonyms"]:
+        if verb in value["synonyms"] or verb == key:
             return key
     return None
 
 
 def is_preposition(word):
     return word in prepositions
+
+
+def show_help():
+    print(f"Main verbs: {list(verbs.keys())}")
 
 
 class Parser:
@@ -32,7 +36,9 @@ class Parser:
 
         self.game_objects_dictionary = None
         self.wn = 2
+        self.input_verb = None
         self.verb = None
+        self.action_verb = None
         self.words = [word for word in input_command.strip().lower().split() if word not in stop_words]
         self.identified_tokens = []
         self.next_identified_object = None
@@ -61,11 +67,9 @@ class Parser:
             print("You choose to remain silent.")
             return
 
-        # Check if asked for help
-
         # LEXICAL ANALYSIS
         # Parse verb
-        self.verb = self.parse_verb()
+        self.parse_verb()
         if self.verb is None:
             outcome = Outcome(INVALID_VERB)
             print(outcome.formatted_description)
@@ -73,22 +77,33 @@ class Parser:
         self.debug(f"Verb: {self.verb}")
         self.debug()
 
+        # Check if asked for help
+        if self.verb == 'help':
+            show_help()
+            return
+
         # Parse objects
         self.game_objects_dictionary = self.world.get_game_objects_dict()
         while self.wn <= len(self.words) + 1:
             self.debug(f"Iteration of word No{self.wn}")
             self.debug("-------------------------------")
             self.debug(f"wn: {self.wn} <= len(words) + 1: {len(self.words) + 1}")
+
             outcome = self.parse_objects()
+
+            # Check command validity
             if outcome in (INVALID_COMMAND, INVALID_VERB, INVALID_OBJECTS, AMBIGUOUS_OBJECTS):
                 outcome = Outcome(outcome, self.verb)
                 print(outcome.formatted_description)
                 return
+
+            # Check player's scope
             if self.there_is_unique_identified_object():
                 if self.next_identified_object not in self.world.player.scope:
                     outcome = Outcome(OUT_OF_SCOPE, self.verb, self.next_identified_object)
                     print(outcome.formatted_description)
                     return
+
             self.show_game_object_dict()
             self.debug()
 
@@ -137,9 +152,10 @@ class Parser:
 
     def parse_verb(self):
         verb = self.words[0]
-        if not is_main_verb(verb):
-            return synonym_of(verb)
-        return verb
+        synonym = synonym_of(verb)
+        if is_main_verb(verb) or synonym is not None:
+            self.input_verb = verb
+            self.verb = synonym
 
     def there_is_unique_identified_object(self):
         if self.next_identified_object is not None:
@@ -235,15 +251,16 @@ class Parser:
 w = World()
 w.populate()
 print()
-command = "open dungeon door with silver key"
+command = "help"
 print(f"Command: {command}")
 parser = Parser(w, command)
 parser.parse()
 
 
 # TODO Finally:
-#  Define special syntax rules for 'ask' and 'tell' ("ask/tell {anything}")
-#  Support personal pronouns ('him', 'her', 'it')
+#  Define special syntax rules for 'ask' and 'tell' ("ask/tell {anything}") --> how to represent {anything}
+#  Support pronouns ('him', 'her', 'it', 'them')
 #  Parse verb until a verb is found
 #  Ambiguity resolution
 #  Generate multiple actions from one command ("unlock the door with lockpick, then open it and exit the cell")
+#  How to handle "use the key to unlock the door"

@@ -5,8 +5,10 @@ stop_words = ['the', 'a', 'an', 'and',
 
 prepositions = ['in', 'at', 'on', 'up', 'to', 'off',
                 'of', 'from', 'with', 'out', 'away',
-                'into', 'onto', 'through', 'by',
-                'using']
+                'into', 'onto', 'through', 'by', 'around',
+                'closely', 'using']
+
+pronouns = ['him', 'her', 'it', 'them']
 
 verbs = {
     'go': {
@@ -25,10 +27,11 @@ verbs = {
         'synonyms': ['hide']
     },
     'use': {
-        'synonyms': ['utilize', 'apply', 'operate']
+        'synonyms': ['utilize', 'apply', 'operate', 'test']
     },
     'examine': {
-        'synonyms': ['search', 'look', 'investigate', 'inspect', 'analyze', 'survey']
+        'synonyms': ['search', 'look', 'investigate', 'inspect', 'analyze',
+                     'survey', 'check', 'explore', 'observe', 'scan']
     },
     'lock': {
         'synonyms': ['seal']
@@ -46,7 +49,10 @@ verbs = {
         'synonyms': ['awaken']
     },
     'attack': {
-        'synonyms': ['assault', 'strike', 'fight', 'confront']
+        'synonyms': ['assault', 'fight', 'confront']
+    },
+    'throw': {
+        'synonyms': ['shoot', 'launch', 'strike', 'toss']
     },
     'ask': {
         'synonyms': ['inquire']
@@ -54,15 +60,8 @@ verbs = {
     'tell': {
         'synonyms': ['order', 'demand']
     },
-    'throw': {
-        'synonyms': ['shoot', 'launch']
-    },
-    'wait': {
-        'synonyms': ['stand']
-    },
-    'help': {
-        'synonyms': []
-    },
+    'wait': {'synonyms': []},
+    'help': {'synonyms': []},
     'get': {'synonyms': []},
     'pick': {'synonyms': []},
     'leave': {'synonyms': []},

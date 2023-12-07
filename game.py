@@ -1,5 +1,4 @@
 from world import World
-from chatbot import process
 
 
 class Game:
@@ -12,7 +11,7 @@ class Game:
         print("\nWelcome to ESCAPE FROM IRONHOLD\n")
 
         # Print help prompt
-        print("\nType 'help' to see a list of available commands.\n\n")
+        print("\nType 'help' to see a list of the main verbs.\n\n")
 
         # First describe the initial room
         self.world.current_room.discover()
