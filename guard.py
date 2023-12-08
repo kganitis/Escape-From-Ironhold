@@ -17,7 +17,6 @@ class Guard(Animate):
     stunned = False
 
     def check_player_detected(self):
-        return False
         """
         If the player is in the dungeon, he is always considered to be NEAR_CELL.
         There will be a chance of detection if both are in the dungeon, but not in the same spot.
@@ -28,7 +27,7 @@ class Guard(Animate):
         """
         cell = self.get('cell')
         dungeon = self.get('dungeon')
-        cell_door = self.get('door')
+        cell_door = self.get('cell door')
 
         if self.asleep or self.stunned or self.searching_for_key or self.guard_location == self.NOT_IN_DUNGEON:
             return False
@@ -327,7 +326,7 @@ class Guard(Animate):
             return NO_MESSAGE
 
         both_in_cell = self.guard_location == self.NEAR_CELL and self.current_room == self.get('cell')
-        if both_in_cell and not self.get('door').is_open:
+        if both_in_cell and not self.get('cell door').is_open:
             self.message(f"You can't attack the {self} from your cell with the door closed.")
             return NO_MESSAGE
 
@@ -367,8 +366,8 @@ class Guard(Animate):
             self.move_to(self.get('cell'))
             self.guard_location = self.NEAR_CELL
             self.get('cell').go()
-            self.get('door').close()
-            self.get('door').lock(self.get('key'))
+            self.get('cell door').close()
+            self.get('cell door').lock(self.get('iron key'))
             self.message(f"Your attack nearly missed the {self}{waked_him} and now he's furious.\n"
                          f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n"
                          f"He hits you with his fist and you drop on the ground{drags_you_into_cell}\n"

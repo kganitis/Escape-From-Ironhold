@@ -1,7 +1,9 @@
+from actions import Action
 from lexicon import verbs, stop_words, prepositions
-from outcomes import AMBIGUOUS_OBJECTS, INVALID_COMMAND, INVALID_OBJECTS, Outcome, INVALID_VERB, OUT_OF_SCOPE
+from outcomes import AMBIGUOUS_OBJECTS, INVALID_COMMAND, INVALID_OBJECTS, Outcome, INVALID_VERB, OUT_OF_SCOPE, NEUTRAL, \
+    TRANSFORMED, FAIL, INVALID_SYNTAX
 from result import Result
-from world import World
+from syntax import syntax_rules
 
 
 def is_verb(word):
@@ -42,6 +44,7 @@ class Parser:
         self.words = [word for word in input_command.strip().lower().split() if word not in stop_words]
         self.identified_tokens = []
         self.next_identified_object = None
+        self.ambiguous_objects = []
 
         self.debugging = True
 
@@ -92,8 +95,14 @@ class Parser:
             outcome = self.parse_objects()
 
             # Check command validity
-            if outcome in (INVALID_COMMAND, INVALID_VERB, INVALID_OBJECTS, AMBIGUOUS_OBJECTS):
+            if outcome in (INVALID_COMMAND, INVALID_VERB, INVALID_OBJECTS):
                 outcome = Outcome(outcome, self.verb)
+                print(outcome.formatted_description)
+                return
+
+            # Check ambiguity
+            if outcome == AMBIGUOUS_OBJECTS:
+                outcome = Outcome(outcome, self.verb, ambiguous_objects=self.ambiguous_objects)
                 print(outcome.formatted_description)
                 return
 
@@ -107,35 +116,54 @@ class Parser:
             self.show_game_object_dict()
             self.debug()
 
-        self.debug(f"Identified tokens: {[token if is_preposition(token) else token.name for token in self.identified_tokens]}")
+        self.debug(f"Identified tokens: {[token if is_preposition(token) else '<' + token.name + '>' for token in self.identified_tokens]}")
 
-        # TODO SYNTAX ANALYSIS
         # SYNTAX ANALYSIS
-        # for rule in syntax_rules[verb]:
-        #     if match_rule(tokens, rule):
-        #         action = rule[action]
-        # primary_object = tokens[rule[primary_object]]
-        # secondary_object = tokens[rule[secondary_object]]
-        # action(primary_object, secondary_object)
-        # get result
-        # show result
-        # advance time
+        for rule in syntax_rules[self.verb]:
+            if self.match_rule(rule):
+                self.action_verb = rule['action']
+                primary_object = self.identified_tokens[rule['primary']] if rule['primary'] is not None else None
+                secondary_object = self.identified_tokens[rule['secondary']] if rule['secondary'] is not None else None
+                action = Action(self.world, self.input_verb, self.action_verb, primary_object, secondary_object)
+                outcome = action.execute()
+                result = Result(action, outcome)
+                self.debug(f"Action verb: {self.action_verb}")
+                self.debug(f"Primary: {primary_object}")
+                self.debug(f"Secondary: {secondary_object}")
+                break
+        else:
+            outcome = Outcome(INVALID_SYNTAX)
+            print(outcome.formatted_description)
+            return
 
-        # def match_rule(tokens, rule):
-        #     if len(tokens) != len(rule[tokens]):
-        #         return False
-        #
-        # for i in range(len(tokens)):
-        #     if not match_token(tokens[i], rule[tokens][i])
-        #         return False
-        # return True
-        #
-        # def match_token(token, rule_token):
-        #     if isinstance(token, str):
-        #         return (isinstance(rule_token, str) and token == rule_token) or
-        #         (isinstance(rule_token, list) and token in rule_token)
-        #     else:  # if token is a GameObject
-        #     return isinstance(token, rule_token)
+        # Print
+        if not self.silent:
+            result.show()
+
+        # Move end - advance time
+        actions_not_advancing_time = ['examine']
+        outcomes_not_advancing_time = [INVALID_COMMAND, NEUTRAL, FAIL, TRANSFORMED]
+        if self.verb not in actions_not_advancing_time \
+                and outcome.type not in outcomes_not_advancing_time \
+                and self.advance_time:
+            self.world.on_move_end()
+
+        return result
+
+    def match_rule(self, rule):
+        if len(self.identified_tokens) != len(rule['tokens']):
+            return False
+
+        for i in range(len(self.identified_tokens)):
+            if not self.match_token(self.identified_tokens[i], rule['tokens'][i]):
+                return False
+        return True
+
+    def match_token(self, identified_token, rule_token):
+        if isinstance(identified_token, str):
+            return isinstance(rule_token, list) and identified_token in rule_token
+        else:  # if it's game object
+            return isinstance(identified_token, rule_token)
 
     def next_word(self):
         self.debug("next_word() is called")
@@ -165,15 +193,28 @@ class Parser:
             self.debug(f"There is NOT a unique identified object")
             return False
 
-    def there_is_ambiguity(self):
-        for key, value in self.game_objects_dictionary.items():
-            if value['score'] > 0:
-                self.debug(f"The score of '{key.name}' is found to be {value['score']} > 0")
-                all_scores_are_zero = False
-                break
-        else:
-            all_scores_are_zero = True
-        return not (self.there_is_unique_identified_object() or all_scores_are_zero)
+    def check_ambiguity(self):
+        if self.there_is_unique_identified_object():
+            return False
+
+        max_score = max((obj['score'] for obj in self.game_objects_dictionary.values()), default=None)
+        self.debug(f"Max score is: {max_score}")
+        if max_score == 0:
+            return False
+
+        max_score_objects = [key for key, obj in self.game_objects_dictionary.items() if obj['score'] == max_score]
+        self.debug(f"Objects with max score: {[obj.name for obj in max_score_objects]}")
+        in_scope_objects = [obj for obj in max_score_objects if self.game_objects_dictionary[obj]['in scope']]
+        self.debug(f"Objects in scope: {[obj.name for obj in in_scope_objects]}")
+        out_of_scope_objects = [obj for obj in max_score_objects if not self.game_objects_dictionary[obj]['in scope']]
+        self.debug(f"Objects out of scope: {[obj.name for obj in out_of_scope_objects]}")
+
+        if len(in_scope_objects) == 1:
+            self.next_identified_object = in_scope_objects[0]
+            return False
+
+        self.ambiguous_objects = in_scope_objects if in_scope_objects != [] else out_of_scope_objects
+        return True
 
     def reset_scores(self):
         self.game_objects_dictionary = self.world.get_game_objects_dict()
@@ -191,7 +232,7 @@ class Parser:
         # Reached end of input
         if word is None:
             self.debug("Reached end of input")
-            if self.there_is_ambiguity():
+            if self.check_ambiguity():
                 return AMBIGUOUS_OBJECTS
             if self.there_is_unique_identified_object():
                 self.append_token_with_max_score()
@@ -205,10 +246,10 @@ class Parser:
         # A preposition is found
         if is_preposition(word):
             self.debug(f"A preposition is found: '{word}'")
+            if self.check_ambiguity():
+                return AMBIGUOUS_OBJECTS
             if self.there_is_unique_identified_object():
                 self.append_token_with_max_score()
-            elif self.there_is_ambiguity():
-                return AMBIGUOUS_OBJECTS
 
             self.identified_tokens.append(word)
             self.debug(f"'{word}' is appended to identified tokens list")
@@ -246,15 +287,6 @@ class Parser:
             self.debug(f"next_identified_object is set to {max_score_objects[0]}")
 
         return 1
-
-
-w = World()
-w.populate()
-print()
-command = "help"
-print(f"Command: {command}")
-parser = Parser(w, command)
-parser.parse()
 
 
 # TODO Finally:

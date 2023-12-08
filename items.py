@@ -74,11 +74,11 @@ class Keys(Obtainable):
 
         if successful_steal:
             # Separate the pair into two distinct keys, one for each door
-            cell_key = self.get('key')
+            cell_key = self.get('iron key')
             cell_key.concealed = False
             cell_key.move_to(self.player)
 
-            dungeon_key = self.get('key')
+            dungeon_key = self.get('silver key')
             dungeon_key.concealed = False
             dungeon_key.move_to(self.player)
 

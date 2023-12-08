@@ -11,7 +11,7 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [GameObject, 'from', GameObject],
+            'tokens': [GameObject, ['from'], GameObject],
             'action': 'take',
             'primary': 0,
             'secondary': 2
@@ -47,13 +47,13 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': ['out', 'of', GameObject],
+            'tokens': [['out'], ['of'], GameObject],
             'action': 'exit',
             'primary': 2,
             'secondary': None
         },
         {
-            'tokens': ['out', 'of', GameObject, ['from', 'through', 'by', 'using'], GameObject],
+            'tokens': [['out'], ['of'], GameObject, ['from', 'through', 'by', 'using'], GameObject],
             'action': 'exit',
             'primary': 2,
             'secondary': 4
@@ -73,7 +73,7 @@ syntax_rules = {
             'secondary': 2
         },
         {
-            'tokens': [GameObject, ['off', 'out'], ['from', 'off'], GameObject],
+            'tokens': [GameObject, ['off', 'out'], ['from', 'off', 'of'], GameObject],
             'action': 'take',
             'primary': 0,
             'secondary': 3
@@ -93,19 +93,19 @@ syntax_rules = {
             'secondary': 2
         },
         {
-            'tokens': ['up', GameObject],
+            'tokens': [['up'], GameObject],
             'action': 'take',
             'primary': 1,
             'secondary': None
         },
         {
-            'tokens': ['up', GameObject, 'from', GameObject],
+            'tokens': [['up'], GameObject, ['from'], GameObject],
             'action': 'take',
             'primary': 1,
             'secondary': 3
         },
         {
-            'tokens': ['up', GameObject, ['off', 'out'], ['from', 'of'], GameObject],
+            'tokens': [['up'], GameObject, ['off', 'out'], ['from', 'of'], GameObject],
             'action': 'take',
             'primary': 1,
             'secondary': 4
@@ -183,13 +183,13 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': ['out', 'of', GameObject],
+            'tokens': [['out'], ['of'], GameObject],
             'action': 'exit',
             'primary': 2,
             'secondary': None
         },
         {
-            'tokens': ['out', 'of', GameObject, ['from', 'through', 'by', 'using'], GameObject],
+            'tokens': [['out'], ['of'], GameObject, ['from', 'through', 'by', 'using'], GameObject],
             'action': 'exit',
             'primary': 2,
             'secondary': 4
@@ -317,6 +317,12 @@ syntax_rules = {
     ],
     'examine': [
         {
+            'tokens': [],
+            'action': 'examine',
+            'primary': None,
+            'secondary': None
+        },
+        {
             'tokens': [GameObject],
             'action': 'examine',
             'primary': 0,
@@ -399,13 +405,13 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [GameObject, 'up'],
+            'tokens': [GameObject, ['up']],
             'action': 'wake',
             'primary': 0,
             'secondary': None
         },
         {
-            'tokens': ['up', GameObject],
+            'tokens': [['up'], GameObject],
             'action': 'wake',
             'primary': 1,
             'secondary': None
@@ -439,13 +445,13 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [GameObject, 'away'],
+            'tokens': [GameObject, ['away']],
             'action': 'drop',
             'primary': 0,
             'secondary': None
         },
         {
-            'tokens': ['away', GameObject],
+            'tokens': [['away'], GameObject],
             'action': 'drop',
             'primary': 1,
             'secondary': None
@@ -461,7 +467,7 @@ syntax_rules = {
     ],
     'stand': [
         {
-            'tokens': ['by'],  # TODO inlcude {anything}
+            'tokens': [['by']],  # TODO inlcude {anything}
             'action': 'wait',
             'primary': None,
             'secondary': None
@@ -469,7 +475,7 @@ syntax_rules = {
     ],
     'hold': [
         {
-            'tokens': ['on'],  # TODO inlcude {anything}
+            'tokens': [['on']],  # TODO inlcude {anything}
             'action': 'wait',
             'primary': None,
             'secondary': None

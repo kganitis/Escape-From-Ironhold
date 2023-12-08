@@ -2,11 +2,12 @@ import random
 
 
 class Outcome:
-    def __init__(self, outcome, verb=None, primary_object=None, secondary_object=None):
+    def __init__(self, outcome, verb=None, primary_object=None, secondary_object=None, ambiguous_objects=None):
         self.outcome = outcome
         self.verb = verb
         self.primary_object = primary_object
         self.secondary_object = secondary_object
+        self.ambiguous_objects = ambiguous_objects
 
     def __str__(self):
         return f"{self.description}, {self.object_names}, {self.type}"
@@ -42,7 +43,8 @@ class Outcome:
             secondary=self.secondary_object,
             verb=self.verb,
             room=self.primary_object.current_room if self.primary_object else None,
-            article=self.primary_object.article().lower()
+            article=self.primary_object.article().lower() if self.primary_object else '',
+            ambiguous=self.ambiguous_objects
         )
         return formatted_description
 
@@ -82,7 +84,12 @@ INVALID_OBJECTS = [
 ], INVALID
 
 AMBIGUOUS_OBJECTS = [
-    "I don't understand which object do you mean."
+    "I don't understand which object do you mean. {ambiguous}"
+], INVALID
+
+INVALID_SYNTAX = [
+    "You didn't phrase that correctly.",
+    "You're close, but can you phrase it better?"
 ], INVALID
 
 # Scope outcomes

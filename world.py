@@ -1,4 +1,4 @@
-from simple_parser import parse
+from parser import Parser
 from guard import *
 from items import *
 from player import *
@@ -31,10 +31,9 @@ class World(GameObject):
 
     def populate(self):
         # Initialize room and player
-        # TODO check names to be unique
         cell = Room(
             name="cell",
-            long="Ironhold prison cell",
+            long="prison cell",
             initial="As you slowly regain consciousness, you find yourself in a small, dimly lit prison cell with cold stone walls.\n"
                     "Your head throbs with pain, and the memories of your surroundings begin to piece together.\n"
                     "You are John Silver, a soldier wrongly accused and now locked away in the prison of Ironhold fortress.",
@@ -56,7 +55,7 @@ class World(GameObject):
         # Dungeon
         dungeon = Room(
             name="dungeon",
-            long="prison dungeon",
+            long="dungeon",
             initial="Stepping out of your cramped cell, you enter the heart of the prison dungeon.\n"
                     "The corridor, hewn from ancient stone, stretches in both directions.\n"
                     "Distant torches flicker, casting dancing shadows on the cold, damp walls.\n"
@@ -69,14 +68,14 @@ class World(GameObject):
 
         # Cell door
         cell_door_lock = CellLock(
-            name='lock',
-            long="simple iron cell lock",
+            name='cell door lock',
+            long="simple iron lock",
             initial="It has a simple iron lock.",
             parent=self
         )
         cell_door = CellDoor(
-            name='door',
-            long="heavy barred iron cell door",
+            name='cell door',
+            long="heavy barred iron door",
             parent=self,
             lock=cell_door_lock
         )
@@ -92,7 +91,7 @@ class World(GameObject):
 
         cell_wall = Wall(
             name='wall',
-            long="cell wall walls",
+            long="wall walls",
             initial="You can feel some cold air entering the cell. Maybe there's a crack somewhere in the walls.",
             description="The cell walls are made of stone, some are large and heavy, others are very small and barely into place.",
             parent=cell,
@@ -146,7 +145,7 @@ class World(GameObject):
         # keys.fits_into = cell_door_lock
 
         cell_key = Key(
-            name='key',
+            name='iron key',
             long='old iron key',
             description='An old iron key. I wonder where it fits... Maybe into an iron lock.',
             parent=guard
@@ -168,14 +167,14 @@ class World(GameObject):
 
         # Dungeon door
         dungeon_door_lock = DungeonLock(
-            name='lock',
-            long="silver dungeon lock",
+            name='dungeon door lock',
+            long="silver lock",
             initial="It has a silver lock.",
             parent=None
         )
         dungeon_door = DungeonDoor(
-            name='door',
-            long='heavy wooden dungeon door',
+            name='dungeon door',
+            long='heavy wooden door',
             parent=self,
             lock=dungeon_door_lock
         )
@@ -186,7 +185,7 @@ class World(GameObject):
         cell_door.connect_rooms(cell, dungeon)
 
         dungeon_key = Key(
-            name='key',
+            name='silver key',
             long='old silver key',
             description='An old silver key. I wonder where it fits... Maybe into a silver lock.',
             parent=guard
@@ -194,8 +193,9 @@ class World(GameObject):
         dungeon_key.fits_into = dungeon_door_lock
         dungeon_key.concealed = True
 
-    def parse(self, command, advance_time=True):
-        return parse(self, command, self.silent, advance_time)
+    def parse(self, input_command, advance_time=True):
+        parser = Parser(self, input_command, self.silent, advance_time)
+        return parser.parse()
 
     def get_all_game_object_instances(self):
         return list(self.world.object_map.values())
@@ -203,7 +203,7 @@ class World(GameObject):
     def get_game_objects_dict(self):
         game_objects_dict = {}
         for obj in self.get_all_game_object_instances():
-            game_objects_dict[obj] = {'long': obj.long.split(), 'score': 0}
+            game_objects_dict[obj] = {'long': obj.long.split(), 'score': 0, 'in scope': obj in self.player.scope}
         return game_objects_dict
 
     def get(self, name):

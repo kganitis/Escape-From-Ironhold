@@ -4,14 +4,15 @@ from door import *
 
 
 class Action:
-    def __init__(self, world, command, primary_object=None, secondary_object=None):
+    def __init__(self, world, input_verb, action_verb, primary_object=None, secondary_object=None):
         self.world = world
-        self.command = command
+        self.input_verb = input_verb
+        self.action_verb = action_verb
         self.primary_object = primary_object
         self.secondary_object = secondary_object
 
         # Dynamically get the action execution function matching the command verb
-        self.execution_function = getattr(self, command.verb, None)
+        self.execution_function = getattr(self, self.action_verb, None)
 
     @property
     def player(self):
@@ -22,25 +23,17 @@ class Action:
         return [obj for obj in [self.primary_object, self.secondary_object] if obj is not None]
 
     def execute(self):
-        if self.command.verb not in ('ask', 'tell'):
+        if self.action_verb not in ('ask', 'tell'):
             # Retrieve the last primary if a personal pronoun is used
             if self.primary_object in ('him', 'her', 'it', 'them'):
                 self.primary_object = self.world.last_primary
-
-            invalid_objects = [obj for obj in self.objects if not isinstance(obj, GameObject)]
-            if invalid_objects:
-                return self.create_outcome(INVALID_OBJECTS, *invalid_objects)
-
-            out_of_scope = [obj for obj in self.objects if obj not in self.player.scope]
-            if out_of_scope:
-                return self.create_outcome(OUT_OF_SCOPE, *out_of_scope)
 
         # Execution
         if self.execution_function and callable(self.execution_function):
             outcome = self.execution_function()
             return outcome
         else:
-            raise ValueError(f"Action not found for verb: {self.command.verb}")
+            raise ValueError(f"Action not found for verb: {self.action_verb}")
 
     def create_outcome(self, outcome, *objects):
         # Convert objects to a tuple of 2, replace any missing objects with None
@@ -58,7 +51,7 @@ class Action:
         # Hold the primary for future referal
         self.world.last_primary = self.primary_object
 
-        return Outcome(outcome, self.command.input_verb, primary, secondary)
+        return Outcome(outcome, self.input_verb, primary, secondary)
 
     def wait(self):
         # TODO make it jump to end of turn
