@@ -10,13 +10,13 @@ def test_sample_commands():
         "take lockpick",
         "take keys",
         "take stone",
-        'take tag'
-        "drop key",
-        "drop key2"
-        "use lockpick door",
-        "use lockpick door2"
-        "open door key",
-        "open door2 key2"
+        'take tag',
+        "drop iron key",
+        "drop silver key",
+        "use lockpick on door",
+        "use lockpick on wooden door",
+        "open door with iron key",
+        "open wooden door with silver key",
         "close door",
         "go dungeon",
         "go courtyard",
@@ -28,9 +28,9 @@ def test_sample_commands():
         "attack guard",
         "throw stone at guard",
         "throw lockpick at guard",
-        "throw tag at guard"
-        "ask guard",
-        "tell guard",
+        "throw tag at guard",
+        # "ask guard",
+        # "tell guard",
         "wake up guard"
     ]
 
@@ -40,14 +40,14 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
         # Write all the fields of all result instances in the same row of the csv file
         all_result_fields = []
         for r in results:
-            all_result_fields.extend([r.action.command.__str__(), r.outcome.description, r.outcome.type, '.                                           .'])
+            all_result_fields.extend(['', r.outcome.description, r.outcome.type, '.                                           .'])
         writer.writerow(all_result_fields)
 
     def explore(world, all_results, current_results, depth, prev_result=None):
         # end recursion
         if prev_result and (prev_result.is_fail_or_invalid() or not possible_commands or depth >= max_depth):
             all_results.append(current_results)
-            save_results_to_csv(current_results)
+            # save_results_to_csv(current_results)
             return
 
         for cmd in possible_commands:
@@ -59,7 +59,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
             if filter_failed and rlt.outcome.type == FAIL:
                 continue
             current_results.append(rlt)
-            result_set.add((rlt.action.command.__str__(), rlt.outcome.description, rlt.outcome.type))
+            result_set.add(('', rlt.outcome.description, rlt.outcome.type))
             outcome_set.add((rlt.outcome.description, rlt.outcome.type))
             explore(world_copy, all_results, current_results, depth + 1, rlt)
             current_results.pop()
@@ -94,7 +94,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
 
 def main():
-    max_depth = 6
+    max_depth = 5
     possible_commands = test_sample_commands()
     generate_results(possible_commands, max_depth, "all_results")
     # generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)

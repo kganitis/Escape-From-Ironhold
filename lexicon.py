@@ -1,7 +1,7 @@
 stop_words = ['the', 'a', 'an', 'and',
               'this', 'that', 'these', 'those',
               'my', 'your', 'his', 'her', 'its', 'our', 'their'
-              'one']
+              'one', 'again']
 
 prepositions = ['in', 'at', 'on', 'up', 'to', 'off',
                 'of', 'from', 'with', 'out', 'away',

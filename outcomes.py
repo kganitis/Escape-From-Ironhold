@@ -76,7 +76,7 @@ INVALID_VERB = [
 ], INVALID
 
 INVALID_OBJECTS = [
-    "I've only understood you as far as wanting to {verb}."
+    "I've only understood you as far as wanting to {verb}.",
     "Hmm, that's not ringing any bells. Give me more context.",
     "I don't understand what you are referring to.",
     "I'm not familiar with that. Could you clarify?",

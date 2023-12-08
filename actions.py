@@ -23,12 +23,6 @@ class Action:
         return [obj for obj in [self.primary_object, self.secondary_object] if obj is not None]
 
     def execute(self):
-        if self.action_verb not in ('ask', 'tell'):
-            # Retrieve the last primary if a personal pronoun is used
-            if self.primary_object in ('him', 'her', 'it', 'them'):
-                self.primary_object = self.world.last_primary
-
-        # Execution
         if self.execution_function and callable(self.execution_function):
             outcome = self.execution_function()
             return outcome
@@ -274,6 +268,10 @@ class Action:
         attempt_to_exit_room_while_in_enterable = self.world.current_room in self.objects
         if attempt_to_exit_room_while_in_enterable:
             return self.create_outcome(MUST_EXIT_ENTERABLE_FIRST, self.player.parent)
+
+        is_room = isinstance(object_to_exit, Room)
+        if is_room:
+            return self.create_outcome(NOT_IN_LOCATION, object_to_exit)
 
         outcome = object_to_exit.exit()
         return self.create_outcome(outcome, object_to_exit)

@@ -2,6 +2,8 @@ from game_object import GameObject
 from lexicon import prepositions as preposition
 
 
+held = []
+
 syntax_rules = {
     'get': [
         {
@@ -57,7 +59,13 @@ syntax_rules = {
             'action': 'exit',
             'primary': 2,
             'secondary': 4
-        }
+        },
+        {
+            'tokens': [['rid'], ['of'], held],
+            'action': 'drop',
+            'primary': 2,
+            'secondary': None
+        },
     ],
     'take': [
         {
@@ -99,6 +107,12 @@ syntax_rules = {
             'secondary': None
         },
         {
+            'tokens': [GameObject, ['up']],
+            'action': 'take',
+            'primary': 0,
+            'secondary': None
+        },
+        {
             'tokens': [['up'], GameObject, ['from'], GameObject],
             'action': 'take',
             'primary': 1,
@@ -113,19 +127,13 @@ syntax_rules = {
     ],
     'drop': [
         {
-            'tokens': [GameObject],
+            'tokens': [held],
             'action': 'drop',
             'primary': 0,
             'secondary': None
         },
         {
-            'tokens': [GameObject, GameObject],
-            'action': 'drop',
-            'primary': 0,
-            'secondary': None
-        },
-        {
-            'tokens': [GameObject, preposition, GameObject],
+            'tokens': [held, preposition, GameObject],
             'action': 'drop',
             'primary': 0,
             'secondary': None
@@ -133,13 +141,13 @@ syntax_rules = {
     ],
     'use': [
         {
-            'tokens': [GameObject],
+            'tokens': [held],
             'action': 'use',
             'primary': 0,
             'secondary': None
         },
         {
-            'tokens': [GameObject, preposition, GameObject],
+            'tokens': [held, preposition, GameObject],
             'action': 'use',
             'primary': 0,
             'secondary': 2
@@ -291,7 +299,7 @@ syntax_rules = {
             'secondary': 2
         },
         {
-            'tokens': [GameObject, ['in', 'at', 'on', 'to', 'into', 'onto'], GameObject],
+            'tokens': [held, ['in', 'at', 'on', 'to', 'into', 'onto'], GameObject],
             'action': 'drop',
             'primary': 0,
             'secondary': None
@@ -349,7 +357,7 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [GameObject, ['with', 'using'], GameObject],
+            'tokens': [GameObject, ['with', 'using'], held],
             'action': 'lock',
             'primary': 0,
             'secondary': 2
@@ -363,7 +371,7 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [GameObject, ['with', 'using'], GameObject],
+            'tokens': [GameObject, ['with', 'using'], held],
             'action': 'unlock',
             'primary': 0,
             'secondary': 2
@@ -377,7 +385,7 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [GameObject, ['with', 'using'], GameObject],
+            'tokens': [GameObject, ['with', 'using'], held],
             'action': 'open',
             'primary': 0,
             'secondary': 2
@@ -433,25 +441,25 @@ syntax_rules = {
     ],
     'throw': [
         {
-            'tokens': [GameObject],
+            'tokens': [held],
             'action': 'drop',
             'primary': 0,
             'secondary': None
         },
         {
-            'tokens': [GameObject, ['on', 'to', 'at'], GameObject],
+            'tokens': [held, ['on', 'to', 'at'], GameObject],
             'action': 'throw',
             'primary': 0,
             'secondary': None
         },
         {
-            'tokens': [GameObject, ['away']],
+            'tokens': [held, ['away']],
             'action': 'drop',
             'primary': 0,
             'secondary': None
         },
         {
-            'tokens': [['away'], GameObject],
+            'tokens': [['away'], held],
             'action': 'drop',
             'primary': 1,
             'secondary': None
@@ -459,23 +467,7 @@ syntax_rules = {
     ],
     'wait': [
         {
-            'tokens': [],  # TODO inlcude {anything}
-            'action': 'wait',
-            'primary': None,
-            'secondary': None
-        }
-    ],
-    'stand': [
-        {
-            'tokens': [['by']],  # TODO inlcude {anything}
-            'action': 'wait',
-            'primary': None,
-            'secondary': None
-        }
-    ],
-    'hold': [
-        {
-            'tokens': [['on']],  # TODO inlcude {anything}
+            'tokens': [],
             'action': 'wait',
             'primary': None,
             'secondary': None
@@ -483,7 +475,13 @@ syntax_rules = {
     ],
     'ask': [
         {
-            'tokens': [GameObject],  # TODO inlcude {anything}
+            'tokens': [],
+            'action': 'ask',
+            'primary': 0,
+            'secondary': None
+        },
+        {
+            'tokens': [GameObject],
             'action': 'ask',
             'primary': 0,
             'secondary': None
@@ -491,7 +489,13 @@ syntax_rules = {
     ],
     'tell': [
         {
-            'tokens': [GameObject],  # TODO inlcude {anything}
+            'tokens': [],
+            'action': 'tell',
+            'primary': 0,
+            'secondary': None
+        },
+        {
+            'tokens': [GameObject],
             'action': 'tell',
             'primary': 0,
             'secondary': None
