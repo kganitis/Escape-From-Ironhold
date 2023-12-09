@@ -19,6 +19,7 @@ def test_sample_commands():
         "try to use lockpick on wooden door",
         "open iron door with iron key",
         "open wooden door with silver key",
+        "use the lockpick to open the door",
         "close iron door",
         "access the dungeon",
         "proceed to the courtyard",

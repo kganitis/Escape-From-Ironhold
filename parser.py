@@ -51,7 +51,7 @@ class Parser:
         self.identified_tokens = []
         self.ambiguous_objects = []
 
-        self.debugging = False
+        self.debugging = True
 
     def clear_input(self):
         # Remove apostrophes and handle possessive forms
@@ -317,11 +317,6 @@ class Parser:
         if reached_end_of_input:
             self.debug("Reached end of input")
             self.append_tokens_with_max_score()
-            return 1
-
-        # A word, other than the first, is a verb
-        if is_verb(word):
-            # it's ok to meet a verb, just return to skip over it
             return 1
 
         # A preposition is found
