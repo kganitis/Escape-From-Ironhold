@@ -28,7 +28,12 @@ class Game:
             # End game check
             dead = self.world.player.dead
             if dead == 1:
-                print("\n. . . GAME OVER . . .")
+                print("\nAnd so, as the final breath dissolves into the cosmic breath,\n"
+                      "the essence of a singular journey merges with the universe,\n"
+                      "leaving an indelible mark on the ever-expanding canvas of existence.\n"
+                      "In the face of mortality's inevitability, may we find solace in the enigma\n"
+                      "of our fleeting presence and the eternal dance that continues beyond the veil.\n")
+                print(". . . GAME OVER . . .")
                 break
             elif dead == 2:
                 print("\n! ! ! YOU WIN ! ! !")

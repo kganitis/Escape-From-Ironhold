@@ -1,10 +1,10 @@
 import string
 
 from actions import Action
-from lexicon import verbs, stop_words, prepositions, pronouns
+from lexicon import *
 from outcomes import *
 from result import Result
-from syntax import syntax_rules, held, game_object
+from syntax import *
 
 
 # TODO Generate multiple actions from one command ("unlock the door with lockpick, then open it and exit the cell")
@@ -18,9 +18,9 @@ def is_main_verb(word):
     return word in verbs.keys()
 
 
-def synonym_of(verb):
+def synonym_of(input_verb):
     for key, value in verbs.items():
-        if verb in value["synonyms"] or verb == key:
+        if input_verb in value["synonyms"] or input_verb == key:
             return key
     return None
 
@@ -35,6 +35,15 @@ def show_help():
 
 class Parser:
     def __init__(self, world, input_command, silent=False, advance_time=True):
+        def clear(input_cmd):
+            # Remove apostrophes and handle possessive forms
+            cleaned_input = input_cmd.replace("'", ' ').replace("’", ' ')
+            # Remove punctuation and lowercase words
+            translator = str.maketrans(string.punctuation, ' ' * len(string.punctuation))
+            cleaned_words = [word.translate(translator) for word in cleaned_input.strip().lower().split()]
+            # Filter out stop words
+            return [word.strip() for word in cleaned_words if word not in stop_words and len(word) > 1]
+
         self.world = world
         self.input_command = input_command
         self.silent = silent
@@ -46,23 +55,12 @@ class Parser:
         self.verb = None
         self.action_verb = None
 
-        self.clear_input()
+        self.words = clear(input_command)
 
         self.identified_tokens = []
         self.ambiguous_objects = []
 
-        self.debugging = True
-
-    def clear_input(self):
-        # Remove apostrophes and handle possessive forms
-        cleaned_input = self.input_command.replace("'", ' ').replace("’", ' ')
-
-        # Remove punctuation and lowercase words
-        translator = str.maketrans(string.punctuation, ' ' * len(string.punctuation))
-        cleaned_words = [word.translate(translator) for word in cleaned_input.strip().lower().split()]
-
-        # Filter out stop words
-        self.words = [word for word in cleaned_words if word not in stop_words and len(word) > 1]
+        self.debugging = False
 
     # Debugging methods
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -86,12 +84,12 @@ class Parser:
         if not self.silent:
             result.show()
 
-        # Move end - advance time
+        # End of move - advance time
         actions_not_advancing_time = ['examine', 'help']
-        outcomes_not_advancing_time = [INVALID, NEUTRAL, FAIL, AMBIGUOUS, TRANSFORMED]
+        outcomes_advancing_time = [SUCCESS]
         if self.advance_time \
                 and self.verb not in actions_not_advancing_time \
-                and result.outcome.type not in outcomes_not_advancing_time:
+                and result.outcome.type in outcomes_advancing_time:
             self.world.on_move_end()
 
         return result
@@ -103,8 +101,6 @@ class Parser:
             print("You choose to remain silent.")
             return
 
-        print(self.words)
-
         # LEXICAL ANALYSIS
         # Parse verb
         for _ in self.words:
@@ -112,11 +108,11 @@ class Parser:
             if self.verb:
                 break
         else:
-            # it's ok to skip the verb if we're in resolve ambiguity mode, just reset wn to 1
+            # it's ok to skip the verb if we're in resolve ambiguity mode, just reset wn to 1 first
             if self.ambiguous_objects:
                 self.wn = 1
             else:
-                outcome = Outcome(INVALID_VERB)
+                outcome = Outcome(INVALID_COMMAND)
                 return Result(None, outcome)
         self.debug(f"Verb: {self.verb}")
         self.debug()
@@ -137,13 +133,14 @@ class Parser:
             outcome = self.parse_objects()
 
             # Check command validity
-            if outcome in (INVALID_COMMAND, INVALID_VERB, INVALID_OBJECTS):
+            if outcome == INVALID_COMMAND:
                 outcome = Outcome(outcome, self.verb)
                 return Result(None, outcome)
 
             self.show_game_object_dict()
             self.debug()
 
+        self.debug(f"Verb: {self.verb}")
         self.debug(f"Identified tokens: {self.identified_tokens}")
 
         # SYNTAX ANALYSIS
@@ -191,9 +188,9 @@ class Parser:
     def match_token(self, wn, identified_tokens, rule_tokens):
         self.debug(f"Comparing {identified_tokens} with {rule_tokens}")
         PERFECT_MATCH = "PERFECT"
-        if isinstance(identified_tokens, str):
+        if not isinstance(identified_tokens, list):
             identified_tokens = [identified_tokens]
-            self.debug(f"identified_tokens is just a single string and I'm converting it to a list: {identified_tokens}")
+            self.debug(f"identified_tokens is just a single string/object and I'm converting it to a list: {identified_tokens}")
 
         if not isinstance(identified_tokens[0], type(rule_tokens[0])):
             self.debug("identified_tokens and rule_tokens contain different types of elements:")
@@ -319,12 +316,17 @@ class Parser:
             self.append_tokens_with_max_score()
             return 1
 
+        # Stop parsing
+        end_words = ['and', 'then']
+        if word in end_words:
+            self.wn = len(self.words) + 1
+
         # A preposition is found
         if is_preposition(word):
             self.debug(f"A preposition is found: '{word}'")
             self.append_tokens_with_max_score()
 
-            # if we're in resolve ambiguity mode, don't proceed to append the pronoun, just stop here
+            # if we're in resolve ambiguity mode, don't proceed to append the pronoun, we don't need it, just stop here
             if self.ambiguous_objects:
                 return 1
 
@@ -337,19 +339,12 @@ class Parser:
             self.debug(f"'{[self.world.last_primary]}' is appended to identified tokens list")
             return 1
 
-        invalid_objects = True
+        # Assign score to objects
         for key, value in self.game_objects_dictionary.items():
             if word in value['long']:
                 self.debug(f"'{word}' is in {key}'s long name ('{key.long}')")
-                value['score'] += 1
+                value['score'] += 1 + 1/len(value['long']) + (word in key.name) * 100 + (key in self.world.player.scope) * 1000
                 self.debug(f"{key}'s score is increased to {value['score']}")
-                invalid_objects = False
-        if invalid_objects:
-            # verbs_ignoring_object_validity = ['wait', 'ask', 'tell']
-            # if self.verb in verbs_ignoring_object_validity:
-            return 1
-            # self.debug(f"No object has '{word}' in its long name")
-            # return INVALID_OBJECTS
 
         return 1
 
@@ -363,3 +358,4 @@ class Parser:
         parser.parse()
         if len(parser.identified_tokens) == 1:
             return parser.identified_tokens[0]
+        return False

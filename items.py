@@ -24,7 +24,6 @@ class LockingTool(Usable, ABC):
 
 
 class LockPick(LockingTool, Obtainable):
-    # TODO chance to break
     can_lock: bool = False
     under_mattress: bool = True
 
@@ -105,9 +104,10 @@ class Mattress(GameObject):
     def examine(self):
         super().examine()
         lockpick = self.get('lockpick')
-        if lockpick.concealed and lockpick.parent == self.get('cell'):
+        if lockpick.concealed and lockpick.parent == self:
             lockpick.concealed = False
             lockpick.discover()
+            self.transparent = True
         return NO_MESSAGE
 
 

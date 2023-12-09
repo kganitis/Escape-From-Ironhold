@@ -15,12 +15,12 @@ def test_sample_commands():
         'take tag off of the cell',
         "drop iron key",
         "get rid of silver key",
-        "use lockpick on iron door",
+        "use lockpick on cell door",
         "try to use lockpick on wooden door",
-        "open iron door with iron key",
+        "open cell door with iron key",
         "open wooden door with silver key",
-        "use the lockpick to open the door",
-        "close iron door",
+        "use the lockpick to open the cell door",
+        "close cell door",
         "access the dungeon",
         "proceed to the courtyard",
         "go back to the cell",
@@ -54,7 +54,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
         for cmd in possible_commands:
             world_copy = copy.deepcopy(world)
-            print(cmd)
+            # print(cmd)
             rlt = world_copy.parse(cmd)
             if filter_invalid and rlt.outcome.type == INVALID:
                 continue
@@ -96,7 +96,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
 
 def main():
-    max_depth = 4
+    max_depth = 5
     possible_commands = test_sample_commands()
     generate_results(possible_commands, max_depth, "all_results")
     # generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)

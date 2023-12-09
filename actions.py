@@ -127,20 +127,26 @@ class Action:
 
         locking_tool_is_specified = locking_tool is not None
         if not locking_tool_is_specified:
-            # Look for a locking tool in player's inventory
+            # Look for a fitting key in player's inventory
             for item in self.player.inventory:
-                # First, check for a fitting key
                 if lockable_object.key is not None and item == lockable_object.key:
                     locking_tool = item
                     break
-                # Then, check for a lockpick
-                elif lockable_object.can_be_picked and isinstance(item, LockPick):
-                    locking_tool = item
-                    break
-                # Finally, check for any key
-                elif lockable_object.key and isinstance(item, Key):
-                    locking_tool = item
-                    break
+
+            # If no fitting key is found, look for a lockpick
+            if locking_tool is None and lockable_object.can_be_picked:
+                for item in self.player.inventory:
+                    if isinstance(item, LockPick):
+                        locking_tool = item
+                        break
+
+            # If still no locking tool is found, look for any key
+            if locking_tool is None and lockable_object.key:
+                for item in self.player.inventory:
+                    if isinstance(item, Key):
+                        locking_tool = item
+                        break
+
             if not locking_tool:
                 return self.create_outcome(MISSING_LOCKING_TOOL if operation == 'lock' else MISSING_UNLOCKING_TOOL)
 

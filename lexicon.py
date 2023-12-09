@@ -1,4 +1,4 @@
-stop_words = ['the', 'a', 'an', 'and',
+stop_words = ['the', 'a', 'an',
               'this', 'that', 'these', 'those',
               'my', 'your', 'his', 'her', 'its', 'our', 'their'
               'one', 'again', 'back', 'carefully', 'caution']
@@ -6,7 +6,7 @@ stop_words = ['the', 'a', 'an', 'and',
 prepositions = ['in', 'at', 'on', 'up', 'to', 'off',
                 'of', 'from', 'with', 'out', 'away',
                 'into', 'onto', 'through', 'by', 'around',
-                'closely', 'using']
+                'closely', 'using', 'outside', 'beside', 'near']
 
 pronouns = ['him', 'her', 'it', 'them']
 
@@ -18,20 +18,20 @@ verbs = {
         'synonyms': ['depart', 'withdraw', 'evacuate', 'retreat', 'escape', 'flee']
     },
     'take': {
-        'synonyms': ['steal', 'grab', 'acquire', 'collect', 'obtain', 'fetch', 'retrieve', 'remove', 'reach']
+        'synonyms': ['steal', 'grab', 'acquire', 'collect', 'obtain', 'fetch', 'retrieve', 'remove', 'reach', 'pull']
     },
     'drop': {
         'synonyms': ['release', 'discard', 'let', 'abandon']
     },
     'enter': {
-        'synonyms': ['hide']
+        'synonyms': ['hide', 'climb']
     },
     'use': {
         'synonyms': ['utilize', 'apply', 'operate', 'test']
     },
     'examine': {
         'synonyms': ['search', 'look', 'investigate', 'inspect', 'analyze',
-                     'survey', 'check', 'explore', 'observe', 'scan']
+                     'survey', 'check', 'explore', 'observe', 'scan', 'peek']
     },
     'lock': {
         'synonyms': ['seal']
@@ -65,4 +65,5 @@ verbs = {
     'get': {'synonyms': []},
     'pick': {'synonyms': []},
     'leave': {'synonyms': []},
+    'step': {'synonyms': []},
 }

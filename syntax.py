@@ -107,6 +107,12 @@ syntax_rules = {
             'secondary': 2
         },
         {
+            'tokens': [game_object, preposition, game_object, ['with', 'using'], game_object],
+            'action': 'unlock',
+            'primary': 0,
+            'secondary': 4
+        },
+        {
             'tokens': [['up'], game_object],
             'action': 'take',
             'primary': 1,
@@ -342,6 +348,26 @@ syntax_rules = {
             'secondary': None
         }
     ],
+    'step': [
+        {
+            'tokens': [['in', 'into', 'to', 'at'], game_object],
+            'action': 'go',
+            'primary': 1,
+            'secondary': None
+        },
+        {
+            'tokens': [['out', 'outside'], game_object],
+            'action': 'exit',
+            'primary': 1,
+            'secondary': None
+        },
+        {
+            'tokens': [['out', 'outside'], ['of', 'from'], game_object],
+            'action': 'exit',
+            'primary': 1,
+            'secondary': None
+        },
+    ],
     'examine': [
         {
             'tokens': [],
@@ -356,7 +382,25 @@ syntax_rules = {
             'secondary': None
         },
         {
+            'tokens': [game_object, preposition],
+            'action': 'examine',
+            'primary': 0,
+            'secondary': None
+        },
+        {
+            'tokens': [game_object, preposition, game_object],
+            'action': 'examine',
+            'primary': 0,
+            'secondary': None
+        },
+        {
             'tokens': [preposition, game_object],
+            'action': 'examine',
+            'primary': 1,
+            'secondary': None
+        },
+        {
+            'tokens': [preposition, game_object, preposition],
             'action': 'examine',
             'primary': 1,
             'secondary': None

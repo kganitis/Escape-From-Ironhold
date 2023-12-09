@@ -82,24 +82,14 @@ INVALID_COMMAND = [
     "Try something else.",
     "That doesn't work.",
     "Sorry, that won't work.",
-    "Not a valid choice."
-], INVALID
-
-INVALID_VERB = [
-    "Sorry, I don't know the verb you used."
-], INVALID
-
-INVALID_OBJECTS = [
-    "I've only understood you as far as wanting to {verb}.",
-    "Hmm, that's not ringing any bells. Give me more context.",
-    "I don't understand what you are referring to.",
-    "I'm not familiar with that. Could you clarify?",
-    "I didn't get that. Can you try using different words?",
+    "Not a valid choice.",
+    "Nothing happens.",
+    "It won't have any effect."
 ], INVALID
 
 INVALID_SYNTAX = [
     "You didn't phrase that correctly.",
-    "You're close, but can you phrase it better?"
+    "You must phrase that better."
 ], INVALID
 
 AMBIGUOUS_OBJECTS = [
@@ -118,9 +108,11 @@ OUT_OF_SCOPE = [
 
 # Examine
 CANT_EXAMINE_FROM_CURRENT_ROOM = [
-    "Are you sure you're in the {primary}?",
-    "This isn't the {primary}. You're in a different place altogether.",
-    "You're in a different place. This isn't the {primary}."
+    "You can't see anything in the {primary} from the {room}.",
+    "The {primary} is obscured from view in the {room}.",
+    "The {primary} remains hidden from sight in the {room}.",
+    "In the {room}, visibility is too poor to make out anything in the {primary}.",
+    "The {primary} is not discernible from the {room}.",
 ], FAIL
 
 # Take
@@ -466,7 +458,7 @@ ENTER_SUCCESS = [
 
 EXIT_SUCCESS = [
     "You successfully get out of the {primary}.",
-    "Exiting the {primary} successfully.",
+    "Exited from the {primary} successfully.",
     "You're out of the {primary} now.",
     "You exit the {primary} without a problem.",
     "You're no longer in the {primary}."

@@ -39,7 +39,7 @@ class World(GameObject):
                     "You are John Silver, a soldier wrongly accused and now locked away in the prison of Ironhold fortress.",
             description="You are in a small, dimly lit prison cell with cold stone walls.\n"
                     "A narrow slit near the ceiling lets in feeble moonlight, revealing a straw-covered floor.\n"
-                    "Iron bars separate you from the dungeon outside, and the air carries a metallic scent,\n"
+                    "Sturdy bars separate you from the dungeon outside, and the air carries a metallic scent,\n"
                     "a reminder of the fortress's stern grip.",
             parent=self
         )
@@ -55,7 +55,7 @@ class World(GameObject):
         # Dungeon
         dungeon = Room(
             name="dungeon",
-            long="dungeon",
+            long="prison dungeon",
             initial="Stepping out of your cramped cell, you enter the heart of the prison dungeon.\n"
                     "The corridor, hewn from ancient stone, stretches in both directions.\n"
                     "Distant torches flicker, casting dancing shadows on the cold, damp walls.\n"
@@ -68,35 +68,17 @@ class World(GameObject):
 
         # Cell door
         cell_door_lock = CellLock(
-            name='iron lock',
-            long="simple iron lock",
+            name='cell lock',
+            long="simple iron cell door lock",
             initial="It has a simple iron lock.",
             parent=self
         )
         cell_door = CellDoor(
-            name='iron door',
-            long="heavy barred iron door",
+            name='cell door',
+            long="heavy barred iron cell door",
             parent=self,
             lock=cell_door_lock
         )
-
-        # Cell items
-        lockpick = LockPick(
-            name='lockpick',
-            long="rusty iron lockpick",
-            description="It's a lockpick that can be used to pick locks.",
-            parent=cell
-        )
-        lockpick.concealed = True
-
-        cell_wall = Wall(
-            name='wall',
-            long="wall walls",
-            initial="You can feel some cold air entering the cell. Maybe there's a crack somewhere in the walls.",
-            description="The cell walls are made of stone, some are large and heavy, others are very small and barely into place.",
-            parent=cell,
-        )
-        cell_wall.transparent = True
 
         mattress = Mattress(
             name='mattress',
@@ -105,6 +87,24 @@ class World(GameObject):
             description="The straw mattress doesn't seem comfortable but it's better than nothing.",
             parent=cell
         )
+
+        # Cell items
+        lockpick = LockPick(
+            name='lockpick',
+            long="rusty iron lockpick",
+            description="It's a lockpick that can be used to pick locks.",
+            parent=mattress
+        )
+        lockpick.concealed = True
+
+        cell_wall = Wall(
+            name='wall',
+            long="cell wall walls",
+            initial="You can feel some cold air entering the cell. Maybe there's a crack somewhere in the walls.",
+            description="The cell walls are made of stone, some are large and heavy, others are very small and barely into place.",
+            parent=cell,
+        )
+        cell_wall.transparent = True
 
         stone = Stone(
             name='stone',
@@ -156,7 +156,7 @@ class World(GameObject):
         # Courtyard
         courtyard = Room(
             name="courtyard",
-            long="Ironhold prison courtyard",
+            long="prison courtyard",
             initial="You find yourself in the Ironhold prison's courtyard, taking a taste of freedom.\n"
                     "The world is yours to explore. Good luck!",
             description="",
@@ -168,13 +168,13 @@ class World(GameObject):
         # Dungeon door
         dungeon_door_lock = DungeonLock(
             name='silver lock',
-            long="silver lock",
+            long="silver dungeon door lock",
             initial="It has a silver lock.",
-            parent=None
+            parent=self
         )
         dungeon_door = DungeonDoor(
-            name='wooden door',
-            long='heavy wooden door',
+            name='dungeon door',
+            long='heavy wooden dungeon courtyard door',
             parent=self,
             lock=dungeon_door_lock
         )
