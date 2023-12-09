@@ -27,7 +27,7 @@ class Guard(Animate):
         """
         cell = self.get('cell')
         dungeon = self.get('dungeon')
-        cell_door = self.get('cell door')
+        cell_door = self.get('iron door')
 
         if self.asleep or self.stunned or self.searching_for_key or self.guard_location == self.NOT_IN_DUNGEON:
             return False
@@ -110,7 +110,6 @@ class Guard(Animate):
         return True
 
     def on_move_end(self):
-        # return
         """
         Check if the guard is NEAR_CELL while the player is also in the cell,
         then make him child of cell in order for the player to be able to interact with him easily.
@@ -150,13 +149,16 @@ class Guard(Animate):
 
         put_randomly_into_sleep()
 
-        if self.guard_location == self.PATROLLING and not self.is_last_move_of_turn:
+        if self.searching_for_player or (self.guard_location == self.PATROLLING and not self.is_last_move_of_turn):
             self.message(f"You can hear the {self}'s footsteps going back and forth in the dungeon corridor.")
         elif self.asleep:
-            guard_or_someone = f"the {self}" if self.discovered else "someone"
-            self.message(f"You can hear {guard_or_someone} snoring.")
-
-        # self.print_status()
+            if not self.is_last_move_of_turn:
+                guard_or_someone = f"the {self}" if self.discovered else "someone"
+                snoring_location = "outside of your cell" if self.NEAR_CELL and self.current_room == cell else "while sleeping on his seat"
+                still = " still" if self.world.current_move in range(2, 5) else ""
+                self.message(f"You can{still} hear {guard_or_someone} snoring {snoring_location}.")
+            elif self.discovered:
+                self.message(f"The {self} subtly adjusts his position on the chair, still lost in a peaceful slumber.")
 
     def print_status(self):
         print(
@@ -168,10 +170,6 @@ class Guard(Animate):
         )
 
     def on_turn_end(self):
-        # return
-        if self.searching_for_player:
-            return
-
         # win condition
         if self.current_room == self.get('courtyard'):
             return
@@ -186,12 +184,8 @@ class Guard(Animate):
         locations, weights = zip(*location_probabilities.items())
         new_location = choices(locations, weights)[0]
 
-        # Case location didn't change
+        # Location didn't change
         if new_location == self.guard_location:
-            return
-
-        # Don't change locations while stunned or searching for the key
-        if self.searching_for_key or self.stunned:
             return
 
         # Wake up before moving
@@ -201,6 +195,10 @@ class Guard(Animate):
             # Check again if the player is in sight, because now he's awake
             if self.check_player_detected():
                 return
+
+        # Don't change locations while stunned or searching for the key or the player
+        if self.searching_for_key or self.stunned or self.searching_for_player:
+            return
 
         # Hold the rooms into local variables for ease of access and read
         cell = self.get('cell')
@@ -326,7 +324,7 @@ class Guard(Animate):
             return NO_MESSAGE
 
         both_in_cell = self.guard_location == self.NEAR_CELL and self.current_room == self.get('cell')
-        if both_in_cell and not self.get('cell door').is_open:
+        if both_in_cell and not self.get('iron door').is_open:
             self.message(f"You can't attack the {self} from your cell with the door closed.")
             return NO_MESSAGE
 
@@ -366,8 +364,8 @@ class Guard(Animate):
             self.move_to(self.get('cell'))
             self.guard_location = self.NEAR_CELL
             self.get('cell').go()
-            self.get('cell door').close()
-            self.get('cell door').lock(self.get('iron key'))
+            self.get('iron door').close()
+            self.get('iron door').lock(self.get('iron key'))
             self.message(f"Your attack nearly missed the {self}{waked_him} and now he's furious.\n"
                          f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n"
                          f"He hits you with his fist and you drop on the ground{drags_you_into_cell}\n"

@@ -68,13 +68,13 @@ class World(GameObject):
 
         # Cell door
         cell_door_lock = CellLock(
-            name='cell door lock',
+            name='iron lock',
             long="simple iron lock",
             initial="It has a simple iron lock.",
             parent=self
         )
         cell_door = CellDoor(
-            name='cell door',
+            name='iron door',
             long="heavy barred iron door",
             parent=self,
             lock=cell_door_lock
@@ -167,13 +167,13 @@ class World(GameObject):
 
         # Dungeon door
         dungeon_door_lock = DungeonLock(
-            name='dungeon door lock',
+            name='silver lock',
             long="silver lock",
             initial="It has a silver lock.",
             parent=None
         )
         dungeon_door = DungeonDoor(
-            name='dungeon door',
+            name='wooden door',
             long='heavy wooden door',
             parent=self,
             lock=dungeon_door_lock
@@ -194,7 +194,7 @@ class World(GameObject):
         dungeon_key.concealed = True
 
     def parse(self, input_command, advance_time=True):
-        parser = Parser(self, input_command, self.silent, advance_time)
+        parser = Parser(self, input_command, silent=self.silent, advance_time=advance_time)
         return parser.parse()
 
     def get_all_game_object_instances(self):
@@ -223,4 +223,5 @@ class World(GameObject):
         for obj in self.get_all_game_object_instances():
             obj.on_turn_end()
 
-
+    def skip_to_end_of_turn(self):
+        self.current_move = self.MOVES_PER_TURN

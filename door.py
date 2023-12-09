@@ -52,7 +52,7 @@ class Door(Openable, Lockable):
 
         if self.locked and opening_tool:
             # Generate a command to unlock the door first, before attempting to open
-            result = self.world.parse(f"unlock iron door with {opening_tool}", advance_time=False)
+            result = self.world.parse(f"unlock {self.long} with {opening_tool}", advance_time=False)
 
             if result.outcome.outcome != UNLOCK_SUCCESS:
                 return NO_MESSAGE

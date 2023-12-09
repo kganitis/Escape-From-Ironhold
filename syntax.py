@@ -1,5 +1,5 @@
 from game_object import GameObject
-from lexicon import prepositions as preposition
+from lexicon import prepositions as preposition, verbs as verb
 
 game_object = [GameObject('', '')]
 held = [GameObject('', '')]
@@ -75,16 +75,22 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [game_object, ['from', 'off', 'away', 'out'], game_object],
+            'tokens': [game_object, preposition, game_object],
             'action': 'take',
             'primary': 0,
             'secondary': 2
         },
         {
-            'tokens': [game_object, ['off', 'out'], ['from', 'off', 'of'], game_object],
+            'tokens': [game_object, ['off', 'out'], preposition, game_object],
             'action': 'take',
             'primary': 0,
             'secondary': 3
+        },
+        {
+            'tokens': [preposition, game_object, preposition, game_object],
+            'action': 'take',
+            'primary': 1,
+            'secondary': None
         }
     ],
     'pick': [
@@ -151,6 +157,13 @@ syntax_rules = {
             'action': 'use',
             'primary': 0,
             'secondary': 2
+        },
+        {
+            'tokens': [held, ['to'], verb, game_object],
+            'action': 'use',
+            'primary': 0,
+            'secondary': 3,
+            'verb': 2
         }
     ],
     'go': [
@@ -164,6 +177,12 @@ syntax_rules = {
             'tokens': [['to', 'in', 'into', 'at'], game_object],
             'action': 'go',
             'primary': 1,
+            'secondary': None
+        },
+        {
+            'tokens': [preposition, ['to', 'in', 'into', 'at'], game_object],
+            'action': 'go',
+            'primary': 2,
             'secondary': None
         },
         {

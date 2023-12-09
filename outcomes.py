@@ -451,7 +451,7 @@ WAIT = [
     "You take a moment to wait and see what happens next.",
     "You decide to take your time to think.",
     "It's a good idea to wait once in a while.",
-], NEUTRAL
+], SUCCESS
 
 # Successful outcomes
 ACCESS_SUCCESS = [

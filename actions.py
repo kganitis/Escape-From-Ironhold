@@ -4,12 +4,13 @@ from door import *
 
 
 class Action:
-    def __init__(self, world, input_verb, action_verb, primary_object=None, secondary_object=None):
+    def __init__(self, world, input_verb, action_verb, primary_object=None, secondary_object=None, second_verb=None):
         self.world = world
         self.input_verb = input_verb
         self.action_verb = action_verb
         self.primary_object = primary_object
         self.secondary_object = secondary_object
+        self.second_verb = second_verb
 
         # Dynamically get the action execution function matching the command verb
         self.execution_function = getattr(self, self.action_verb, None)
@@ -48,7 +49,7 @@ class Action:
         return Outcome(outcome, self.input_verb, primary, secondary)
 
     def wait(self):
-        # TODO make it jump to end of turn
+        self.world.skip_to_end_of_turn()
         return self.create_outcome(WAIT)
 
     def examine(self):
@@ -95,6 +96,11 @@ class Action:
     def use(self):
         object_to_use = self.primary_object
         secondary_object = self.secondary_object
+
+        if self.second_verb:
+            transformed_command = f"{self.second_verb} {secondary_object} using {object_to_use}"
+            self.world.parse(transformed_command)
+            return self.create_outcome(COMMAND_TRANSFORMED)
 
         not_usable = not isinstance(object_to_use, Usable)
         if not_usable:

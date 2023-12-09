@@ -1,7 +1,7 @@
 stop_words = ['the', 'a', 'an', 'and',
               'this', 'that', 'these', 'those',
               'my', 'your', 'his', 'her', 'its', 'our', 'their'
-              'one', 'again']
+              'one', 'again', 'back', 'carefully', 'caution']
 
 prepositions = ['in', 'at', 'on', 'up', 'to', 'off',
                 'of', 'from', 'with', 'out', 'away',
@@ -18,7 +18,7 @@ verbs = {
         'synonyms': ['depart', 'withdraw', 'evacuate', 'retreat', 'escape', 'flee']
     },
     'take': {
-        'synonyms': ['steal', 'grab', 'acquire', 'collect', 'obtain', 'fetch', 'retrieve']
+        'synonyms': ['steal', 'grab', 'acquire', 'collect', 'obtain', 'fetch', 'retrieve', 'remove', 'reach']
     },
     'drop': {
         'synonyms': ['release', 'discard', 'let', 'abandon']

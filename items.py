@@ -19,7 +19,7 @@ class LockingTool(Usable, ABC):
 
         # Transform the command to lock/unlock target object
         verb = 'unlock' if target_object.locked else 'lock'
-        self.world.parse(f"{verb} {target_object} {self}")
+        self.world.parse(f"{verb} {target_object.long} {self.long}")
         return COMMAND_TRANSFORMED
 
 
@@ -105,7 +105,7 @@ class Mattress(GameObject):
     def examine(self):
         super().examine()
         lockpick = self.get('lockpick')
-        if lockpick.concealed:
+        if lockpick.concealed and lockpick.parent == self.get('cell'):
             lockpick.concealed = False
             lockpick.discover()
         return NO_MESSAGE

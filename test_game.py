@@ -7,31 +7,32 @@ from world import World
 
 def test_sample_commands():
     return [
+        "examine",
+        "look around",
         "take lockpick",
-        "take keys",
-        "take stone",
-        'take tag',
+        "pick up keys",
+        "get stone out of wall",
+        'take tag off of the cell',
         "drop iron key",
-        "drop silver key",
-        "use lockpick on door",
-        "use lockpick on wooden door",
-        "open door with iron key",
+        "get rid of silver key",
+        "use lockpick on iron door",
+        "try to use lockpick on wooden door",
+        "open iron door with iron key",
         "open wooden door with silver key",
-        "close door",
-        "go dungeon",
-        "go courtyard",
-        "go cell",
+        "close iron door",
+        "access the dungeon",
+        "proceed to the courtyard",
+        "go back to the cell",
         "exit",
-        "exit cell",
-        "enter barrel",
-        "exit barrel",
+        "exit the cell",
+        "enter the barrel",
+        "exit from the barrel",
         "attack guard",
         "throw stone at guard",
-        "throw lockpick at guard",
-        "throw tag at guard",
-        "ask guard",
-        "tell guard",
-        "wake up guard"
+        "ask guard about something",
+        "tell guard something",
+        "wake up guard",
+        "wait for something to happen"
     ]
 
 
@@ -52,7 +53,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
         for cmd in possible_commands:
             world_copy = copy.deepcopy(world)
-            # print(cmd)
+            print(cmd)
             rlt = world_copy.parse(cmd)
             if filter_invalid and rlt.outcome.type == INVALID:
                 continue
@@ -94,7 +95,7 @@ def generate_results(possible_commands, max_depth, file_name, filter_invalid=Fal
 
 
 def main():
-    max_depth = 5
+    max_depth = 4
     possible_commands = test_sample_commands()
     generate_results(possible_commands, max_depth, "all_results")
     # generate_results(possible_commands, max_depth, "valid_results", filter_invalid=True)
