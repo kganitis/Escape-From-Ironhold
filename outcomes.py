@@ -8,7 +8,6 @@ class Outcome:
         self.primary_object = primary_object
         self.secondary_object = secondary_object
         self.ambiguous_objects = ambiguous_objects
-        # TODO format better the ambiguous objects or support resolve
 
     def __str__(self):
         return f"{self.description}, {self.object_names}"
@@ -45,9 +44,22 @@ class Outcome:
             verb=self.verb,
             room=self.primary_object.current_room if self.primary_object and not isinstance(self.primary_object, list) else None,
             article=self.primary_object.article().lower() if self.primary_object and not isinstance(self.primary_object, list) else '',
-            ambiguous=self.ambiguous_objects
+            ambiguous=self.formatted_ambiguous_objects
         )
         return formatted_description
+
+    @property
+    def formatted_ambiguous_objects(self):
+        if not self.ambiguous_objects:
+            return
+        formatted_string = ""
+        for obj in self.ambiguous_objects:
+            if obj != self.ambiguous_objects[-1]:
+                formatted_string += f"the {obj}, "
+            else:
+                formatted_string = formatted_string[:-2]
+                formatted_string += f" or the {obj}"
+        return formatted_string
 
 
 # Outcome types
@@ -55,6 +67,7 @@ SUCCESS = "SUCCESS"  # command executed successfully and the result alters the g
 NEUTRAL = "NEUTRAL"  # command executed successfully but the result does not alter the game world
 FAIL = "FAIL"  # command is valid but failed to be executed
 INVALID = "INVALID"  # invalid command
+AMBIGUOUS = "AMBIGUOUS"  # ambiguous objects
 TRANSFORMED = "TRANSFORMED"  # the initial command was transformed to a new command to be executed in its place instead
 
 # Special outcomes
@@ -84,14 +97,17 @@ INVALID_OBJECTS = [
     "I didn't get that. Can you try using different words?",
 ], INVALID
 
-AMBIGUOUS_OBJECTS = [
-    "I don't understand which object do you mean. {ambiguous}"
-], INVALID
-
 INVALID_SYNTAX = [
     "You didn't phrase that correctly.",
     "You're close, but can you phrase it better?"
 ], INVALID
+
+AMBIGUOUS_OBJECTS = [
+    "I don't understand which one do you mean, {ambiguous}?",
+    "Which one do you mean, {ambiguous}?",
+    "Do you mean {ambiguous}?",
+    "It's not clear if you mean {ambiguous}."
+], AMBIGUOUS
 
 # Scope outcomes
 OUT_OF_SCOPE = [

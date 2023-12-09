@@ -6,7 +6,6 @@ from syntax import syntax_rules, held, game_object
 
 
 # TODO Finally:
-#  Ambiguity resolution
 #  Generate multiple actions from one command ("unlock the door with lockpick, then open it and exit the cell")
 #  How to handle "use the key to unlock the door"
 
@@ -77,10 +76,10 @@ class Parser:
 
         # Move end - advance time
         actions_not_advancing_time = ['examine', 'help']
-        outcomes_not_advancing_time = [INVALID, NEUTRAL, FAIL, TRANSFORMED]
-        if self.verb not in actions_not_advancing_time \
-                and result.outcome.type not in outcomes_not_advancing_time \
-                and self.advance_time:
+        outcomes_not_advancing_time = [INVALID, NEUTRAL, FAIL, AMBIGUOUS, TRANSFORMED]
+        if self.advance_time \
+                and self.verb not in actions_not_advancing_time \
+                and result.outcome.type not in outcomes_not_advancing_time:
             self.world.on_move_end()
 
         return result
@@ -99,8 +98,12 @@ class Parser:
             if self.verb:
                 break
         else:
-            outcome = Outcome(INVALID_VERB)
-            return Result(None, outcome)
+            # it's ok to skip the verb if we're in resolve ambiguity mode, just reset wn to 1
+            if self.ambiguous_objects:
+                self.wn = 1
+            else:
+                outcome = Outcome(INVALID_VERB)
+                return Result(None, outcome)
         self.debug(f"Verb: {self.verb}")
         self.debug()
 
@@ -111,7 +114,7 @@ class Parser:
             return Result(None, outcome)
 
         # Parse objects
-        self.game_objects_dictionary = self.world.get_game_objects_dict()
+        self.game_objects_dictionary = self.world.get_game_objects_dict(for_objects=self.ambiguous_objects)
         while self.wn <= len(self.words) + 1:
             self.debug(f"Iteration of word No{self.wn}")
             self.debug("-------------------------------")
@@ -127,7 +130,7 @@ class Parser:
             self.show_game_object_dict()
             self.debug()
 
-        self.debug(f"Identified tokens: {[token for token in self.identified_tokens]}")
+        self.debug(f"Identified tokens: {self.identified_tokens}")
 
         # SYNTAX ANALYSIS
         # First special rules for 'wait', 'ask', 'tell'
@@ -146,7 +149,7 @@ class Parser:
             action = None
             match = self.match_rule(rule)
             if match:
-                if match == 1:
+                if match == 1 and not self.ambiguous_objects:
                     self.action_verb = rule['action']
                     primary_object = self.identified_tokens[rule['primary']] if rule['primary'] is not None else None
                     secondary_object = self.identified_tokens[rule['secondary']] if rule['secondary'] is not None else None
@@ -163,6 +166,7 @@ class Parser:
     def match_rule(self, rule):
         if len(self.identified_tokens) != len(rule['tokens']):
             return False
+        match = True
         for i in range(len(self.identified_tokens)):
             match = self.match_token(i, self.identified_tokens[i], rule['tokens'][i])
             if not match:
@@ -180,13 +184,15 @@ class Parser:
             rule_tokens = self.world.player.scope
             common_tokens = [token for token in identified_tokens if token in rule_tokens]
             if len(common_tokens) > 1:
-                return Outcome(AMBIGUOUS_OBJECTS, self.verb, ambiguous_objects=common_tokens)
+                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
+                return 1
             elif len(common_tokens) == 1:
                 self.identified_tokens[wn] = common_tokens[0]
                 return 1
             # no common tokens
             if len(identified_tokens) > 1:
-                return Outcome(AMBIGUOUS_OBJECTS, self.verb, ambiguous_objects=identified_tokens)
+                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
+                return 1
             elif len(identified_tokens) == 1:
                 return Outcome(OUT_OF_SCOPE, self.verb, identified_tokens[0])
 
@@ -194,13 +200,15 @@ class Parser:
             rule_tokens = self.world.player.held
             common_tokens = [token for token in identified_tokens if token in rule_tokens]
             if len(common_tokens) > 1:
-                return Outcome(AMBIGUOUS_OBJECTS, self.verb, ambiguous_objects=common_tokens)
+                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
+                return 1
             elif len(common_tokens) == 1:
                 self.identified_tokens[wn] = common_tokens[0]
                 return 1
             # no common tokens
             if len(identified_tokens) > 1:
-                return Outcome(AMBIGUOUS_OBJECTS, self.verb, ambiguous_objects=identified_tokens)
+                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
+                return 1
             elif len(identified_tokens) == 1:
                 return Outcome(NOT_IN_POSSESSION, self.verb, identified_tokens[0])
 
@@ -234,10 +242,11 @@ class Parser:
 
     def append_tokens_with_max_score(self):
         max_score = max((obj['score'] for obj in self.game_objects_dictionary.values()), default=None)
-        max_score_objects = [key for key, obj in self.game_objects_dictionary.items() if obj['score'] == max_score]
-        self.debug(f"Appended objects with max score: {[obj.name for obj in max_score_objects]}")
-        self.identified_tokens.append(max_score_objects)
-        self.reset_scores()
+        if max_score > 0:
+            max_score_objects = [key for key, obj in self.game_objects_dictionary.items() if obj['score'] == max_score]
+            self.debug(f"Appended objects with max score: {[obj.name for obj in max_score_objects]}")
+            self.identified_tokens.append(max_score_objects)
+            self.reset_scores()
 
     def parse_objects(self):
         word = self.next_word()
@@ -250,6 +259,9 @@ class Parser:
 
         # A word, other than the first, is a verb
         if is_verb(word):
+            # if we're in resolve ambiguity mode, it's ok to meet a verb, just return to skip over it
+            if self.ambiguous_objects:
+                return 1
             self.debug(f"A word ('{word}'), other than the first, is a verb")
             return INVALID_COMMAND
 
@@ -257,6 +269,10 @@ class Parser:
         if is_preposition(word):
             self.debug(f"A preposition is found: '{word}'")
             self.append_tokens_with_max_score()
+
+            # if we're in resolve ambiguity mode, don't proceed to append the pronoun, just stop here
+            if self.ambiguous_objects:
+                return 1
 
             self.identified_tokens.append(word)
             self.debug(f"'{word}' is appended to identified tokens list")
@@ -281,3 +297,14 @@ class Parser:
             return INVALID_OBJECTS
 
         return 1
+
+    def parse_ambiguous(self, ambiguous_objects):
+        outcome = Outcome(AMBIGUOUS_OBJECTS, self.verb, ambiguous_objects=ambiguous_objects)
+        result = Result(None, outcome)
+        result.show()
+        input_words = input("> ")
+        parser = Parser(self.world, input_words, silent=True, advance_time=False)
+        parser.ambiguous_objects = ambiguous_objects
+        parser.parse()
+        if len(parser.identified_tokens) == 1:
+            return parser.identified_tokens[0]

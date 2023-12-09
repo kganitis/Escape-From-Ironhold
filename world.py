@@ -200,9 +200,11 @@ class World(GameObject):
     def get_all_game_object_instances(self):
         return list(self.world.object_map.values())
 
-    def get_game_objects_dict(self):
+    def get_game_objects_dict(self, for_objects=None):
         game_objects_dict = {}
         for obj in self.get_all_game_object_instances():
+            if for_objects and obj not in for_objects:
+                continue
             game_objects_dict[obj] = {'long': obj.long.split(), 'score': 0, 'in scope': obj in self.player.scope}
         return game_objects_dict
 

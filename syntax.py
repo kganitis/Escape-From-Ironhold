@@ -501,6 +501,14 @@ syntax_rules = {
             'secondary': None
         },
     ],
+    None: [
+        {
+            'tokens': [game_object],
+            'action': '',
+            'primary': 0,
+            'secondary': None
+        },
+    ],
     '': [
         {
             'tokens': [],
