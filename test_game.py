@@ -29,8 +29,8 @@ def test_sample_commands():
         "throw stone at guard",
         "throw lockpick at guard",
         "throw tag at guard",
-        # "ask guard",
-        # "tell guard",
+        "ask guard",
+        "tell guard",
         "wake up guard"
     ]
 

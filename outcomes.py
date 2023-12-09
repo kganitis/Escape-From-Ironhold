@@ -8,12 +8,13 @@ class Outcome:
         self.primary_object = primary_object
         self.secondary_object = secondary_object
         self.ambiguous_objects = ambiguous_objects
+        # TODO format better the ambiguous objects or support resolve
 
     def __str__(self):
-        return f"{self.description}, {self.object_names}, {self.type}"
+        return f"{self.description}, {self.object_names}"
 
     def __eq__(self, other):
-        return self.outcome == other.outcome and self.objects == other.objects
+        return isinstance(other, Outcome) and self.outcome == other.outcome and self.objects == other.objects
 
     @property
     def description(self):
@@ -42,8 +43,8 @@ class Outcome:
             primary=self.primary_object,
             secondary=self.secondary_object,
             verb=self.verb,
-            room=self.primary_object.current_room if self.primary_object else None,
-            article=self.primary_object.article().lower() if self.primary_object else '',
+            room=self.primary_object.current_room if self.primary_object and not isinstance(self.primary_object, list) else None,
+            article=self.primary_object.article().lower() if self.primary_object and not isinstance(self.primary_object, list) else '',
             ambiguous=self.ambiguous_objects
         )
         return formatted_description
