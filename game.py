@@ -21,6 +21,7 @@ class Game:
             # Input
             print("\nWhat do you want to do?")
             input_command = input("> ")
+            print()
 
             # Parse
             self.world.parse(input_command)
@@ -33,8 +34,8 @@ class Game:
                       "leaving an indelible mark on the ever-expanding canvas of existence.\n"
                       "In the face of mortality's inevitability, may we find solace in the enigma\n"
                       "of our fleeting presence and the eternal dance that continues beyond the veil.\n")
-                print(". . . GAME OVER . . .")
+                print("\nGAME OVER")
                 break
             elif dead == 2:
-                print("\n! ! ! YOU WIN ! ! !")
+                print("\nYOU WIN")
                 break

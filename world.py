@@ -12,6 +12,7 @@ class World(GameObject):
         long = "Ironhold fortress"
         super().__init__(name, long)
 
+        self._parser = None
         self.silent = silent
 
         # A dictionary to hold every game object linked to the object tree
@@ -34,9 +35,11 @@ class World(GameObject):
         cell = Room(
             name="cell",
             long="prison cell",
-            initial="As you slowly regain consciousness, you find yourself in a small, dimly lit prison cell with cold stone walls.\n"
-                    "Your head throbs with pain, and the memories of your surroundings begin to piece together.\n"
-                    "You are John Silver, a soldier wrongly accused and now locked away in the prison of Ironhold fortress.",
+            initial="As you slowly regain consciousness, you find yourself in a small,\n"
+                    "dimly lit prison cell with cold stone walls. Your head throbs with pain,\n"
+                    "and the memories of your surroundings begin to piece together.\n"
+                    "You are John Silver, a soldier wrongly accused and now locked away\n"
+                    "in the prison of Ironhold fortress.",
             description="You are in a small, dimly lit prison cell with cold stone walls.\n"
                     "A narrow slit near the ceiling lets in feeble moonlight, revealing a straw-covered floor.\n"
                     "Sturdy bars separate you from the dungeon outside, and the air carries a metallic scent,\n"
@@ -47,7 +50,8 @@ class World(GameObject):
         self.hero = Player(
             name="John Silver",
             long="John Silver",
-            description="You are John Silver, a soldier wrongly accused and now locked away in the prison of Ironhold fortress.",
+            description="You are John Silver, a soldier wrongly accused\n"
+                        "and now locked away in the prison of Ironhold fortress.",
             parent=cell
         )
         self.hero.concealed = True
@@ -55,14 +59,17 @@ class World(GameObject):
         # Dungeon
         dungeon = Room(
             name="dungeon",
-            long="prison dungeon",
+            long="prison dungeon corridor",
             initial="Stepping out of your cramped cell, you enter the heart of the prison dungeon.\n"
                     "The corridor, hewn from ancient stone, stretches in both directions.\n"
                     "Distant torches flicker, casting dancing shadows on the cold, damp walls.\n"
                     "The air is thick with the musty scent of forgotten secrets.",
-            description="You stand in the prison dungeon, surrounded by the echoes of countless stories etched into the very stone.\n"
-                        "The corridor, dimly lit by flickering torches, reveals a maze of cells, each a silent witness to the passage of time.\n"
-                        "The distant sound of dripping water adds a haunting melody to the quiet symphony of captivity.",
+            description="You stand in the prison dungeon, surrounded by the echoes\n"
+                        "of countless stories etched into the very stone.\n"
+                        "The corridor, dimly lit by flickering torches,\n"
+                        "reveals a maze of cells, each a silent witness to the passage of time.\n"
+                        "The distant sound of dripping water adds a haunting melody\n"
+                        "to the quiet symphony of captivity.",
             parent=self
         )
 
@@ -75,7 +82,7 @@ class World(GameObject):
         )
         cell_door = CellDoor(
             name='cell door',
-            long="heavy barred iron cell door",
+            long="heavy barred iron cell door door",
             parent=self,
             lock=cell_door_lock
         )
@@ -92,7 +99,8 @@ class World(GameObject):
         lockpick = LockPick(
             name='lockpick',
             long="rusty iron lockpick",
-            description="It's a lockpick that can be used to pick locks.",
+            description="A rusty lockpick, suitable for picking locks.\n"
+                        "It shows signs of wear, but perhaps it will suffice.",
             parent=mattress
         )
         lockpick.concealed = True
@@ -100,8 +108,10 @@ class World(GameObject):
         cell_wall = Wall(
             name='wall',
             long="cell wall walls",
-            initial="You can feel some cold air entering the cell. Maybe there's a crack somewhere in the walls.",
-            description="The cell walls are made of stone, some are large and heavy, others are very small and barely into place.",
+            initial="You can feel some cold air entering the cell.\n"
+                    "Maybe there's a crack somewhere in the walls.",
+            description="The cell walls are made of stone, some are large and heavy,\n"
+                        "others are very small and barely into place.",
             parent=cell,
         )
         cell_wall.transparent = True
@@ -113,7 +123,7 @@ class World(GameObject):
         )
 
         dog_tag = DogTag(
-            name='tag',
+            name='dog tag',
             long="metallic dog tag",
             description="The text is worn off. Seems it was left behind by a veteran...",
             parent=cell
@@ -194,8 +204,8 @@ class World(GameObject):
         dungeon_key.concealed = True
 
     def parse(self, input_command, advance_time=True):
-        parser = Parser(self, input_command, silent=self.silent, advance_time=advance_time)
-        return parser.parse()
+        self._parser = Parser(self, input_command, silent=self.silent, advance_time=advance_time)
+        return self._parser.parse()
 
     def get_all_game_object_instances(self):
         return list(self.world.object_map.values())

@@ -19,7 +19,7 @@ class LockingTool(Usable, ABC):
 
         # Transform the command to lock/unlock target object
         verb = 'unlock' if target_object.locked else 'lock'
-        self.world.parse(f"{verb} {target_object.long} {self.long}")
+        self.world.parse(f"{verb} {target_object.long} using {self.long}")
         return COMMAND_TRANSFORMED
 
 
@@ -30,7 +30,7 @@ class LockPick(LockingTool, Obtainable):
     @property
     def initial(self):
         if self.under_mattress:
-            return "There is a rusty iron lockpick hidden under the mattress."
+            return "You discover a rusty iron lockpick hidden under the mattress."
         return super().initial
 
     def take(self, owner):
@@ -83,7 +83,8 @@ class Keys(Obtainable):
 
             self.move_to(self.world)
             self.message(
-                f"You reach and with a quick move you grab the {self} out the guard's belt, without him noticing.\n"
+                f"You reach and with a quick move you grab the {self}\n"
+                f"out of the guard's belt, without him noticing.\n"
                 f"Looking at them closely, you can distinguish them clearly:\n"
                 f"{cell_key.initial[:-1]} and {dungeon_key.initial.lower()} "
             )
@@ -94,7 +95,7 @@ class Keys(Obtainable):
         self.player.dead = True
         self.message(
             f"The {guard}{wakes_up} catches you while reaching your hand to grab the {self}.\n"
-            f"He draws his sword and in a cruel twist, he severs your hand, "
+            f"He draws his sword and in a cruel twist, he severs your hand,\n"
             f"leaving you to bleed slowly to death."
         )
         return NO_MESSAGE
@@ -136,7 +137,10 @@ class Lock(Lockable):
     @property
     def description(self):
         if self.locked:
-            return f"The {self.long} could be picked with a lockpick, if I had one..."
+            if self.key in self.player.inventory:
+                return f"The {self.long} could be unlocked with {self.key.article().lower()} {self.key}, if I had one..."
+            else:
+                return f"The {self.long} could be picked with a lockpick, if I had one..."
         return f"The {self.long} has been unlocked."
 
 

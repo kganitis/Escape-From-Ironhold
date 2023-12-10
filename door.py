@@ -71,44 +71,63 @@ class Door(Openable, Lockable):
 
 class CellDoor(Door):
     @property
+    def textual(self):
+        return "heavy barred iron door"
+
+    @property
     def initial(self):
         if self.locked:
-            return f"A {self.long} separates you from the prison dungeon."
+            return f"A {self} separates you from the prison dungeon."
         if not self.locked and not self.is_open:
-            return f"A {self.long} separates you from the prison dungeon. It's been unlocked."
+            return f"A {self} separates you from the prison dungeon.\n" \
+                   f"It's been unlocked."
         if self.is_open:
-            return f"The {self.long} that separated you from the prison dungeon is open."
+            return f"The {self} that separated you from the prison dungeon is open."
 
     @property
     def description(self):
         if self.locked:
-            return f"It's a {self.long}, which separates you from the prison dungeon.\n" \
+            return f"It's a {self}, which separates you from the prison dungeon.\n" \
                    "You can see some things behind the iron bars, " \
                    "but you're unable to distinguish anything clearly in the darkness."
         if not self.locked and not self.is_open:
-            return f"It's a {self.long}, which separates you from the prison dungeon.\n" \
+            return f"It's a {self}, which separates you from the prison dungeon.\n" \
                    "It has been unlocked."
         if self.is_open:
-            return f"The {self.long} that separated you from the prison dungeon is now open."
+            return f"The {self} that separated you from the prison dungeon is now open."
 
 
 class DungeonDoor(Door):
     @property
+    def textual(self):
+        return "heavy wooden door"
+
+    @property
     def initial(self):
         if self.locked:
-            return f"A {self.long} separates you from the prison's courtyard."
+            return f"A {self} separates you from the prison's courtyard."
         if not self.locked and not self.is_open:
-            return f"A {self.long} separates you from the prison's courtyard. It's been unlocked."
+            return f"A {self} separates you from the prison's courtyard.\n" \
+                   f"It's been unlocked."
         if self.is_open:
-            return f"The {self.long} that leads to the prison's courtyard is open."
+            return f"The {self} that leads to the prison's courtyard is open."
 
     @property
     def description(self):
         if self.locked:
-            return f"It's a {self.long}, which separates you from freedom.\n" \
+            return f"It's a {self}, which separates you from freedom.\n" \
                    "It has to lead to the prison's courtyard."
         if not self.locked and not self.is_open:
-            return f"It's a {self.long}, which separates you from the prison's courtyard.\n" \
+            return f"It's a {self}, which separates you from the prison's courtyard.\n" \
                    "It has been unlocked."
         if self.is_open:
-            return f"The {self.long} that leads to the prison's courtyard is now open."
+            return f"The {self} that leads to the prison's courtyard is now open."
+
+    def open(self, opening_tool=None):
+        outcome = super().open(opening_tool)
+        if outcome == OPEN_SUCCESS:
+            self.message(f"The {self} opens and reveals your way to freedom.\n"
+                         f"The prison's courtyard seems safe for the time.\n"
+                         f"You may proceed.")
+            return NO_MESSAGE
+        return outcome

@@ -13,13 +13,13 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [game_object, ['from'], game_object],
+            'tokens': [game_object, preposition, game_object],
             'action': 'take',
             'primary': 0,
             'secondary': 2
         },
         {
-            'tokens': [game_object, ['off', 'out'], ['from', 'of'], game_object],
+            'tokens': [game_object, ['off', 'out'], preposition, game_object],
             'action': 'take',
             'primary': 0,
             'secondary': 3
@@ -50,6 +50,12 @@ syntax_rules = {
         },
         {
             'tokens': [['out'], ['of'], game_object],
+            'action': 'exit',
+            'primary': 2,
+            'secondary': None
+        },
+        {
+            'tokens': [['out'], ['of'], game_object, preposition],
             'action': 'exit',
             'primary': 2,
             'secondary': None
@@ -125,13 +131,13 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [['up'], game_object, ['from'], game_object],
+            'tokens': [['up'], game_object, preposition, game_object],
             'action': 'take',
             'primary': 1,
             'secondary': 3
         },
         {
-            'tokens': [['up'], game_object, ['off', 'out'], ['from', 'of'], game_object],
+            'tokens': [['up'], game_object, ['off', 'out'], preposition, game_object],
             'action': 'take',
             'primary': 1,
             'secondary': 4
@@ -165,11 +171,10 @@ syntax_rules = {
             'secondary': 2
         },
         {
-            'tokens': [held, ['to'], verb, game_object],
+            'tokens': [held, preposition, game_object, preposition, game_object],
             'action': 'use',
             'primary': 0,
-            'secondary': 3,
-            'verb': 2
+            'secondary': 2
         }
     ],
     'go': [
@@ -269,6 +274,12 @@ syntax_rules = {
     'exit': [
         {
             'tokens': [game_object],
+            'action': 'exit',
+            'primary': 0,
+            'secondary': None
+        },
+        {
+            'tokens': [game_object, preposition],
             'action': 'exit',
             'primary': 0,
             'secondary': None
@@ -453,6 +464,12 @@ syntax_rules = {
             'primary': 0,
             'secondary': 2
         },
+        {
+            'tokens': [game_object, preposition, game_object],
+            'action': 'open',
+            'primary': 0,
+            'secondary': None
+        }
     ],
     'close': [
         {
@@ -467,6 +484,12 @@ syntax_rules = {
             'primary': 0,
             'secondary': 2
         },
+        {
+            'tokens': [game_object, preposition, game_object],
+            'action': 'close',
+            'primary': 0,
+            'secondary': None
+        }
     ],
     'wake': [
         {
@@ -510,10 +533,10 @@ syntax_rules = {
             'secondary': None
         },
         {
-            'tokens': [held, ['on', 'to', 'at'], game_object],
+            'tokens': [held, preposition, game_object],
             'action': 'throw',
             'primary': 0,
-            'secondary': None
+            'secondary': 2
         },
         {
             'tokens': [held, ['away']],

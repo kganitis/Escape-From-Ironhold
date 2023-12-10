@@ -62,6 +62,10 @@ class Parser:
 
         self.debugging = False
 
+    @property
+    def parsing_complete(self):
+        return self.wn > len(self.words) + 1
+
     # Debugging methods
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def debug(self, message=""):
@@ -99,7 +103,8 @@ class Parser:
 
         if not self.words:
             print("You choose to remain silent.")
-            return
+            outcome = Outcome(NO_MESSAGE)
+            return Result(None, outcome)
 
         # LEXICAL ANALYSIS
         # Parse verb
@@ -163,9 +168,9 @@ class Parser:
                 if match == "PERFECT" and not self.ambiguous_objects:
                     self.action_verb = rule['action']
                     primary_object = self.identified_tokens[rule['primary']] if rule['primary'] is not None else None
-                    secondary_object = self.identified_tokens[rule['secondary']] if rule['secondary'] is not None else None
-                    second_verb = self.identified_tokens[rule['verb']] if 'verb' in rule.keys() else None
-                    action = Action(self.world, self.input_verb, self.action_verb, primary_object, secondary_object, second_verb)
+                    secondary_object = self.identified_tokens[rule['secondary']] if rule[
+                                                                                        'secondary'] is not None else None
+                    action = Action(self.world, self.input_verb, self.action_verb, primary_object, secondary_object)
                     outcome = action.execute()
                 else:
                     outcome = match
@@ -190,7 +195,8 @@ class Parser:
         PERFECT_MATCH = "PERFECT"
         if not isinstance(identified_tokens, list):
             identified_tokens = [identified_tokens]
-            self.debug(f"identified_tokens is just a single string/object and I'm converting it to a list: {identified_tokens}")
+            self.debug(
+                f"identified_tokens is just a single string/object and I'm converting it to a list: {identified_tokens}")
 
         if not isinstance(identified_tokens[0], type(rule_tokens[0])):
             self.debug("identified_tokens and rule_tokens contain different types of elements:")
@@ -214,7 +220,8 @@ class Parser:
                 self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
             elif len(common_tokens) == 1:
-                self.debug(f"Replace the object list in position {wn} of identified_tokens with the unique common token: {common_tokens[0]}")
+                self.debug(
+                    f"Replace the object list in position {wn} of identified_tokens with the unique common token: {common_tokens[0]}")
                 self.identified_tokens[wn] = common_tokens[0]
                 self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
@@ -343,7 +350,12 @@ class Parser:
         for key, value in self.game_objects_dictionary.items():
             if word in value['long']:
                 self.debug(f"'{word}' is in {key}'s long name ('{key.long}')")
-                value['score'] += 1 + 1/len(value['long']) + (word in key.name) * 100 + (key in self.world.player.scope) * 1000
+                value['score'] += 1 + 1 / len(value['long']) \
+                                  + key.discovered * 1 / 10 \
+                                  + (word in key.name) * 100 \
+                                  + (word == self.world.last_primary) * 500 \
+                                  + (key in self.world.player.scope) * 1000 \
+                                  + (key == self.world.player.parent) * 1 / 100
                 self.debug(f"{key}'s score is increased to {value['score']}")
 
         return 1

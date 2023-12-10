@@ -5,8 +5,8 @@ from outcomes import *
 # Define a common parent class for all game objects (rooms, items, characters etc.)
 class GameObject(ABC):
     def __init__(self, name, long, initial=None, description=None, parent=None):
-        self.name = name
-        self.long = long
+        self._name = name
+        self._long = long
 
         # Descriptions
         self._initial = initial
@@ -26,6 +26,29 @@ class GameObject(ABC):
         self.concealed = False
 
     def __str__(self):
+        return self.textual
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Name Properties
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def long(self):
+        return self._long
+
+    @long.setter
+    def long(self, value):
+        self._long = value
+
+    @property
+    def textual(self):
         return self.name
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -49,6 +72,10 @@ class GameObject(ABC):
     @current_room.setter
     def current_room(self, value):
         self.world.room = value
+
+    @property
+    def parser(self):
+        return self.world._parser
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Scope Properties
@@ -205,7 +232,7 @@ class GameObject(ABC):
         self.added_to_scope = False
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Other Methods
+# Turn Methods
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def on_move_end(self):
         return

@@ -85,8 +85,10 @@ class Guard(Animate):
         if random() < dead_chance:
             self.player.dead = True
             self.message(f"He rushes to your location, swiftly drawing his sword.\n"
-                         f"\"Are you going somewhere, dirty mouse? This is not going to end well for you!\"\n"
-                         f"In a cruel twist, he severs your hand, leaving you to bleed slowly to death.")
+                         f"\"Are you going somewhere, dirty mouse?\n"
+                         f"This is not going to end well for you!\"\n"
+                         f"In a cruel twist, he severs your hand,\n"
+                         f"leaving you to bleed slowly to death.")
             return True
 
         drags_you_into_cell = ", then drags you into your cell." if self.current_room == dungeon else "."
@@ -98,7 +100,8 @@ class Guard(Animate):
                                      f"I'll have to kill you, dirty mouse!\"\n" \
                                      f"He draws his sword and, in a sudden move, he stabs you in the chest, " \
                                      f"leaving you to bleed slowly to death."
-        self.message(f"\"Are you going somewhere, dirty mouse? This is not going to end well for you!\"\n"
+        self.message(f"\"Are you going somewhere, dirty mouse?\n"
+                     f"This is not going to end well for you!\"\n"
                      f"He hits you with his fist and you drop on the ground{drags_you_into_cell}\n"
                      f"{locks_you_or_kills_you}")
 
@@ -138,17 +141,6 @@ class Guard(Animate):
 
         self.check_player_detected()
 
-        def put_randomly_into_sleep():
-            chance_to_sleep = 0.5
-            sleeping_locations = [self.NEAR_EXIT, self.NEAR_CELL, self.BACK_OF_DUNGEON]
-            if not self.asleep \
-                    and self.world.current_move == 1 \
-                    and self.guard_location in sleeping_locations \
-                    and random() < chance_to_sleep:
-                self.asleep = True
-
-        put_randomly_into_sleep()
-
         if self.searching_for_player or (self.guard_location == self.PATROLLING and not self.is_last_move_of_turn):
             self.message(f"You can hear the {self}'s footsteps going back and forth in the dungeon corridor.")
         elif self.asleep:
@@ -158,7 +150,7 @@ class Guard(Animate):
                 still = " still" if self.world.current_move in range(2, 5) else ""
                 self.message(f"You can{still} hear {guard_or_someone} snoring {snoring_location}.")
             elif self.discovered:
-                self.message(f"The {self} subtly adjusts his position on the chair, still lost in a peaceful slumber.")
+                self.message(f"The {self} subtly adjusts his position on his chair.")
 
     def print_status(self):
         print(
@@ -223,14 +215,15 @@ class Guard(Animate):
             self.move_to(courtyard) if new_location == self.NOT_IN_DUNGEON else self.move_to(dungeon)
             if previous_location == self.NEAR_CELL:
                 wakes_or_stands = "wakes up" if woken_up else "stands up"
-                self.message(f"The {self} {wakes_or_stands} and leaves, disapearring from your view.")
+                self.message(f"The {self} {wakes_or_stands} and leaves, disappearing from your view.")
             return
 
         # player in dungeon
         if new_location == self.NOT_IN_DUNGEON:
             self.move_to(courtyard)
-            wakes_up = "wakes up and" if woken_up else ""
-            self.message(f"The {self} {wakes_up} leaves the dungeon from the door that seems to lead to the courtyard.")
+            wakes_up = " wakes up and" if woken_up else ""
+            self.message(f"The {self}{wakes_up} leaves the dungeon\n"
+                         f"from the door that seems to lead to the courtyard.")
             return
 
         self.move_to(dungeon)
@@ -253,8 +246,21 @@ class Guard(Animate):
         else:  # NEAR_CELL:
             new_message = "and settles down on a chair near your cell."
 
-        self.message(f"{prev_message} {new_message}")
-        self.check_player_detected()
+        def put_randomly_into_sleep():
+            chance_to_sleep = 0.5
+            sleeping_locations = [self.NEAR_EXIT, self.NEAR_CELL, self.BACK_OF_DUNGEON]
+            if self.guard_location in sleeping_locations and random() < chance_to_sleep:
+                self.asleep = True
+                return True
+            return False
+
+        sleeps = ""
+        if put_randomly_into_sleep():
+            sleeps = "\nHe immediately falls into sleep."
+        self.message(f"{prev_message} {new_message}{sleeps}")
+
+        if not self.asleep:
+            self.check_player_detected()
 
     @property
     def initial(self):
@@ -290,7 +296,8 @@ class Guard(Animate):
         if player_in_cell:
             if self.guard_location == self.NEAR_CELL:
                 return f"The {self} is in a deep sleep on a chair near your cell's barred door." if self.asleep \
-                    else f"The {self} sits beside your cell's barred door. He doesn't seem to enjoy his presence here."
+                    else f"The {self} sits beside your cell's barred door.\n" \
+                         f"He doesn't seem to enjoy his presence here."
 
             return f"You can't spot the {self} outside your cell. Who knows where he's gone..."
 
@@ -303,16 +310,21 @@ class Guard(Animate):
                    f"He doesn't appear to enjoy his duty."
 
         elif self.guard_location == self.BACK_OF_DUNGEON:
-            return f"The {self} is in a deep sleep on a chair at the far end of the dungeon." if self.asleep \
-                else f"The {self} rests at the far end of the dungeon. He doesn't seem to enjoy his presence here."
+            return f"The {self} is in a deep sleep on a chair\n" \
+                   f"at the far end of the dungeon." if self.asleep \
+                else f"The {self} rests at the far end of the dungeon.\n" \
+                     f"He doesn't seem to enjoy his presence here."
 
         elif self.guard_location == self.NEAR_EXIT:
             return f"The {self} is in a deep sleep right next to the dungeon's exit door." if self.asleep \
-                else f"The {self} sits near the dungeon's exit door. He doesn't seem to enjoy his presence here."
+                else f"The {self} sits near the dungeon's exit door.\n" \
+                     f"He doesn't seem to enjoy his presence here."
 
         else:  # NEAR_CELL:
-            return f"The {self} is in a deep sleep on a chair next to your cell's barred door." if self.asleep \
-                else f"The {self} sits beside your cell's barred door. He doesn't seem to enjoy his presence here."
+            return f"The {self} is in a deep sleep on a chairv" \
+                   f"next to your cell's barred door." if self.asleep \
+                else f"The {self} sits beside your cell's barred door.\n" \
+                     f"He doesn't seem to enjoy his presence here."
 
     @property
     def in_scope(self):
@@ -359,7 +371,7 @@ class Guard(Animate):
                 locks_you_or_kills_you = f"\"Damn it, I must have dropped the key somewhere.\n" \
                                          f"I can't leave you here alone and unlocked.\n" \
                                          f"I'll have to kill you, dirty mouse!\"\n" \
-                                         f"He draws his sword and, in a sudden move, he stabs you in the chest, " \
+                                         f"He draws his sword and, in a sudden move, he stabs you in the chest,\n" \
                                          f"leaving you to bleed slowly to death."
             self.move_to(self.get('cell'))
             self.guard_location = self.NEAR_CELL
@@ -367,16 +379,20 @@ class Guard(Animate):
             self.get('cell door').close()
             self.get('cell door').lock(self.get('iron key'))
             self.message(f"Your attack nearly missed the {self}{waked_him} and now he's furious.\n"
-                         f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n"
+                         f"\"You're gonna pay for that, dirty mouse!\n"
+                         f"This is not going to end well for you!\"\n"
                          f"He hits you with his fist and you drop on the ground{drags_you_into_cell}\n"
                          f"{locks_you_or_kills_you}")
             return NO_MESSAGE
 
         if attack_outcome == 'DEATH':
             self.player.dead = True
-            self.message(f"Your attack manages to land a hit to the {self}, surprising him, but he recovers quickly.\n"
-                         f"\"You're gonna pay for that, dirty mouse! This is not going to end well for you!\"\n"
-                         f"He draws his sword and, in a sudden move, he stabs you in the chest, leaving you to bleed slowly to death.")
+            self.message(f"Your attack manages to land a hit to the {self},\n"
+                         f"surprising him, but he recovers quickly.\n"
+                         f"\"You're gonna pay for that, dirty mouse!\n"
+                         f"This is not going to end well for you!\"\n"
+                         f"He draws his sword and, in a sudden move, he stabs you in the chest,\n"
+                         f"leaving you to bleed slowly to death.")
             return NO_MESSAGE
 
     def wake(self):
@@ -393,14 +409,16 @@ class Guard(Animate):
             self.describe()
             return NO_MESSAGE
         self.message(
-            f"The {self} pointedly ignores your attempts at conversation. It seems he's not in the mood for chatting.")
+            f"The {self} pointedly ignores your attempts at conversation.\n"
+            f"It seems he's not in the mood for chatting.")
         return NO_MESSAGE
 
     def tell(self):
         if not self.in_scope or self.asleep or self.stunned:
             self.describe()
             return NO_MESSAGE
-        self.message("He dismissively waves off whatever you're saying. It's clear he has no interest in your words.")
+        self.message("He dismissively waves off whatever you're saying.\n"
+                     "It's clear he has no interest in your words.")
         return NO_MESSAGE
 
     def throw(self, thrown_object):
@@ -424,7 +442,8 @@ class Guard(Animate):
             self.player.dead = True
             wake_up_message = f" wakes him up and" if woken_up else ""
             self.message(
-                f"The {thrown_object} you throw at the {self}{wake_up_message} notifies him of your presence.\n"
+                f"The {thrown_object} you throw at the {self}\n"
+                f"{wake_up_message} notifies him of your presence.\n"
                 f"He rushes to your location, swiftly drawing his sword.\n"
                 f"\"How did you get you out of your cell, dirty mouse? Are you going somewhere?\"\n"
                 f"In a cruel twist, he severs your hand, leaving you to bleed slowly to death.")
@@ -432,30 +451,37 @@ class Guard(Animate):
 
         if self.attitude == -1:
             wake_up_message = "and it startles him awake" if woken_up else ""
-            self.message(f"You throw the {thrown_object} at the {self} {wake_up_message}, but he remains unfazed.\n"
+            self.message(f"You throw the {thrown_object} at the {self}\n"
+                         f"{wake_up_message}, but he remains unfazed.\n"
                          "\"Sit down, little scum. You're not getting anywhere,\" he sneers.")
             return NO_MESSAGE
 
         if self.attitude == -2:
             wake_up_message = ", catching him off guard," if woken_up else ""
-            self.message(f"The {self} reacts to the {thrown_object} you threw at him{wake_up_message} with a warning:\n"
-                         f"\"This is your last warning, filthy person. Try this again, and you'll regret it.\"")
+            self.message(f"The {self} reacts to the {thrown_object}\n"
+                         f"you threw at him{wake_up_message} with a warning:\n"
+                         f"\"This is your last warning, filthy person.\n"
+                         f"Try this again, and you'll regret it.\"")
             return NO_MESSAGE
 
         if self.attitude <= -3 and self.get('keys').is_attached_to(self):
             self.player.dead = True
             wake_up_message = "and fully waked him up" if woken_up else ""
-            self.message(f"The {thrown_object} you threw at the {self} {wake_up_message} was the final straw.\n"
+            self.message(f"The {thrown_object} you threw at the {self}\n"
+                         f"{wake_up_message} was the final straw.\n"
                          f"He storms into your cell, swiftly drawing his sword.\n"
-                         f"In a cruel twist, he severs your hand, leaving you to bleed slowly to death.")
+                         f"In a cruel twist, he severs your hand,\n"
+                         f"leaving you to bleed slowly to death.")
             return NO_MESSAGE
 
         wake_up_message = " and fully waked him up" if woken_up else ""
         self.move_to(self.get('courtyard'))
         self.guard_location = self.NOT_IN_DUNGEON
         self.searching_for_key = 10
-        self.message(f"The {thrown_object} you threw at the {self}{wake_up_message} was the final straw.\n"
+        self.message(f"The {thrown_object} you threw at the {self}\n"
+                     f"{wake_up_message} was the final straw.\n"
                      f"He attempts to enter your cell, but realization dawns on his face.\n"
                      f"\"Damn it, I must have dropped the key at the toilets!\"\n"
-                     f"He hastily exits the prison dungeon to search for the key, leaving you with an opportunity...")
+                     f"He hastily exits the prison dungeon to search for the key,\n"
+                     f"leaving you with an opportunity...")
         return NO_MESSAGE

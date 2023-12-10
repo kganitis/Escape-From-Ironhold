@@ -6,7 +6,7 @@ stop_words = ['the', 'a', 'an',
 prepositions = ['in', 'at', 'on', 'up', 'to', 'off',
                 'of', 'from', 'with', 'out', 'away',
                 'into', 'onto', 'through', 'by', 'around',
-                'closely', 'using', 'outside', 'beside', 'near']
+                'closely', 'using', 'outside', 'beside', 'near', 'towards']
 
 pronouns = ['him', 'her', 'it', 'them']
 
@@ -30,8 +30,8 @@ verbs = {
         'synonyms': ['utilize', 'apply', 'operate', 'test']
     },
     'examine': {
-        'synonyms': ['search', 'look', 'investigate', 'inspect', 'analyze',
-                     'survey', 'check', 'explore', 'observe', 'scan', 'peek']
+        'synonyms': ['search', 'look', 'investigate', 'inspect', 'analyze', 'approach',
+                     'survey', 'check', 'explore', 'observe', 'scan', 'peek', 'see']
     },
     'lock': {
         'synonyms': ['seal']
@@ -49,10 +49,10 @@ verbs = {
         'synonyms': ['awaken']
     },
     'attack': {
-        'synonyms': ['assault', 'fight', 'confront']
+        'synonyms': ['assault', 'fight', 'confront', 'hit', 'strike']
     },
     'throw': {
-        'synonyms': ['shoot', 'launch', 'strike', 'toss']
+        'synonyms': ['shoot', 'launch', 'toss']
     },
     'ask': {
         'synonyms': ['inquire']

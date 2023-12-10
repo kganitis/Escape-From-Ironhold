@@ -213,7 +213,7 @@ WRONG_DOOR = [
     "It seems the {secondary} and the {primary} are not connected.",
     "Unfortunately, the {secondary} doesn't lead to the {primary}.",
     "You quickly realize that the {secondary} isn't the way to the {primary}.",
-]
+], FAIL
 
 BLOCKED_OBJECT_LOCKED = [
     "The {primary} is locked and must be unlocked first.",
@@ -489,11 +489,11 @@ UNLOCK_SUCCESS = [
 ], SUCCESS
 
 TAKE_SUCCESS = [
-    'The {primary} is now yours. Maybe you can find a use for it.',
-    'You {verb} the {primary} successfully.',
+    "The {primary} is now yours. Maybe you can find a use for it.",
+    "You {verb} the {primary} successfully.",
     "You {verb} the {primary} and add it to your inventory.",
     "You now have the {primary} in your possession."
-]
+], SUCCESS
 
 TAKE_FROM_OWNER_SUCCESS = [
     "You {verb} the {primary} from the {secondary} successfully.",

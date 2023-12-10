@@ -8,6 +8,19 @@ class Room(Accessible, ABC):
         self.room_doors = {}   # A dictionary that maps another room to the door that connects it with self (room1: door1, room2: door2 ...)
         self.winning_room = winning_room
 
+    @property
+    def name(self):
+        if self.parser and self.parser.parsing_complete:
+            if 'floor' in self.parser.words:
+                return 'floor'
+            if 'ground' in self.parser.words:
+                return 'ground'
+        return super().name
+
+    @property
+    def long(self):
+        return f"{super().long} floor ground"
+
     def add_door(self, room_door):
         other_room = next((room for room in room_door.connected_rooms if room != self), None)
         self.room_doors[other_room] = room_door
