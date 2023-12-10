@@ -7,8 +7,9 @@ from result import Result
 from syntax import *
 
 
-# TODO Generate multiple actions from one command ("unlock the door with lockpick, then open it and exit the cell")
-
+# TODO
+#  Support compound commands ("unlock the door with lockpick, then open it and exit the cell")
+#  Add delays to some actions to add suspense
 
 def is_verb(word):
     return is_main_verb(word) or synonym_of(word) is not None
@@ -60,26 +61,9 @@ class Parser:
         self.identified_tokens = []
         self.ambiguous_objects = []
 
-        self.debugging = False
-
     @property
     def parsing_complete(self):
         return self.wn > len(self.words) + 1
-
-    # Debugging methods
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    def debug(self, message=""):
-        if self.debugging:
-            print(message)
-
-    def show_game_object_dict(self):
-        if not self.debugging:
-            return
-        for key, value in self.game_objects_dictionary.items():
-            if value['score'] > 0:
-                print(f"{key}: {value}")
-
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Parsing methods
     def parse(self):
@@ -99,8 +83,6 @@ class Parser:
         return result
 
     def __parse(self):
-        self.debug(f"Words: {self.words}")
-
         if not self.words:
             print("You choose to remain silent.")
             outcome = Outcome(NO_MESSAGE)
@@ -119,8 +101,6 @@ class Parser:
             else:
                 outcome = Outcome(INVALID_COMMAND)
                 return Result(None, outcome)
-        self.debug(f"Verb: {self.verb}")
-        self.debug()
 
         # Check if asked for help
         if self.verb == 'help':
@@ -131,22 +111,12 @@ class Parser:
         # Parse objects
         self.game_objects_dictionary = self.world.get_game_objects_dict(for_objects=self.ambiguous_objects)
         while self.wn <= len(self.words) + 1:
-            self.debug(f"Iteration of word No{self.wn}")
-            self.debug("-------------------------------")
-            self.debug(f"wn: {self.wn} <= len(words) + 1: {len(self.words) + 1}")
-
             outcome = self.parse_objects()
 
             # Check command validity
             if outcome == INVALID_COMMAND:
                 outcome = Outcome(outcome, self.verb)
                 return Result(None, outcome)
-
-            self.show_game_object_dict()
-            self.debug()
-
-        self.debug(f"Verb: {self.verb}")
-        self.debug(f"Identified tokens: {self.identified_tokens}")
 
         # SYNTAX ANALYSIS
         # First special rules for 'wait', 'ask', 'tell'
@@ -191,109 +161,63 @@ class Parser:
         return match
 
     def match_token(self, wn, identified_tokens, rule_tokens):
-        self.debug(f"Comparing {identified_tokens} with {rule_tokens}")
         PERFECT_MATCH = "PERFECT"
         if not isinstance(identified_tokens, list):
             identified_tokens = [identified_tokens]
-            self.debug(
-                f"identified_tokens is just a single string/object and I'm converting it to a list: {identified_tokens}")
 
         if not isinstance(identified_tokens[0], type(rule_tokens[0])):
-            self.debug("identified_tokens and rule_tokens contain different types of elements:")
-            self.debug(f"Type of identified_tokens: {type(identified_tokens[0])}")
-            self.debug(f"Type of rule_tokens: {type(rule_tokens[0])}")
             return False
 
         if rule_tokens == game_object:
-            self.debug(f"Check for objects in scope")
             rule_tokens = self.world.player.scope
-            self.debug(f"Objects in scope: {rule_tokens}")
             common_tokens = [token for token in identified_tokens if token in rule_tokens]
-            self.debug(f"Common tokens: {common_tokens}")
 
             if len(common_tokens) > 1:
-                self.debug("There's ambiguity")
-                self.debug(f"Ambiguous tokens: {common_tokens}")
-                self.debug(f"Resolve ambiguity")
-                self.debug(f"Replace token in position {wn} of identified_tokens with the clarified token:")
                 self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
             elif len(common_tokens) == 1:
-                self.debug(
-                    f"Replace the object list in position {wn} of identified_tokens with the unique common token: {common_tokens[0]}")
                 self.identified_tokens[wn] = common_tokens[0]
-                self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
 
             # No common tokens
             if len(identified_tokens) > 1:
-                self.debug("There's ambiguity")
-                self.debug(f"Ambiguous tokens: {common_tokens}")
-                self.debug(f"Resolve ambiguity")
-                self.debug(f"Replace token in position {wn} of identified_tokens with the clarified token:")
                 self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
             elif len(identified_tokens) == 1:
-                self.debug(f"There's a unique identified token ({identified_tokens[0]}) but it's out of scope")
                 self.identified_tokens[wn] = identified_tokens[0]
                 return Outcome(OUT_OF_SCOPE, self.verb, identified_tokens[0])
 
         if rule_tokens == held:
-            self.debug(f"Check for objects in held")
             rule_tokens = self.world.player.held
-            self.debug(f"Objects held: {rule_tokens}")
             common_tokens = [token for token in identified_tokens if token in rule_tokens]
-            self.debug(f"Common tokens: {common_tokens}")
 
             if len(common_tokens) > 1:
-                self.debug("There's ambiguity")
-                self.debug(f"Ambiguous tokens: {common_tokens}")
-                self.debug(f"Resolve ambiguity")
-                self.debug(f"Replace token in position {wn} of identified_tokens with the clarified token:")
                 self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
             elif len(common_tokens) == 1:
-                self.debug(
-                    f"Replace the object list in position {wn} of identified_tokens with the unique common token: {common_tokens[0]}")
                 self.identified_tokens[wn] = common_tokens[0]
-                self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
 
             # No common tokens
             if len(identified_tokens) > 1:
-                self.debug("There's ambiguity")
-                self.debug(f"Ambiguous tokens: {common_tokens}")
-                self.debug(f"Resolve ambiguity")
-                self.debug(f"Replace token in position {wn} of identified_tokens with the clarified token:")
                 self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                self.debug(f"New identified tokens list: {self.identified_tokens}")
                 return PERFECT_MATCH
             elif len(identified_tokens) == 1:
-                self.debug(f"There's a unique identified token ({identified_tokens[0]}) but it's not in held")
                 self.identified_tokens[wn] = identified_tokens[0]
                 return Outcome(NOT_IN_POSSESSION, self.verb, identified_tokens[0])
 
         if identified_tokens[0] in rule_tokens:
-            self.debug(f"{identified_tokens[0]} is in rule_tokens: {rule_tokens}")
             return PERFECT_MATCH
 
-        self.debug(f"identified_tokens ({identified_tokens[0]}) and rule_tokens ({rule_tokens}) don't match")
         return False
 
     def next_word(self):
-        self.debug("next_word() is called")
         if self.wn > len(self.words):
-            self.debug(f"wn: {self.wn} > len(words): {len(self.words)}")
             self.wn += 1
             return None
 
         nextword = self.words[self.wn - 1]
-        self.debug(f"nextword = '{nextword}'")
         self.wn += 1
-        self.debug(f"wn is increased to {self.wn}")
         return nextword
 
     def parse_verb(self):
@@ -310,7 +234,6 @@ class Parser:
         max_score = max((obj['score'] for obj in self.game_objects_dictionary.values()), default=None)
         if max_score > 0:
             max_score_objects = [key for key, obj in self.game_objects_dictionary.items() if obj['score'] == max_score]
-            self.debug(f"Appended objects with max score: {[obj.name for obj in max_score_objects]}")
             self.identified_tokens.append(max_score_objects)
             self.reset_scores()
 
@@ -319,7 +242,6 @@ class Parser:
 
         reached_end_of_input = word is None
         if reached_end_of_input:
-            self.debug("Reached end of input")
             self.append_tokens_with_max_score()
             return 1
 
@@ -330,7 +252,6 @@ class Parser:
 
         # A preposition is found
         if is_preposition(word):
-            self.debug(f"A preposition is found: '{word}'")
             self.append_tokens_with_max_score()
 
             # if we're in resolve ambiguity mode, don't proceed to append the pronoun, we don't need it, just stop here
@@ -338,25 +259,21 @@ class Parser:
                 return 1
 
             self.identified_tokens.append(word)
-            self.debug(f"'{word}' is appended to identified tokens list")
             return 1
 
         if word in pronouns:
             self.identified_tokens.append([self.world.last_primary])
-            self.debug(f"'{[self.world.last_primary]}' is appended to identified tokens list")
             return 1
 
         # Assign score to objects
         for key, value in self.game_objects_dictionary.items():
             if word in value['long']:
-                self.debug(f"'{word}' is in {key}'s long name ('{key.long}')")
                 value['score'] += 1 + 1 / len(value['long']) \
                                   + key.discovered * 1 / 10 \
                                   + (word in key.name) * 100 \
                                   + (word == self.world.last_primary) * 500 \
                                   + (key in self.world.player.scope) * 1000 \
                                   + (key == self.world.player.parent) * 1 / 100
-                self.debug(f"{key}'s score is increased to {value['score']}")
 
         return 1
 
