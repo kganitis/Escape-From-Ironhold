@@ -221,6 +221,9 @@ class World(GameObject):
     def get(self, name):
         return self.object_map.get(name, name)
 
+    def advance_time(self):
+        self.on_move_end()
+
     def on_move_end(self):
         for obj in self.get_all_game_object_instances():
             obj.on_move_end()

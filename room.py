@@ -31,8 +31,8 @@ class Room(Accessible, ABC):
         :return: direct relatives, doors and connected rooms
         """
         scope = super().scope
-        for con in self.doors:
-            scope.update(con.scope)
+        for door in self.doors:
+            scope.update(door.scope)
         scope.update(self.connected_rooms)
         return scope
 

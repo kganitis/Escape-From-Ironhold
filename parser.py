@@ -78,7 +78,7 @@ class Parser:
         if self.advance_time \
                 and self.verb not in actions_not_advancing_time \
                 and result.outcome.type in outcomes_advancing_time:
-            self.world.on_move_end()
+            self.world.advance_time()
 
         return result
 

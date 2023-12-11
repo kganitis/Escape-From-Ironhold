@@ -3,13 +3,17 @@ from outcomes import *
 from game_object import GameObject
 
 
-class Usable(GameObject, ABC):
+class Attribute(GameObject, ABC):
+    pass
+
+
+class Usable(Attribute):
     @abstractmethod
     def use(self, secondary_object=None):
         pass
 
 
-class Obtainable(GameObject, ABC):
+class Obtainable(Attribute):
     def take(self, owner):
         self.move_to(self.player)
         return TAKE_FROM_OWNER_SUCCESS if owner else TAKE_SUCCESS
@@ -26,7 +30,7 @@ class Obtainable(GameObject, ABC):
         return THROW_SUCCESS
 
 
-class Accessible(GameObject, ABC):
+class Accessible(Attribute):
     def go(self):
         self.player.move_to(self)
         self.current_room = self
@@ -36,7 +40,7 @@ class Accessible(GameObject, ABC):
         return ACCESS_SUCCESS
 
 
-class Container(GameObject, ABC):
+class Container(Attribute):
     @property
     def contents(self):
         return self.children
@@ -45,7 +49,7 @@ class Container(GameObject, ABC):
         self.add_child(item)
 
 
-class Enterable(GameObject, ABC):
+class Enterable(Attribute):
     def enter(self):
         self.player.move_to(self)
         return ENTER_SUCCESS
@@ -55,7 +59,7 @@ class Enterable(GameObject, ABC):
         return EXIT_SUCCESS
 
 
-class Lockable(GameObject, ABC):
+class Lockable(Attribute):
     __locked: bool = True
     __key: GameObject = None
     __can_be_picked: bool = True
@@ -95,7 +99,7 @@ class Lockable(GameObject, ABC):
         return UNLOCK_SUCCESS
 
 
-class Openable(GameObject, ABC):
+class Openable(Attribute):
     __open: bool = False
 
     @property
@@ -115,7 +119,7 @@ class Openable(GameObject, ABC):
         return CLOSE_SUCCESS
 
 
-class Animate(GameObject, ABC):
+class Animate(Attribute):
     attitude: int = 0
     asleep: bool = False
 
