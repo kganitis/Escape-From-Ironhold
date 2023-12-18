@@ -229,7 +229,6 @@ class Action:
         if not door_to_current_room:
             return self.create_outcome(NOT_ACCESSIBLE_FROM_CURRENT_ROOM, room_to_go, current_room)
 
-        # TODO Test this
         wrong_door = door_to_use and door_to_use != door_to_current_room
         if wrong_door:
             return self.create_outcome(WRONG_DOOR, room_to_go, door_to_use)

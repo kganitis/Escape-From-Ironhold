@@ -71,7 +71,7 @@ syntax_rules = {
             'action': 'drop',
             'primary': 2,
             'secondary': None
-        },
+        }
     ],
     'take': [
         {
@@ -155,7 +155,7 @@ syntax_rules = {
             'action': 'drop',
             'primary': 0,
             'secondary': None
-        },
+        }
     ],
     'use': [
         {
@@ -377,7 +377,7 @@ syntax_rules = {
             'action': 'exit',
             'primary': 1,
             'secondary': None
-        },
+        }
     ],
     'examine': [
         {
@@ -421,7 +421,7 @@ syntax_rules = {
             'action': 'examine',
             'primary': None,
             'secondary': None
-        },
+        }
     ],
     'lock': [
         {
@@ -435,7 +435,7 @@ syntax_rules = {
             'action': 'lock',
             'primary': 0,
             'secondary': 2
-        },
+        }
     ],
     'unlock': [
         {
@@ -449,7 +449,7 @@ syntax_rules = {
             'action': 'unlock',
             'primary': 0,
             'secondary': 2
-        },
+        }
     ],
     'open': [
         {
@@ -509,7 +509,7 @@ syntax_rules = {
             'action': 'wake',
             'primary': 1,
             'secondary': None
-        },
+        }
     ],
     'attack': [
         {
@@ -523,7 +523,7 @@ syntax_rules = {
             'action': 'attack',
             'primary': 0,
             'secondary': None
-        },
+        }
     ],
     'throw': [
         {
@@ -549,7 +549,7 @@ syntax_rules = {
             'action': 'drop',
             'primary': 1,
             'secondary': None
-        },
+        }
     ],
     'wait': [
         {
@@ -571,7 +571,7 @@ syntax_rules = {
             'action': 'ask',
             'primary': 0,
             'secondary': None
-        },
+        }
     ],
     'tell': [
         {
@@ -585,7 +585,7 @@ syntax_rules = {
             'action': 'tell',
             'primary': 0,
             'secondary': None
-        },
+        }
     ],
     None: [
         {
@@ -593,7 +593,7 @@ syntax_rules = {
             'action': '',
             'primary': 0,
             'secondary': None
-        },
+        }
     ],
     '': [
         {
@@ -601,6 +601,6 @@ syntax_rules = {
             'action': '',
             'primary': 0,
             'secondary': 0
-        },
+        }
     ],
 }

@@ -34,6 +34,9 @@ def show_help():
     print(f"Main verbs: {list(verbs.keys())}")
 
 
+PERFECT = "PERFECT"
+
+
 class Parser:
     def __init__(self, world, input_command, silent=False, advance_time=True):
         def clear(input_cmd):
@@ -118,6 +121,10 @@ class Parser:
                 outcome = Outcome(outcome, self.verb)
                 return Result(None, outcome)
 
+        # If in resolve ambiguity mode just stop here, no need to continue
+        if self.ambiguous_objects and not self.verb:
+            return
+
         # SYNTAX ANALYSIS
         # First special rules for 'wait', 'ask', 'tell'
         if self.verb in ['wait', 'ask', 'tell']:
@@ -132,10 +139,9 @@ class Parser:
         # Match verb and identified tokens with an existing syntax rule
         action = None
         for rule in syntax_rules[self.verb]:
-            action = None
             match = self.match_rule(rule)
             if match:
-                if match == "PERFECT" and not self.ambiguous_objects:
+                if match == PERFECT:
                     self.action_verb = rule['action']
                     primary_object = self.identified_tokens[rule['primary']] if rule['primary'] is not None else None
                     secondary_object = self.identified_tokens[rule['secondary']] if rule[
@@ -153,61 +159,29 @@ class Parser:
     def match_rule(self, rule):
         if len(self.identified_tokens) != len(rule['tokens']):
             return False
-        match = "PERFECT"
-        for i in range(len(self.identified_tokens)):
-            match = self.match_token(i, self.identified_tokens[i], rule['tokens'][i])
+        match = PERFECT
+        for identified_token, rule_tokens in zip(self.identified_tokens, rule['tokens']):
+            match = self.match_token(identified_token, rule_tokens)
             if not match:
                 return False
         return match
 
-    def match_token(self, wn, identified_tokens, rule_tokens):
-        PERFECT_MATCH = "PERFECT"
-        if not isinstance(identified_tokens, list):
-            identified_tokens = [identified_tokens]
-
-        if not isinstance(identified_tokens[0], type(rule_tokens[0])):
+    def match_token(self, identified_token, rule_tokens):
+        if not isinstance(identified_token, type(rule_tokens[0])):
             return False
 
         if rule_tokens == game_object:
-            rule_tokens = self.world.player.scope
-            common_tokens = [token for token in identified_tokens if token in rule_tokens]
-
-            if len(common_tokens) > 1:
-                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                return PERFECT_MATCH
-            elif len(common_tokens) == 1:
-                self.identified_tokens[wn] = common_tokens[0]
-                return PERFECT_MATCH
-
-            # No common tokens
-            if len(identified_tokens) > 1:
-                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                return PERFECT_MATCH
-            elif len(identified_tokens) == 1:
-                self.identified_tokens[wn] = identified_tokens[0]
-                return Outcome(OUT_OF_SCOPE, self.verb, identified_tokens[0])
+            if identified_token in self.world.player.scope:
+                return PERFECT
+            return Outcome(OUT_OF_SCOPE, self.verb, identified_token)
 
         if rule_tokens == held:
-            rule_tokens = self.world.player.held
-            common_tokens = [token for token in identified_tokens if token in rule_tokens]
+            if identified_token in self.world.player.held:
+                return PERFECT
+            return Outcome(NOT_IN_POSSESSION, self.verb, identified_token)
 
-            if len(common_tokens) > 1:
-                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                return PERFECT_MATCH
-            elif len(common_tokens) == 1:
-                self.identified_tokens[wn] = common_tokens[0]
-                return PERFECT_MATCH
-
-            # No common tokens
-            if len(identified_tokens) > 1:
-                self.identified_tokens[wn] = self.parse_ambiguous(common_tokens)
-                return PERFECT_MATCH
-            elif len(identified_tokens) == 1:
-                self.identified_tokens[wn] = identified_tokens[0]
-                return Outcome(NOT_IN_POSSESSION, self.verb, identified_tokens[0])
-
-        if identified_tokens[0] in rule_tokens:
-            return PERFECT_MATCH
+        if identified_token in rule_tokens:
+            return PERFECT
 
         return False
 
@@ -230,11 +204,14 @@ class Parser:
     def reset_scores(self):
         self.game_objects_dictionary = self.world.get_game_objects_dict()
 
-    def append_tokens_with_max_score(self):
+    def append_token_with_max_score(self):
         max_score = max((obj['score'] for obj in self.game_objects_dictionary.values()), default=None)
         if max_score > 0:
             max_score_objects = [key for key, obj in self.game_objects_dictionary.items() if obj['score'] == max_score]
-            self.identified_tokens.append(max_score_objects)
+            if len(max_score_objects) > 1:
+                # Multiple objects with max score, need to resolve ambiguity
+                max_score_objects = self.parse_ambiguous(max_score_objects)
+            self.identified_tokens.append(max_score_objects[0])
             self.reset_scores()
 
     def parse_objects(self):
@@ -242,19 +219,21 @@ class Parser:
 
         reached_end_of_input = word is None
         if reached_end_of_input:
-            self.append_tokens_with_max_score()
+            self.append_token_with_max_score()
             return 1
 
-        # Stop parsing
+        # End parsing
         end_words = ['and', 'then']
         if word in end_words:
             self.wn = len(self.words) + 1
+            return 1
 
         # A preposition is found
         if is_preposition(word):
-            self.append_tokens_with_max_score()
+            self.append_token_with_max_score()
 
-            # if we're in resolve ambiguity mode, don't proceed to append the pronoun, we don't need it, just stop here
+            # If in resolve ambiguity mode, don't append the preposition,
+            # we don't want it, just stop here
             if self.ambiguous_objects:
                 return 1
 
@@ -262,7 +241,7 @@ class Parser:
             return 1
 
         if word in pronouns:
-            self.identified_tokens.append([self.world.last_primary])
+            self.identified_tokens.append(self.world.last_primary)
             return 1
 
         # Assign score to objects
@@ -280,11 +259,11 @@ class Parser:
     def parse_ambiguous(self, ambiguous_objects):
         outcome = Outcome(AMBIGUOUS_OBJECTS, self.verb, ambiguous_objects=ambiguous_objects)
         result = Result(None, outcome)
-        result.show()
-        input_words = input("> ")
-        parser = Parser(self.world, input_words, silent=True, advance_time=False)
-        parser.ambiguous_objects = ambiguous_objects
-        parser.parse()
-        if len(parser.identified_tokens) == 1:
-            return parser.identified_tokens[0]
-        return False
+        while True:
+            result.show()
+            input_words = input("> ")
+            parser = Parser(self.world, input_words, silent=True, advance_time=False)
+            parser.ambiguous_objects = ambiguous_objects
+            parser.parse()
+            if len(parser.identified_tokens) == 1:
+                return parser.identified_tokens

@@ -122,7 +122,7 @@ class Guard(Animate):
         dungeon = self.get('dungeon')
 
         # win condition
-        if self.current_room == self.get('courtyard'):
+        if self.current_room.winning_room:
             return
 
         if self.guard_location == self.NEAR_CELL:
@@ -203,7 +203,7 @@ class Guard(Animate):
 
         # Move the guard to the new location
         # Two cases: the player is in the cell, or in the dungeon
-        player_in_cell = self.world.current_room == self.get('cell')
+        player_in_cell = self.world.current_room == cell
         if player_in_cell:
             if new_location == self.NEAR_CELL:
                 self.move_to(cell)

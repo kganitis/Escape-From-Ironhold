@@ -65,7 +65,7 @@ class Outcome:
 # Outcome types
 SUCCESS = "SUCCESS"  # command executed successfully and the result alters the game world
 NEUTRAL = "NEUTRAL"  # command executed successfully but the result does not alter the game world
-FAIL = "FAIL"  # command is valid but failed to be executed
+FAIL = "FAIL"        # command is valid but failed to be executed
 INVALID = "INVALID"  # invalid command
 AMBIGUOUS = "AMBIGUOUS"  # ambiguous objects
 TRANSFORMED = "TRANSFORMED"  # the initial command was transformed to a new command to be executed in its place instead
